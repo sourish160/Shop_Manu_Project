@@ -40,6 +40,51 @@ export interface Restaurant {
   updated_at: string;
 }
 
+export interface Category {
+  id: string;
+  restaurant_id: string;
+  name: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FoodVariant {
+  id: string;
+  food_id: string;
+  name: string;
+  price: number;
+  available: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Food {
+  id: string;
+  restaurant_id: string;
+  category_id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  veg_type: 'veg' | 'non_veg';
+  available: boolean;
+  status: 'active' | 'archived';
+  created_at: string;
+  updated_at: string;
+  variants?: FoodVariant[];
+  category?: Category;
+}
+
+export interface PriceHistory {
+  id: string;
+  food_variant_id: string;
+  old_price: number;
+  new_price: number;
+  changed_by: string | null;
+  changed_at: string;
+}
+
 export interface RegisterPayload {
   name: string;
   email: string;
@@ -67,4 +112,33 @@ export async function registerUser(payload: RegisterPayload) {
   }
 
   return data;
+}
+
+/**
+ * Upload an image to the InsForge 'restaurant-media' storage bucket.
+ * Validates file type and size.
+ */
+export async function uploadMediaImage(file: File): Promise<{ url: string; key: string }> {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('Invalid file type. Only JPEG, PNG, and WebP images are allowed.');
+  }
+
+  const maxSizeBytes = 5 * 1024 * 1024; // 5 MB
+  if (file.size > maxSizeBytes) {
+    throw new Error('Image file is too large. Maximum size is 5 MB.');
+  }
+
+  const { data, error } = await insforge.storage
+    .from('restaurant-media')
+    .uploadAuto(file);
+
+  if (error || !data) {
+    throw new Error(error?.message || 'Failed to upload image.');
+  }
+
+  return {
+    url: data.url,
+    key: data.key,
+  };
 }

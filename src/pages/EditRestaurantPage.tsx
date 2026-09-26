@@ -1,17 +1,21 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { insforge, Restaurant } from '../lib/insforge';
+import { OwnerNav } from '../components/OwnerNav';
+import { insforge, Restaurant, uploadMediaImage } from '../lib/insforge';
 
 export const EditRestaurantPage: React.FC = () => {
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const restaurantId = searchParams.get('id');
 
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -22,46 +26,91 @@ export const EditRestaurantPage: React.FC = () => {
   const [address, setAddress] = useState('');
   const [area, setArea] = useState('');
   const [city, setCity] = useState('');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
 
-  const fetchRestaurant = useCallback(async () => {
-    if (!restaurantId || !user) return;
+  // Load owner's restaurants and select current
+  const loadData = useCallback(async () => {
+    if (!user) return;
     setIsLoading(true);
     setErrorMsg(null);
     try {
       const { data, error } = await insforge.database
         .from('restaurants')
         .select('*')
-        .eq('id', restaurantId)
-        .maybeSingle();
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        throw new Error(error.message);
-      }
-      if (!data) {
-        throw new Error('Restaurant not found or you do not have permission to view it.');
+      if (error) throw new Error(error.message);
+
+      const items = (data || []) as Restaurant[];
+      setRestaurants(items);
+
+      if (items.length === 0) {
+        setIsLoading(false);
+        return;
       }
 
-      const res = data as Restaurant;
-      setRestaurant(res);
-      setName(res.name);
-      setDescription(res.description || '');
-      setPhone(res.phone);
-      setAddress(res.address);
-      setArea(res.area);
-      setCity(res.city);
+      let active = items[0];
+      if (restaurantId) {
+        const found = items.find((r) => r.id === restaurantId);
+        if (found) active = found;
+      } else {
+        setSearchParams({ id: active.id }, { replace: true });
+      }
+
+      setRestaurant(active);
+      setName(active.name);
+      setDescription(active.description || '');
+      setPhone(active.phone);
+      setAddress(active.address);
+      setArea(active.area);
+      setCity(active.city);
+      setLogoUrl(active.logo_url);
+      setCoverUrl(active.cover_url);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to load restaurant details.');
+      setErrorMsg(err.message || 'Failed to load restaurant profile.');
     } finally {
       setIsLoading(false);
     }
-  }, [restaurantId, user]);
+  }, [user, restaurantId, setSearchParams]);
 
   useEffect(() => {
-    fetchRestaurant();
-  }, [fetchRestaurant]);
+    loadData();
+  }, [loadData]);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingLogo(true);
+    setErrorMsg(null);
+    try {
+      const result = await uploadMediaImage(file);
+      setLogoUrl(result.url);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Logo upload failed.');
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingCover(true);
+    setErrorMsg(null);
+    try {
+      const result = await uploadMediaImage(file);
+      setCoverUrl(result.url);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Cover upload failed.');
+    } finally {
+      setIsUploadingCover(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!restaurant) return;
     setErrorMsg(null);
     setSuccessMsg(null);
 
@@ -90,8 +139,6 @@ export const EditRestaurantPage: React.FC = () => {
       return;
     }
 
-    if (!restaurantId) return;
-
     setIsSubmitting(true);
     try {
       const { data, error } = await insforge.database
@@ -103,29 +150,25 @@ export const EditRestaurantPage: React.FC = () => {
           address: address.trim(),
           area: area.trim(),
           city: city.trim(),
+          logo_url: logoUrl,
+          cover_url: coverUrl,
         })
-        .eq('id', restaurantId)
+        .eq('id', restaurant.id)
         .select()
         .single();
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (!data) {
-        throw new Error('Update failed. You may not own this restaurant.');
-      }
+      if (error) throw new Error(error.message);
 
       setRestaurant(data as Restaurant);
-      setSuccessMsg('Restaurant details updated successfully.');
+      setSuccessMsg('Restaurant profile updated successfully.');
 
-      // Log audit
+      // Record in audit log
       if (user?.id) {
         await insforge.database.from('audit_logs').insert([
           {
             user_id: user.id,
             entity_type: 'restaurant',
-            entity_id: restaurantId,
+            entity_id: restaurant.id,
             action: 'update',
             new_data: { name: name.trim(), area: area.trim(), city: city.trim() },
           },
@@ -138,201 +181,320 @@ export const EditRestaurantPage: React.FC = () => {
     }
   };
 
-  if (!restaurantId) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-12 text-center">
-        <p className="text-sm text-slate-600 mb-4">No restaurant ID specified.</p>
-        <Link
-          to="/owner"
-          className="text-xs px-3.5 py-2 bg-slate-900 text-white rounded font-medium"
-        >
-          Back to Dashboard
-        </Link>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="max-w-2xl mx-auto px-4 py-16 text-center text-sm text-slate-500">
-        Loading restaurant details...
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4 mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Edit restaurant
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Update information for <span className="font-semibold text-slate-700">{restaurant?.name}</span>
-          </p>
-        </div>
-        <Link
-          to="/owner"
-          className="text-xs text-slate-600 hover:text-slate-900 font-medium px-3 py-1.5 border border-slate-200 rounded"
-        >
-          Back to Dashboard
-        </Link>
-      </div>
-
-      {errorMsg && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded text-xs text-red-700">
-          {errorMsg}
-        </div>
-      )}
-
-      {successMsg && (
-        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded text-xs text-emerald-800">
-          {successMsg}
-        </div>
-      )}
-
-      {restaurant && (
-        <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded flex flex-wrap gap-4 text-xs">
+    <div>
+      <OwnerNav />
+      <div className="max-w-4xl mx-auto px-4 pb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
           <div>
-            <span className="text-slate-500 block">Status (Backend Managed):</span>
-            <span
-              className={`font-semibold uppercase tracking-wider ${
-                restaurant.status === 'approved'
-                  ? 'text-emerald-700'
-                  : restaurant.status === 'pending'
-                  ? 'text-amber-700'
-                  : 'text-rose-700'
-              }`}
+            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+              Restaurant Profile
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Edit your restaurant details, contact information, and media.
+            </p>
+          </div>
+          {restaurants.length > 1 && (
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-slate-500">Switch:</span>
+              <select
+                value={restaurant?.id || ''}
+                onChange={(e) => setSearchParams({ id: e.target.value })}
+                className="text-xs border border-slate-300 rounded px-2.5 py-1 bg-white"
+              >
+                {restaurants.map((r) => (
+                  <option key={r.id} value={r.id}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </div>
+
+        {errorMsg && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+            {errorMsg}
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded text-xs text-emerald-800">
+            {successMsg}
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="py-16 text-center text-sm text-slate-500">
+            Loading restaurant profile...
+          </div>
+        ) : !restaurant ? (
+          <div className="border border-dashed border-slate-300 rounded p-12 text-center bg-white">
+            <h2 className="text-base font-semibold text-slate-800 mb-1">
+              No restaurant found
+            </h2>
+            <p className="text-xs text-slate-500 mb-4">
+              You must register a restaurant before managing its profile.
+            </p>
+            <button
+              onClick={() => navigate('/owner/restaurant/new')}
+              className="px-4 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800"
             >
-              {restaurant.status}
-            </span>
+              Create restaurant
+            </button>
           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Status & Security Banner */}
+            <div className="border border-slate-200 bg-white rounded p-5 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-4 text-xs">
+                <div>
+                  <span className="text-slate-400 block font-semibold uppercase text-[10px]">
+                    Status
+                  </span>
+                  <span
+                    className={`font-semibold uppercase tracking-wider text-xs ${
+                      restaurant.status === 'approved'
+                        ? 'text-emerald-700'
+                        : restaurant.status === 'pending'
+                        ? 'text-amber-700'
+                        : 'text-rose-700'
+                    }`}
+                  >
+                    {restaurant.status === 'pending' ? 'Pending review' : restaurant.status}
+                  </span>
+                </div>
 
-          <div>
-            <span className="text-slate-500 block">Verification:</span>
-            <span className="font-medium text-slate-800">
-              {restaurant.verified ? 'Verified' : 'Unverified (Admin review required)'}
-            </span>
-          </div>
+                <div>
+                  <span className="text-slate-400 block font-semibold uppercase text-[10px]">
+                    Verification
+                  </span>
+                  <span className="font-medium text-slate-700">
+                    {restaurant.verified ? 'Verified' : 'Unverified (Admin review required)'}
+                  </span>
+                </div>
 
-          <div>
-            <span className="text-slate-500 block">Public URL Slug:</span>
-            <span className="font-mono text-slate-800">/restaurant/{restaurant.slug}</span>
-          </div>
-        </div>
-      )}
+                <div>
+                  <span className="text-slate-400 block font-semibold uppercase text-[10px]">
+                    Slug Identifier
+                  </span>
+                  <span className="font-mono text-slate-800 text-xs">
+                    /restaurant/{restaurant.slug}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-      <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded p-6 shadow-sm space-y-4">
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-            Restaurant name *
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            maxLength={150}
-            disabled={isSubmitting}
-            className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
-          />
-        </div>
+            {/* Media Uploads Card */}
+            <div className="border border-slate-200 bg-white rounded p-6 shadow-sm space-y-6">
+              <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                Restaurant Media
+              </h2>
 
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-            Description
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            maxLength={2000}
-            disabled={isSubmitting}
-            className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
-          />
-        </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Logo Upload */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Restaurant Logo
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    <div className="w-20 h-20 rounded border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                      {logoUrl ? (
+                        <img
+                          src={logoUrl}
+                          alt="Restaurant Logo"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-[11px] text-slate-400 text-center px-1">
+                          No Logo
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-1">
+                      <label className="inline-block cursor-pointer px-3 py-1.5 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                        {isUploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={handleLogoUpload}
+                          disabled={isUploadingLogo || isSubmitting}
+                          className="hidden"
+                        />
+                      </label>
+                      <p className="text-[10px] text-slate-400">
+                        JPEG, PNG, or WebP. Max 5 MB.
+                      </p>
+                      {logoUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setLogoUrl(null)}
+                          className="text-[11px] text-red-600 hover:underline block"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-              Phone *
-            </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              maxLength={25}
-              disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
-            />
-          </div>
+                {/* Cover Image Upload */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                    Cover Banner
+                  </label>
+                  <div className="space-y-2">
+                    <div className="w-full h-24 rounded border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden">
+                      {coverUrl ? (
+                        <img
+                          src={coverUrl}
+                          alt="Cover Banner"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-[11px] text-slate-400">
+                          No Cover Image
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="inline-block cursor-pointer px-3 py-1.5 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                        {isUploadingCover ? 'Uploading...' : 'Upload Cover'}
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          onChange={handleCoverUpload}
+                          disabled={isUploadingCover || isSubmitting}
+                          className="hidden"
+                        />
+                      </label>
+                      {coverUrl && (
+                        <button
+                          type="button"
+                          onClick={() => setCoverUrl(null)}
+                          className="text-[11px] text-red-600 hover:underline"
+                        >
+                          Remove Cover
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-              City *
-            </label>
-            <input
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              required
-              maxLength={100}
-              disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
-            />
-          </div>
-        </div>
+            {/* General Information Card */}
+            <div className="border border-slate-200 bg-white rounded p-6 shadow-sm space-y-4">
+              <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                General Details
+              </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-              Area *
-            </label>
-            <input
-              type="text"
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              required
-              maxLength={100}
-              disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
-            />
-          </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Restaurant Name *
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  maxLength={150}
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                />
+              </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-              Address *
-            </label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              required
-              maxLength={300}
-              disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
-            />
-          </div>
-        </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  maxLength={2000}
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                />
+              </div>
 
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
-          <button
-            type="button"
-            onClick={() => navigate('/owner')}
-            className="px-4 py-2 border border-slate-200 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-5 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
-          >
-            {isSubmitting ? 'Updating...' : 'Save changes'}
-          </button>
-        </div>
-      </form>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                    Phone *
+                  </label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    maxLength={25}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                    City *
+                  </label>
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    required
+                    maxLength={100}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                    Area *
+                  </label>
+                  <input
+                    type="text"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    required
+                    maxLength={100}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                    Address *
+                  </label>
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    required
+                    maxLength={300}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-5 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
+                >
+                  {isSubmitting ? 'Saving changes...' : 'Save changes'}
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 };

@@ -10,6 +10,8 @@ import { RegisterPage } from './pages/RegisterPage';
 import { OwnerDashboardPage } from './pages/OwnerDashboardPage';
 import { NewRestaurantPage } from './pages/NewRestaurantPage';
 import { EditRestaurantPage } from './pages/EditRestaurantPage';
+import { OwnerMenuPage } from './pages/OwnerMenuPage';
+import { OwnerSettingsPage } from './pages/OwnerSettingsPage';
 
 export const App: React.FC = () => {
   return (
@@ -45,6 +47,22 @@ export const App: React.FC = () => {
                 element={
                   <ProtectedRoute requiredRole="owner">
                     <EditRestaurantPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/menu"
+                element={
+                  <ProtectedRoute requiredRole="owner">
+                    <OwnerMenuPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/settings"
+                element={
+                  <ProtectedRoute requiredRole="owner">
+                    <OwnerSettingsPage />
                   </ProtectedRoute>
                 }
               />
