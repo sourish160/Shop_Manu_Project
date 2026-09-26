@@ -12,6 +12,7 @@ import { NewRestaurantPage } from './pages/NewRestaurantPage';
 import { EditRestaurantPage } from './pages/EditRestaurantPage';
 import { OwnerMenuPage } from './pages/OwnerMenuPage';
 import { OwnerSettingsPage } from './pages/OwnerSettingsPage';
+import { PublicRestaurantPage } from './pages/PublicRestaurantPage';
 
 export const App: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ export const App: React.FC = () => {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/restaurant/:slug" element={<PublicRestaurantPage />} />
               
               {/* Owner Protected Routes */}
               <Route

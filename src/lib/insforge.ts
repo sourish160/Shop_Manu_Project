@@ -85,6 +85,29 @@ export interface PriceHistory {
   changed_at: string;
 }
 
+export interface RestaurantHours {
+  id: string;
+  restaurant_id: string;
+  day_of_week: number;
+  open_time: string | null;
+  close_time: string | null;
+  is_closed: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RestaurantReport {
+  id: string;
+  restaurant_id: string;
+  food_id?: string | null;
+  report_type: 'wrong_price' | 'food_unavailable' | 'incorrect_info' | 'restaurant_closed' | 'incorrect_location' | 'other';
+  details?: string | null;
+  reporter_email?: string | null;
+  user_id?: string | null;
+  status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
+  created_at: string;
+}
+
 export interface RegisterPayload {
   name: string;
   email: string;

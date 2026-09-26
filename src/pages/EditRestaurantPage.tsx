@@ -2,7 +2,15 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { OwnerNav } from '../components/OwnerNav';
-import { insforge, Restaurant, uploadMediaImage } from '../lib/insforge';
+import { insforge, Restaurant, RestaurantHours, uploadMediaImage } from '../lib/insforge';
+import { DAY_NAMES } from '../utils/operatingHours';
+
+interface DayScheduleForm {
+  day_of_week: number;
+  open_time: string;
+  close_time: string;
+  is_closed: boolean;
+}
 
 export const EditRestaurantPage: React.FC = () => {
   const { user } = useAuth();
@@ -28,6 +36,19 @@ export const EditRestaurantPage: React.FC = () => {
   const [city, setCity] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+
+  // Operating Hours fields
+  const [schedule, setSchedule] = useState<DayScheduleForm[]>(
+    DAY_NAMES.map((_, i) => ({
+      day_of_week: i,
+      open_time: '10:00',
+      close_time: '22:00',
+      is_closed: false,
+    }))
+  );
+  const [isSavingHours, setIsSavingHours] = useState(false);
+  const [hoursSuccessMsg, setHoursSuccessMsg] = useState<string | null>(null);
+  const [hoursErrorMsg, setHoursErrorMsg] = useState<string | null>(null);
 
   // Load owner's restaurants and select current
   const loadData = useCallback(async () => {
@@ -67,12 +88,69 @@ export const EditRestaurantPage: React.FC = () => {
       setCity(active.city);
       setLogoUrl(active.logo_url);
       setCoverUrl(active.cover_url);
+
+      // Load operating hours
+      const { data: hData } = await insforge.database
+        .from('restaurant_hours')
+        .select('*')
+        .eq('restaurant_id', active.id);
+
+      if (hData && hData.length > 0) {
+        const loadedList = hData as RestaurantHours[];
+        setSchedule(
+          DAY_NAMES.map((_, i) => {
+            const match = loadedList.find((h) => h.day_of_week === i);
+            return {
+              day_of_week: i,
+              open_time: match?.open_time ? match.open_time.slice(0, 5) : '10:00',
+              close_time: match?.close_time ? match.close_time.slice(0, 5) : '22:00',
+              is_closed: match ? match.is_closed : false,
+            };
+          })
+        );
+      }
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to load restaurant profile.');
     } finally {
       setIsLoading(false);
     }
   }, [user, restaurantId, setSearchParams]);
+
+  const handleSaveHours = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!restaurant) return;
+    setHoursErrorMsg(null);
+    setHoursSuccessMsg(null);
+    setIsSavingHours(true);
+
+    try {
+      const rows = schedule.map((item) => ({
+        restaurant_id: restaurant.id,
+        day_of_week: item.day_of_week,
+        open_time: item.is_closed ? null : (item.open_time ? `${item.open_time}:00` : '10:00:00'),
+        close_time: item.is_closed ? null : (item.close_time ? `${item.close_time}:00` : '22:00:00'),
+        is_closed: item.is_closed,
+        updated_at: new Date().toISOString(),
+      }));
+
+      await insforge.database
+        .from('restaurant_hours')
+        .delete()
+        .eq('restaurant_id', restaurant.id);
+
+      const { error: insertErr } = await insforge.database
+        .from('restaurant_hours')
+        .insert(rows);
+
+      if (insertErr) throw new Error(insertErr.message);
+
+      setHoursSuccessMsg('Operating hours updated successfully.');
+    } catch (err: unknown) {
+      setHoursErrorMsg(err instanceof Error ? err.message : 'Failed to save operating hours.');
+    } finally {
+      setIsSavingHours(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -244,7 +322,8 @@ export const EditRestaurantPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
             {/* Status & Security Banner */}
             <div className="border border-slate-200 bg-white rounded p-5 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-4 text-xs">
@@ -281,6 +360,26 @@ export const EditRestaurantPage: React.FC = () => {
                   <span className="font-mono text-slate-800 text-xs">
                     /restaurant/{restaurant.slug}
                   </span>
+                </div>
+
+                <div>
+                  <span className="text-slate-400 block font-semibold uppercase text-[10px]">
+                    Public Page
+                  </span>
+                  {restaurant.status === 'approved' ? (
+                    <a
+                      href={`/restaurant/${restaurant.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-blue-600 hover:underline text-xs flex items-center gap-1"
+                    >
+                      View Live Menu &rarr;
+                    </a>
+                  ) : (
+                    <span className="text-slate-400 text-xs italic">
+                      Available once approved
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -493,7 +592,103 @@ export const EditRestaurantPage: React.FC = () => {
               </div>
             </div>
           </form>
-        )}
+
+          {/* Operating Hours Management Card */}
+          <form
+            onSubmit={handleSaveHours}
+            className="border border-slate-200 bg-white rounded p-6 shadow-sm space-y-5"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Weekly Operating Hours
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Configure your restaurant opening and closing hours for public display.
+                </p>
+              </div>
+              <button
+                type="submit"
+                disabled={isSavingHours}
+                className="self-start sm:self-auto px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
+              >
+                {isSavingHours ? 'Saving hours...' : 'Save Operating Hours'}
+              </button>
+            </div>
+
+            {hoursSuccessMsg && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded text-xs text-emerald-800">
+                {hoursSuccessMsg}
+              </div>
+            )}
+
+            {hoursErrorMsg && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                {hoursErrorMsg}
+              </div>
+            )}
+
+            <div className="divide-y divide-slate-100">
+              {schedule.map((item, idx) => {
+                const dayName = DAY_NAMES[item.day_of_week];
+                return (
+                  <div
+                    key={item.day_of_week}
+                    className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="w-32 font-semibold text-slate-800">
+                      {dayName}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-3">
+                      <label className="flex items-center gap-1.5 text-slate-600 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={item.is_closed}
+                          onChange={(e) => {
+                            const updated = [...schedule];
+                            updated[idx].is_closed = e.target.checked;
+                            setSchedule(updated);
+                          }}
+                          className="rounded border-slate-300 text-slate-900 focus:ring-0"
+                        />
+                        <span>Closed all day</span>
+                      </label>
+
+                      {!item.is_closed && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400">Open:</span>
+                          <input
+                            type="time"
+                            value={item.open_time}
+                            onChange={(e) => {
+                              const updated = [...schedule];
+                              updated[idx].open_time = e.target.value;
+                              setSchedule(updated);
+                            }}
+                            className="border border-slate-300 rounded px-2 py-1 text-slate-800 text-xs"
+                          />
+                          <span className="text-slate-400">Close:</span>
+                          <input
+                            type="time"
+                            value={item.close_time}
+                            onChange={(e) => {
+                              const updated = [...schedule];
+                              updated[idx].close_time = e.target.value;
+                              setSchedule(updated);
+                            }}
+                            className="border border-slate-300 rounded px-2 py-1 text-slate-800 text-xs"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </form>
+        </div>
+      )}
       </div>
     </div>
   );
