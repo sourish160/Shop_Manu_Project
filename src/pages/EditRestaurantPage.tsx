@@ -4,6 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { OwnerNav } from '../components/OwnerNav';
 import { insforge, Restaurant, RestaurantHours, uploadMediaImage } from '../lib/insforge';
 import { DAY_NAMES } from '../utils/operatingHours';
+import { OwnerLocationPicker } from '../components/maps/OwnerLocationPicker';
+import { validateCoordinates } from '../utils/geolocation';
+import { useSEO } from '../hooks/useSEO';
 
 interface DayScheduleForm {
   day_of_week: number;
@@ -14,6 +17,11 @@ interface DayScheduleForm {
 
 export const EditRestaurantPage: React.FC = () => {
   const { user } = useAuth();
+
+  useSEO({
+    title: 'Edit Restaurant Profile',
+    noIndex: true,
+  });
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const restaurantId = searchParams.get('id');
@@ -34,6 +42,8 @@ export const EditRestaurantPage: React.FC = () => {
   const [address, setAddress] = useState('');
   const [area, setArea] = useState('');
   const [city, setCity] = useState('');
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
 
@@ -86,6 +96,8 @@ export const EditRestaurantPage: React.FC = () => {
       setAddress(active.address);
       setArea(active.area);
       setCity(active.city);
+      setLatitude(active.latitude !== null && active.latitude !== undefined ? Number(active.latitude) : null);
+      setLongitude(active.longitude !== null && active.longitude !== undefined ? Number(active.longitude) : null);
       setLogoUrl(active.logo_url);
       setCoverUrl(active.cover_url);
 
@@ -217,6 +229,17 @@ export const EditRestaurantPage: React.FC = () => {
       return;
     }
 
+    // Coordinate validation
+    if (latitude !== null && longitude !== null) {
+      if (!validateCoordinates(Number(latitude), Number(longitude))) {
+        setErrorMsg('Latitude must be between -90 and 90; longitude must be between -180 and 180.');
+        return;
+      }
+    } else if ((latitude === null && longitude !== null) || (latitude !== null && longitude === null)) {
+      setErrorMsg('Both latitude and longitude must be provided together, or both cleared.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { data, error } = await insforge.database
@@ -228,6 +251,8 @@ export const EditRestaurantPage: React.FC = () => {
           address: address.trim(),
           area: area.trim(),
           city: city.trim(),
+          latitude: latitude !== null ? Number(latitude) : null,
+          longitude: longitude !== null ? Number(longitude) : null,
           logo_url: logoUrl,
           cover_url: coverUrl,
         })
@@ -238,7 +263,7 @@ export const EditRestaurantPage: React.FC = () => {
       if (error) throw new Error(error.message);
 
       setRestaurant(data as Restaurant);
-      setSuccessMsg('Restaurant profile updated successfully.');
+      setSuccessMsg('Restaurant profile and location updated successfully.');
 
       // Record in audit log
       if (user?.id) {
@@ -248,7 +273,13 @@ export const EditRestaurantPage: React.FC = () => {
             entity_type: 'restaurant',
             entity_id: restaurant.id,
             action: 'update',
-            new_data: { name: name.trim(), area: area.trim(), city: city.trim() },
+            new_data: {
+              name: name.trim(),
+              area: area.trim(),
+              city: city.trim(),
+              latitude: latitude !== null ? Number(latitude) : null,
+              longitude: longitude !== null ? Number(longitude) : null,
+            },
           },
         ]);
       }
@@ -489,87 +520,93 @@ export const EditRestaurantPage: React.FC = () => {
               </h2>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                <label htmlFor="edit-res-name" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                   Restaurant Name *
                 </label>
                 <input
+                  id="edit-res-name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
                   maxLength={150}
                   disabled={isSubmitting}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent disabled:bg-slate-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                <label htmlFor="edit-res-desc" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                   Description
                 </label>
                 <textarea
+                  id="edit-res-desc"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   maxLength={2000}
                   disabled={isSubmitting}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent disabled:bg-slate-100"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  <label htmlFor="edit-res-phone" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                     Phone *
                   </label>
                   <input
+                    id="edit-res-phone"
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required
                     maxLength={25}
                     disabled={isSubmitting}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent disabled:bg-slate-100"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  <label htmlFor="edit-res-city" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                     City *
                   </label>
                   <input
+                    id="edit-res-city"
                     type="text"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     required
                     maxLength={100}
                     disabled={isSubmitting}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent disabled:bg-slate-100"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  <label htmlFor="edit-res-area" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                     Area *
                   </label>
                   <input
+                    id="edit-res-area"
                     type="text"
                     value={area}
                     onChange={(e) => setArea(e.target.value)}
                     required
                     maxLength={100}
                     disabled={isSubmitting}
-                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+                    className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent disabled:bg-slate-100"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  <label htmlFor="edit-res-address" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                     Address *
                   </label>
                   <input
+                    id="edit-res-address"
                     type="text"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
@@ -579,6 +616,35 @@ export const EditRestaurantPage: React.FC = () => {
                     className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
                   />
                 </div>
+              </div>
+
+              {/* Geographic Location & Map Marker Section */}
+              <div className="pt-4 border-t border-slate-100">
+                <div className="mb-3">
+                  <h3 className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                    Geographic Coordinates & Google Maps Pin
+                  </h3>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Pin your restaurant location on Google Maps for customer map view, Near Me geographic discovery, and navigation directions.
+                  </p>
+                </div>
+
+                <OwnerLocationPicker
+                  latitude={latitude}
+                  longitude={longitude}
+                  onChange={(coords) => {
+                    if (coords) {
+                      setLatitude(coords.latitude);
+                      setLongitude(coords.longitude);
+                    } else {
+                      setLatitude(null);
+                      setLongitude(null);
+                    }
+                  }}
+                  defaultCity={city || 'Kolkata'}
+                  defaultArea={area || 'Salt Lake'}
+                  disabled={isSubmitting}
+                />
               </div>
 
               <div className="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">

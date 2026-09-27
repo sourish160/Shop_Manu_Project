@@ -4,21 +4,38 @@ import { useAuth } from '../context/AuthContext';
 import { OwnerNav } from '../components/OwnerNav';
 import { insforge, Restaurant } from '../lib/insforge';
 import { formatDateTime } from '../utils/formatters';
+import { getFreshnessStatus } from '../utils/freshness';
+import { Clock } from 'lucide-react';
+import { useSEO } from '../hooks/useSEO';
 
 interface DashboardStats {
   categoryCount: number;
   foodCount: number;
   lastUpdate: string;
+  freshCount: number;
+  reviewRecommendedCount: number;
+  staleCount: number;
+  unavailableCount: number;
 }
 
 export const OwnerDashboardPage: React.FC = () => {
   const { user } = useAuth();
+
+  useSEO({
+    title: 'Owner Dashboard',
+    noIndex: true,
+  });
+
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [stats, setStats] = useState<DashboardStats>({
     categoryCount: 0,
     foodCount: 0,
     lastUpdate: '',
+    freshCount: 0,
+    reviewRecommendedCount: 0,
+    staleCount: 0,
+    unavailableCount: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -53,19 +70,36 @@ export const OwnerDashboardPage: React.FC = () => {
 
         if (catError) console.error('Category count error:', catError);
 
-        // 3. Fetch active food items count
-        const { count: foodCount, error: foodError } = await insforge.database
+        // 3. Fetch active food items with updated_at timestamps for freshness calculation
+        const { data: foodRows, error: foodError } = await insforge.database
           .from('foods')
-          .select('id', { count: 'exact', head: true })
+          .select('id, updated_at, available')
           .eq('restaurant_id', activeRes.id)
           .eq('status', 'active');
 
         if (foodError) console.error('Food count error:', foodError);
 
+        let fresh = 0;
+        let review = 0;
+        let stale = 0;
+        let unavail = 0;
+
+        (foodRows || []).forEach((f) => {
+          if (!f.available) unavail++;
+          const fStatus = getFreshnessStatus(f.updated_at);
+          if (fStatus === 'fresh') fresh++;
+          else if (fStatus === 'review_recommended') review++;
+          else stale++;
+        });
+
         setStats({
           categoryCount: catCount || 0,
-          foodCount: foodCount || 0,
+          foodCount: (foodRows || []).length,
           lastUpdate: activeRes.updated_at,
+          freshCount: fresh,
+          reviewRecommendedCount: review,
+          staleCount: stale,
+          unavailableCount: unavail,
         });
       }
     } catch (err: any) {
@@ -231,6 +265,79 @@ export const OwnerDashboardPage: React.FC = () => {
                 <span className="text-[11px] text-slate-400 mt-1 block">
                   Recorded in database
                 </span>
+              </div>
+            </div>
+
+            {/* Menu Freshness & Price Accuracy Health */}
+            <div className="border border-slate-200 bg-white rounded p-5 shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-slate-600" />
+                    Menu Freshness & Accuracy Health
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Data-backed freshness based on your actual menu revision timestamps.
+                  </p>
+                </div>
+                {(stats.staleCount > 0 || stats.reviewRecommendedCount > 0) && (
+                  <Link
+                    to={`/owner/menu?restaurantId=${selectedRestaurant.id}`}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-slate-900 hover:text-slate-700"
+                  >
+                    Review Menu Items &rarr;
+                  </Link>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="p-3 bg-emerald-50/60 border border-emerald-200 rounded">
+                  <span className="font-semibold uppercase tracking-wider text-[10px] text-emerald-800 block mb-0.5">
+                    Fresh (0-30 days)
+                  </span>
+                  <span className="text-xl font-bold text-emerald-900 block">
+                    {stats.freshCount}
+                  </span>
+                  <span className="text-[11px] text-emerald-700 mt-0.5 block">
+                    Recently updated
+                  </span>
+                </div>
+
+                <div className="p-3 bg-amber-50/60 border border-amber-200 rounded">
+                  <span className="font-semibold uppercase tracking-wider text-[10px] text-amber-800 block mb-0.5">
+                    Review Recommended (31-60 days)
+                  </span>
+                  <span className="text-xl font-bold text-amber-900 block">
+                    {stats.reviewRecommendedCount}
+                  </span>
+                  <span className="text-[11px] text-amber-700 mt-0.5 block">
+                    Verification advised
+                  </span>
+                </div>
+
+                <div className="p-3 bg-rose-50/60 border border-rose-200 rounded">
+                  <span className="font-semibold uppercase tracking-wider text-[10px] text-rose-800 block mb-0.5">
+                    Stale (&gt;60 days)
+                  </span>
+                  <span className="text-xl font-bold text-rose-900 block">
+                    {stats.staleCount}
+                  </span>
+                  <span className="text-[11px] text-rose-700 mt-0.5 block">
+                    Review needed
+                  </span>
+                </div>
+
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded">
+                  <span className="font-semibold uppercase tracking-wider text-[10px] text-slate-600 block mb-0.5">
+                    Unavailable Dishes
+                  </span>
+                  <span className="text-xl font-bold text-slate-900 block">
+                    {stats.unavailableCount}
+                  </span>
+                  <span className="text-[11px] text-slate-500 mt-0.5 block">
+                    Temporarily sold out
+                  </span>
+                </div>
               </div>
             </div>
 

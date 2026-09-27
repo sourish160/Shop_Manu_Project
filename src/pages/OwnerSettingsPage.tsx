@@ -3,9 +3,16 @@ import { useAuth } from '../context/AuthContext';
 import { insforge, Restaurant } from '../lib/insforge';
 import { OwnerNav } from '../components/OwnerNav';
 import { formatDate } from '../utils/formatters';
+import { useSEO } from '../hooks/useSEO';
 
 export const OwnerSettingsPage: React.FC = () => {
   const { user, profile } = useAuth();
+
+  useSEO({
+    title: 'Owner Settings',
+    noIndex: true,
+  });
+
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

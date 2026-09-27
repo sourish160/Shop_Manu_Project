@@ -6,6 +6,8 @@ import { CategoryNav } from '../components/public/CategoryNav';
 import { MenuSection } from '../components/public/MenuSection';
 import { LocationSection } from '../components/public/LocationSection';
 import { ReportModal } from '../components/public/ReportModal';
+import { useSEO } from '../hooks/useSEO';
+import { generateRestaurantSchema } from '../utils/schemaGenerator';
 
 export const PublicRestaurantPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -117,31 +119,39 @@ export const PublicRestaurantPage: React.FC = () => {
       if (loadedCats.length > 0) {
         setActiveCategoryId(loadedCats[0].id);
       }
-
-      // Update SEO metadata
-      const locationPart = [currentRes.area, currentRes.city].filter(Boolean).join(', ');
-      document.title = locationPart
-        ? `${currentRes.name} | ${locationPart}`
-        : `${currentRes.name} | Menu & Information`;
-
-      // Update meta description
-      let metaDesc = document.querySelector('meta[name="description"]');
-      if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.setAttribute('name', 'description');
-        document.head.appendChild(metaDesc);
-      }
-      metaDesc.setAttribute(
-        'content',
-        currentRes.description ||
-          `Explore the menu, prices, and dining hours for ${currentRes.name} located at ${currentRes.address}.`
-      );
-    } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to load restaurant information.');
+    } catch (err: any) {
+      console.error('Failed to load restaurant data:', err);
+      setErrorMessage(err.message || 'Failed to load restaurant details.');
     } finally {
       setIsLoading(false);
     }
   }, [slug]);
+
+  // SEO & Schema.org Structured Data
+  const locationPart = restaurant ? [restaurant.area, restaurant.city].filter(Boolean).join(', ') : '';
+  const seoOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://shopmanu.com';
+  const restaurantSchema = restaurant
+    ? generateRestaurantSchema(restaurant, hours, categories, seoOrigin)
+    : null;
+
+  useSEO({
+    title: isNotFound
+      ? 'Restaurant Not Found'
+      : errorMessage
+      ? 'Restaurant Unavailable'
+      : restaurant
+      ? (locationPart ? `${restaurant.name} | ${locationPart}` : restaurant.name)
+      : 'Loading Restaurant...',
+    description: restaurant
+      ? (restaurant.description ||
+          `Explore the menu, portion prices, and dining hours for ${restaurant.name} located at ${restaurant.address}, ${locationPart}.`)
+      : undefined,
+    canonicalUrl: restaurant ? `${seoOrigin}/restaurant/${restaurant.slug}` : undefined,
+    ogType: 'restaurant',
+    ogImage: restaurant?.cover_url || restaurant?.logo_url || null,
+    noIndex: isNotFound || !!errorMessage,
+    jsonLd: restaurantSchema,
+  });
 
   useEffect(() => {
     loadRestaurantData();

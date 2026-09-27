@@ -1,0 +1,22 @@
+# Robots.txt for ShopManu Production Food Discovery Platform
+# Controls search engine crawler indexation behavior
+
+User-agent: *
+
+# Allow Public Content
+Allow: /
+Allow: /restaurant/
+Allow: /search
+Allow: /privacy
+Allow: /terms
+Allow: /favicon.svg
+
+# Disallow Private & Administrative Areas
+Disallow: /owner/
+Disallow: /admin/
+Disallow: /login
+Disallow: /register
+Disallow: /api/
+
+# Sitemap Location
+Sitemap: https://shopmanu.com/sitemap.xml

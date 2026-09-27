@@ -279,7 +279,7 @@ async function runTestSuite() {
       verified: false
     }]).select().single();
 
-    const expectedSuffix = dupRes.data?.slug?.includes('-2');
+    const expectedSuffix = /^arthur-royal-dine(-\d+)?$/.test(dupRes.data?.slug) && dupRes.data?.slug !== 'arthur-royal-dine';
     record('Slug Uniqueness Test', expectedSuffix,
       expectedSuffix ? `Generated unique slug: "${dupRes.data.slug}"` : `Unexpected slug: ${dupRes.data?.slug}`);
   } catch (err) {

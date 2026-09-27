@@ -8,13 +8,19 @@ const API_KEY = 'ik_daa0f920f6f41a632c2560a91b1297d7';
 const clientAnon = createClient({ baseUrl: BASE_URL, anonKey: ANON_KEY });
 
 async function setRestaurantStatusAdmin(restaurantId, status, verified = false) {
-  const { error } = await clientAnon.database.rpc('admin_set_restaurant_status', {
+  const clientAdmin = createClient({ baseUrl: BASE_URL, anonKey: ANON_KEY });
+  await clientAdmin.auth.signInWithPassword({
+    email: 'admin@shopmanu.com',
+    password: 'AdminSecret123!',
+  });
+  const { error } = await clientAdmin.database.rpc('admin_update_restaurant_status', {
     p_restaurant_id: restaurantId,
-    p_status: status,
+    p_new_status: status,
     p_verified: verified,
+    p_admin_notes: 'Automated test suite approval',
   });
   if (error) {
-    throw new Error(`admin_set_restaurant_status error: ${error.message}`);
+    throw new Error(`admin_update_restaurant_status error: ${error.message}`);
   }
 }
 
@@ -359,11 +365,22 @@ async function runPhase3TestSuite() {
 
   // Security 2: Rejected restaurant is hidden from public
   try {
-    await setRestaurantStatusAdmin(restaurant.id, 'rejected', false);
+    const { data: rejRes } = await clientOwner.database.from('restaurants').insert([{
+      owner_id: ownerUser.id,
+      name: `Rejected Spot ${timestamp}`,
+      slug: `rej-spot-${timestamp}`,
+      phone: '9876543209',
+      address: 'Test Rd',
+      area: 'Salt Lake',
+      city: 'Kolkata',
+      status: 'pending',
+      verified: false,
+    }]).select().single();
+    await setRestaurantStatusAdmin(rejRes.id, 'rejected', false);
     const queryRejected = await clientAnon.database
       .from('restaurants')
       .select('*')
-      .eq('slug', restaurant.slug)
+      .eq('slug', rejRes.slug)
       .eq('status', 'approved')
       .maybeSingle();
 

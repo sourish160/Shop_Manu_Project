@@ -39,6 +39,18 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,7 +105,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       aria-labelledby="report-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
     >
-      <div className="bg-white rounded-md border border-slate-200 shadow-xl max-w-md w-full p-6 relative">
+      <div className="bg-white rounded-md border border-slate-200 shadow-xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
         <button
           type="button"
           onClick={handleResetAndClose}

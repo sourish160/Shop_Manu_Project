@@ -55,3 +55,33 @@ export function formatDate(dateStr: string | null | undefined): string {
     return 'Invalid date';
   }
 }
+
+/**
+ * Format a timestamp into a relative human-friendly string.
+ * Example: "today", "yesterday", "3 days ago", or formatted date if older.
+ */
+export function formatRelativeTime(dateStr: string | null | undefined): string {
+  if (!dateStr) return 'Recently';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return 'Recently';
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    if (diffMs < 0) return 'Just now';
+
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSecs < 60) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 30) return `${diffDays} days ago`;
+    return formatDate(dateStr);
+  } catch {
+    return 'Recently';
+  }
+}
+

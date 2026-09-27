@@ -12,6 +12,8 @@ import {
   uploadMediaImage,
 } from '../lib/insforge';
 import { formatCurrency, formatDateTime } from '../utils/formatters';
+import { getFreshnessStatus, getFreshnessBadge, formatFreshnessDate } from '../utils/freshness';
+import { useSEO } from '../hooks/useSEO';
 
 interface VariantInput {
   id?: string;
@@ -22,6 +24,12 @@ interface VariantInput {
 
 export const OwnerMenuPage: React.FC = () => {
   const { user } = useAuth();
+
+  useSEO({
+    title: 'Manage Restaurant Menu',
+    noIndex: true,
+  });
+
   const [searchParams, setSearchParams] = useSearchParams();
   const restaurantId = searchParams.get('restaurantId');
 
@@ -34,6 +42,9 @@ export const OwnerMenuPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [freshnessFilter, setFreshnessFilter] = useState<'all' | 'needs_review' | 'stale' | 'unavailable'>(
+    (searchParams.get('filter') as any) || 'all'
+  );
 
   // Modal states
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -461,6 +472,25 @@ export const OwnerMenuPage: React.FC = () => {
     }
   };
 
+  const handleVerifyAndRefresh = async (food: Food) => {
+    try {
+      const now = new Date().toISOString();
+      const { error } = await insforge.database
+        .from('foods')
+        .update({ updated_at: now })
+        .eq('id', food.id);
+
+      if (error) throw new Error(error.message);
+
+      setFoods((prev) =>
+        prev.map((f) => (f.id === food.id ? { ...f, updated_at: now } : f))
+      );
+      setSuccessMsg(`"${food.name}" confirmed. Freshness updated to today.`);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to update timestamp.');
+    }
+  };
+
   // View price history
   const handleViewPriceHistory = async (variant: FoodVariant) => {
     setPriceHistoryVariant(variant);
@@ -481,6 +511,18 @@ export const OwnerMenuPage: React.FC = () => {
       setIsLoadingHistory(false);
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (showCategoryModal) setShowCategoryModal(false);
+        if (showFoodModal) setShowFoodModal(false);
+        if (priceHistoryVariant) setPriceHistoryVariant(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showCategoryModal, showFoodModal, priceHistoryVariant]);
 
   return (
     <div>
@@ -579,9 +621,91 @@ export const OwnerMenuPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="space-y-10">
+          <div className="space-y-8">
+            {/* Freshness Filter Toolbar */}
+            {foods.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded p-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-slate-500 font-medium mr-1 text-[11px] uppercase tracking-wide">
+                    Filter by status:
+                  </span>
+                  <button
+                    onClick={() => setFreshnessFilter('all')}
+                    className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                      freshnessFilter === 'all'
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    All ({foods.length})
+                  </button>
+                  <button
+                    onClick={() => setFreshnessFilter('needs_review')}
+                    className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                      freshnessFilter === 'needs_review'
+                        ? 'bg-amber-700 text-white'
+                        : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                    }`}
+                  >
+                    Needs Review ({
+                      foods.filter((f) => {
+                        const s = getFreshnessStatus(f.updated_at);
+                        return s === 'review_recommended' || s === 'stale';
+                      }).length
+                    })
+                  </button>
+                  <button
+                    onClick={() => setFreshnessFilter('stale')}
+                    className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                      freshnessFilter === 'stale'
+                        ? 'bg-rose-700 text-white'
+                        : 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
+                    }`}
+                  >
+                    Stale ({foods.filter((f) => getFreshnessStatus(f.updated_at) === 'stale').length})
+                  </button>
+                  <button
+                    onClick={() => setFreshnessFilter('unavailable')}
+                    className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                      freshnessFilter === 'unavailable'
+                        ? 'bg-slate-700 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    Unavailable ({foods.filter((f) => !f.available).length})
+                  </button>
+                </div>
+                {freshnessFilter !== 'all' && (
+                  <button
+                    onClick={() => setFreshnessFilter('all')}
+                    className="text-slate-500 hover:text-slate-800 underline text-[11px]"
+                  >
+                    Reset filter
+                  </button>
+                )}
+              </div>
+            )}
+
             {categories.map((cat) => {
-              const categoryFoods = foods.filter((f) => f.category_id === cat.id);
+              const categoryFoods = foods
+                .filter((f) => {
+                  if (freshnessFilter === 'needs_review') {
+                    const s = getFreshnessStatus(f.updated_at);
+                    return s === 'review_recommended' || s === 'stale';
+                  }
+                  if (freshnessFilter === 'stale') {
+                    return getFreshnessStatus(f.updated_at) === 'stale';
+                  }
+                  if (freshnessFilter === 'unavailable') {
+                    return !f.available;
+                  }
+                  return true;
+                })
+                .filter((f) => f.category_id === cat.id);
+
+              if (freshnessFilter !== 'all' && categoryFoods.length === 0) {
+                return null;
+              }
 
               return (
                 <div key={cat.id} className="space-y-4">
@@ -655,7 +779,7 @@ export const OwnerMenuPage: React.FC = () => {
                             </div>
 
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                                 <h3 className="text-sm font-bold text-slate-900 truncate">
                                   {food.name}
                                 </h3>
@@ -669,6 +793,22 @@ export const OwnerMenuPage: React.FC = () => {
                                 >
                                   {food.veg_type === 'veg' ? 'Veg' : 'Non-Veg'}
                                 </span>
+                                {/* Freshness Badge */}
+                                {(() => {
+                                  const fBadge = getFreshnessBadge(food.updated_at);
+                                  return (
+                                    <span
+                                      className={fBadge.className}
+                                      title={`Last updated: ${formatFreshnessDate(food.updated_at)}`}
+                                    >
+                                      {fBadge.label}
+                                    </span>
+                                  );
+                                })()}
+                              </div>
+
+                              <div className="text-[10px] text-slate-400 mt-0.5">
+                                Updated {formatFreshnessDate(food.updated_at)}
                               </div>
 
                               {food.description && (
@@ -724,7 +864,15 @@ export const OwnerMenuPage: React.FC = () => {
                               {food.available ? 'Available' : 'Unavailable'}
                             </span>
 
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-1.5 flex-wrap">
+                              <button
+                                type="button"
+                                onClick={() => handleVerifyAndRefresh(food)}
+                                title="Confirm details and prices are reviewed and fresh"
+                                className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-2 py-1 rounded transition-colors"
+                              >
+                                Confirm Fresh
+                              </button>
                               <button
                                 onClick={() => handleToggleAvailability(food)}
                                 className="text-xs font-medium text-slate-600 hover:text-slate-900 px-2 py-1 rounded border border-slate-200 hover:bg-slate-50"
@@ -758,8 +906,13 @@ export const OwnerMenuPage: React.FC = () => {
         {/* MODAL: Category Add / Edit */}
         {showCategoryModal && (
           <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded border border-slate-200 p-6 max-w-sm w-full shadow-lg">
-              <h3 className="text-base font-bold text-slate-900 mb-1">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="cat-modal-title"
+              className="bg-white rounded border border-slate-200 p-6 max-w-sm w-full shadow-lg max-h-[90vh] overflow-y-auto"
+            >
+              <h3 id="cat-modal-title" className="text-base font-bold text-slate-900 mb-1">
                 {editingCategory ? 'Rename Category' : 'New Category'}
               </h3>
               <p className="text-xs text-slate-500 mb-4">
@@ -809,8 +962,13 @@ export const OwnerMenuPage: React.FC = () => {
         {/* MODAL: Food Add / Edit */}
         {showFoodModal && (
           <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-white rounded border border-slate-200 p-6 max-w-lg w-full shadow-lg my-8">
-              <h3 className="text-base font-bold text-slate-900 mb-1">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="food-modal-title"
+              className="bg-white rounded border border-slate-200 p-6 max-w-lg w-full shadow-lg my-8 max-h-[90vh] overflow-y-auto"
+            >
+              <h3 id="food-modal-title" className="text-base font-bold text-slate-900 mb-1">
                 {editingFood ? 'Edit Dish' : 'Add New Dish'}
               </h3>
               <p className="text-xs text-slate-500 mb-5">
@@ -1058,10 +1216,15 @@ export const OwnerMenuPage: React.FC = () => {
         {/* MODAL: Price History Viewer */}
         {priceHistoryVariant && (
           <div className="fixed inset-0 z-50 bg-slate-900/40 flex items-center justify-center p-4">
-            <div className="bg-white rounded border border-slate-200 p-6 max-w-md w-full shadow-lg">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="history-modal-title"
+              className="bg-white rounded border border-slate-200 p-6 max-w-md w-full shadow-lg max-h-[90vh] overflow-y-auto"
+            >
               <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">
+                  <h3 id="history-modal-title" className="text-sm font-bold text-slate-900">
                     Price History
                   </h3>
                   <p className="text-xs text-slate-500">
