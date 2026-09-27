@@ -349,31 +349,31 @@ export const SearchPage: React.FC = () => {
 
       {/* Results Header & Category Tabs */}
       {!isLoading && !errorMessage && totalCount > 0 && (
-        <div className="border-b border-slate-200 pb-4 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div className="border-b border-white/10 pb-6 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center space-x-2">
-                {isLocationActive && <Navigation className="w-5 h-5 text-emerald-600 flex-shrink-0" />}
+              <h1 className="font-editorial text-3xl sm:text-4xl font-light text-[#F4F2ED] tracking-tight flex items-center space-x-3">
+                {isLocationActive && <Navigation className="w-5 h-5 text-[#C5A064] flex-shrink-0" />}
                 <span>
                   {queryParam && isLocationActive
                     ? `Results for "${queryParam}" near ${locationState.name}`
                     : queryParam
                     ? `Results for "${queryParam}"`
                     : isLocationActive
-                    ? `Nearby Food & Restaurants near ${locationState.name}`
-                    : 'Search Results'}
+                    ? `Nearby Kitchens near ${locationState.name}`
+                    : 'Atelier Search Results'}
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Found {totalCount} matching {totalCount === 1 ? 'result' : 'results'}
-                {isLocationActive ? ` within ${locationState.radiusKm} km` : ' across the city'}
+              <p className="font-mono text-xs uppercase tracking-widest text-zinc-400 mt-1">
+                Telemetry: {totalCount} matching {totalCount === 1 ? 'specimen' : 'specimens'}
+                {isLocationActive ? ` within ${locationState.radiusKm} km radius` : ' across curated network'}
               </p>
             </div>
 
             {results?.prominentCategory && results.prominentCategory !== 'none' && (
-              <span className="self-start sm:self-auto text-xs px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200 font-medium">
-                Strongest match:{' '}
-                <span className="font-semibold text-slate-900 capitalize">
+              <span className="self-start sm:self-auto text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full bg-[#C5A064]/10 text-[#C5A064] border border-[#C5A064]/30">
+                Optimal Match:{' '}
+                <span className="font-bold text-[#F4F2ED] uppercase">
                   {results.prominentCategory}
                 </span>
               </span>
@@ -381,62 +381,62 @@ export const SearchPage: React.FC = () => {
           </div>
 
           {/* Category Tabs */}
-          <div className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto scrollbar-none pb-1">
+          <div className="flex items-center space-x-2 overflow-x-auto scrollbar-none pb-1">
             <button
               type="button"
               onClick={() => handleTabChange('all')}
-              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              className={`inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap border ${
                 activeTab === 'all'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
+                  : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
               }`}
             >
-              <Layers className="w-3.5 h-3.5" />
+              <Layers className="w-3.5 h-3.5 text-[#C5A064]" />
               <span>All Results</span>
-              <span className="text-[11px] opacity-80">({totalCount})</span>
+              <span className="text-[10px] opacity-70 font-mono">({totalCount})</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleTabChange('foods')}
-              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              className={`inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap border ${
                 activeTab === 'foods'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
+                  : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
               }`}
             >
-              <Utensils className="w-3.5 h-3.5" />
+              <Utensils className="w-3.5 h-3.5 text-[#C5A064]" />
               <span>Food Items</span>
-              <span className="text-[11px] opacity-80">({foodCount})</span>
+              <span className="text-[10px] opacity-70 font-mono">({foodCount})</span>
             </button>
 
             <button
               type="button"
               onClick={() => handleTabChange('restaurants')}
-              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              className={`inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap border ${
                 activeTab === 'restaurants'
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
+                  : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
               }`}
             >
-              <Store className="w-3.5 h-3.5" />
-              <span>Restaurants</span>
-              <span className="text-[11px] opacity-80">({restCount})</span>
+              <Store className="w-3.5 h-3.5 text-[#C5A064]" />
+              <span>Kitchens</span>
+              <span className="text-[10px] opacity-70 font-mono">({restCount})</span>
             </button>
 
             {!isLocationActive && locCount > 0 && (
               <button
                 type="button"
                 onClick={() => handleTabChange('locations')}
-                className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+                className={`inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap border ${
                   activeTab === 'locations'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
+                    : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <MapPin className="w-3.5 h-3.5" />
+                <MapPin className="w-3.5 h-3.5 text-[#C5A064]" />
                 <span>Locations</span>
-                <span className="text-[11px] opacity-80">({locCount})</span>
+                <span className="text-[10px] opacity-70 font-mono">({locCount})</span>
               </button>
             )}
           </div>
@@ -445,10 +445,10 @@ export const SearchPage: React.FC = () => {
 
       {/* Main Content Area */}
       {isLoading ? (
-        <div className="py-20 flex flex-col items-center justify-center text-slate-500">
-          <Loader2 className="w-8 h-8 animate-spin text-slate-700 mb-3" />
-          <p className="text-sm font-medium text-slate-700">
-            {isLocationActive ? `Searching places within ${locationState.radiusKm} km...` : 'Searching menus and restaurants...'}
+        <div className="py-24 flex flex-col items-center justify-center text-zinc-400">
+          <Loader2 className="w-8 h-8 animate-spin text-[#C5A064] mb-3" />
+          <p className="font-mono text-xs uppercase tracking-widest text-zinc-400">
+            {isLocationActive ? `Calibrating network within ${locationState.radiusKm} km...` : 'Querying atelier database...'}
           </p>
         </div>
       ) : errorMessage ? (
@@ -467,29 +467,29 @@ export const SearchPage: React.FC = () => {
           onSuggestedQuery={handleSearchSubmit}
         />
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-12">
           {/* TAB 1: ALL RESULTS */}
           {activeTab === 'all' && (
-            <div className="space-y-8">
+            <div className="space-y-12">
               {/* Prominent Food Results */}
               {results && results.foods.length > 0 && (
                 <section aria-labelledby="section-foods">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 id="section-foods" className="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                      <Utensils className="w-4 h-4 text-slate-500" />
-                      <span>Matching Food Items ({results.foods.length})</span>
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 id="section-foods" className="font-editorial text-2xl sm:text-3xl font-light text-[#F4F2ED] flex items-center space-x-2.5">
+                      <Utensils className="w-4 h-4 text-[#C5A064]" />
+                      <span>Curated Food Items ({results.foods.length})</span>
                     </h2>
                     {results.foods.length > 6 && (
                       <button
                         type="button"
                         onClick={() => handleTabChange('foods')}
-                        className="text-xs font-semibold text-slate-700 hover:text-slate-950 transition-colors"
+                        className="text-xs font-mono uppercase tracking-widest text-[#C5A064] hover:text-white transition-colors"
                       >
                         View all foods →
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {results.foods.slice(0, 6).map((food) => (
                       <FoodResultCard key={food.id} item={food} />
                     ))}
@@ -500,24 +500,24 @@ export const SearchPage: React.FC = () => {
               {/* Prominent Restaurant Results */}
               {results && results.restaurants.length > 0 && (
                 <section aria-labelledby="section-restaurants">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 id="section-restaurants" className="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                      <Store className="w-4 h-4 text-slate-500" />
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 id="section-restaurants" className="font-editorial text-2xl sm:text-3xl font-light text-[#F4F2ED] flex items-center space-x-2.5">
+                      <Store className="w-4 h-4 text-[#C5A064]" />
                       <span>
-                        {isLocationActive ? `Nearby Restaurants (${results.restaurants.length})` : `Matching Restaurants (${results.restaurants.length})`}
+                        {isLocationActive ? `Ateliers near ${locationState.name} (${results.restaurants.length})` : `Curated Kitchens (${results.restaurants.length})`}
                       </span>
                     </h2>
                     {results.restaurants.length > 4 && (
                       <button
                         type="button"
                         onClick={() => handleTabChange('restaurants')}
-                        className="text-xs font-semibold text-slate-700 hover:text-slate-950 transition-colors"
+                        className="text-xs font-mono uppercase tracking-widest text-[#C5A064] hover:text-white transition-colors"
                       >
-                        View all restaurants →
+                        View all kitchens →
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {results.restaurants.slice(0, 6).map((rest) => (
                       <RestaurantResultCard key={rest.id} restaurant={rest} />
                     ))}
@@ -528,13 +528,13 @@ export const SearchPage: React.FC = () => {
               {/* Matching Location Text Results (Only when no coordinates active) */}
               {!isLocationActive && results && results.locations.length > 0 && (
                 <section aria-labelledby="section-locations">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 id="section-locations" className="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                      <MapPin className="w-4 h-4 text-slate-500" />
-                      <span>Restaurants in Matching Locality ({results.locations.length})</span>
+                  <div className="flex items-center justify-between mb-5">
+                    <h2 id="section-locations" className="font-editorial text-2xl sm:text-3xl font-light text-[#F4F2ED] flex items-center space-x-2.5">
+                      <MapPin className="w-4 h-4 text-[#C5A064]" />
+                      <span>Kitchens in Locality ({results.locations.length})</span>
                     </h2>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {results.locations.slice(0, 6).map((rest) => (
                       <RestaurantResultCard key={`loc-${rest.id}`} restaurant={rest} />
                     ))}

@@ -16,10 +16,10 @@ export const RadiusFilter: React.FC<RadiusFilterProps> = ({
 }) => {
   return (
     <div className={`flex items-center space-x-1.5 ${className}`}>
-      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+      <span className="text-[10px] font-mono font-semibold text-[#C5A064] uppercase tracking-widest">
         Radius:
       </span>
-      <div className="inline-flex rounded-md border border-slate-300 bg-slate-50 p-0.5" role="group" aria-label="Distance Radius">
+      <div className="inline-flex rounded-lg border border-white/15 bg-white/5 p-0.5" role="group" aria-label="Distance Radius">
         {RADIUS_OPTIONS.map((radius) => {
           const isSelected = selectedRadius === radius;
           return (
@@ -29,10 +29,10 @@ export const RadiusFilter: React.FC<RadiusFilterProps> = ({
               disabled={disabled}
               onClick={() => onChange(radius)}
               aria-pressed={isSelected}
-              className={`px-2 py-0.5 text-xs font-medium rounded transition-colors ${
+              className={`px-2.5 py-0.5 text-xs font-mono rounded-md transition-all ${
                 isSelected
-                  ? 'bg-slate-900 text-white shadow-sm font-semibold'
-                  : 'text-slate-600 hover:text-slate-900 disabled:opacity-40 disabled:cursor-not-allowed'
+                  ? 'bg-[#C5A064]/20 text-[#F4F2ED] border border-[#C5A064]/40 font-semibold shadow-sm'
+                  : 'text-zinc-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed'
               }`}
             >
               {radius} km

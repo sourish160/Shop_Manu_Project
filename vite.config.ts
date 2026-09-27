@@ -22,6 +22,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     headers: securityHeaders,
+    watch: {
+      ignored: ['**/image/**', '**/public/map-sequence/**', '**/tests/**', '**/dist/**', '**/.git/**'],
+    },
   },
   preview: {
     headers: securityHeaders,

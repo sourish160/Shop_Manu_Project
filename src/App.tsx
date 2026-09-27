@@ -26,14 +26,16 @@ export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-[#080808] text-[#F4F2ED] flex flex-col font-sans selection:bg-[#C5A064] selection:text-[#080808]">
           <Navbar />
           <main className="flex-1">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/owner/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/owner/register" element={<RegisterPage />} />
               <Route path="/restaurant/:slug" element={<PublicRestaurantPage />} />
               
               {/* Owner Protected Routes */}

@@ -18,19 +18,22 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
   const openingStatus = getRestaurantOpeningStatus(hours);
 
   return (
-    <header className="bg-white border-b border-slate-200">
+    <header className="bg-[#0C0C0C]/90 border-b border-white/10 text-[#F4F2ED]">
       {/* Cover Banner */}
-      <div className="w-full h-44 sm:h-56 md:h-72 bg-slate-100 relative overflow-hidden">
+      <div className="w-full h-44 sm:h-56 md:h-72 bg-[#121212] relative overflow-hidden">
         {restaurant.cover_url ? (
-          <img
-            src={restaurant.cover_url}
-            alt={`${restaurant.name} cover`}
-            className="w-full h-full object-cover"
-            loading="eager"
-          />
+          <>
+            <img
+              src={restaurant.cover_url}
+              alt={`${restaurant.name} cover`}
+              className="w-full h-full object-cover"
+              loading="eager"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0C0C0C] via-transparent to-black/30" />
+          </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
-            <span className="text-xs uppercase tracking-wider font-medium">No cover image uploaded</span>
+          <div className="w-full h-full flex items-center justify-center bg-[#121212] text-zinc-600 font-mono">
+            <span className="text-xs uppercase tracking-widest font-medium">Bespoke Atelier Kitchen</span>
           </div>
         )}
       </div>
@@ -39,16 +42,16 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5 -mt-16 sm:-mt-20 mb-4 relative z-10">
           {/* Logo */}
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-md bg-white p-1 border border-slate-200 shadow-sm shrink-0">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-[#080808] p-1.5 border border-white/15 shadow-2xl shrink-0">
             {restaurant.logo_url ? (
               <img
                 src={restaurant.logo_url}
                 alt={`${restaurant.name} logo`}
-                className="w-full h-full object-cover rounded"
+                className="w-full h-full object-cover rounded-xl"
                 loading="eager"
               />
             ) : (
-              <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-700 font-bold text-2xl uppercase rounded">
+              <div className="w-full h-full bg-white/5 flex items-center justify-center text-[#C5A064] font-editorial text-3xl rounded-xl">
                 {restaurant.name.charAt(0)}
               </div>
             )}
@@ -56,18 +59,18 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
 
           {/* Title & Primary Info */}
           <div className="flex-1 min-w-0">
-            <div className="flex flex-wrap items-center gap-2 mb-1">
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
+              <h1 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-light text-[#F4F2ED] tracking-tight">
                 {restaurant.name}
               </h1>
               {restaurant.verified && (
-                <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
-                  Verified
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-widest bg-[#C5A064]/10 text-[#C5A064] border border-[#C5A064]/30">
+                  Verified Atelier
                 </span>
               )}
             </div>
 
-            <p className="text-sm text-slate-600">
+            <p className="text-xs sm:text-sm text-zinc-400 font-light">
               {restaurant.address}
               {restaurant.area ? `, ${restaurant.area}` : ''}
               {restaurant.city ? `, ${restaurant.city}` : ''}
@@ -75,13 +78,13 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
           </div>
 
           {/* Action CTAs */}
-          <div className="flex flex-wrap items-center gap-2 self-stretch sm:self-auto shrink-0 pt-2 sm:pt-0">
+          <div className="flex flex-wrap items-center gap-2.5 self-stretch sm:self-auto shrink-0 pt-2 sm:pt-0">
             {restaurant.phone && (
               <a
                 href={`tel:${restaurant.phone}`}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 transition-colors shadow-sm"
+                className="forge-btn flex-1 sm:flex-initial inline-flex items-center justify-center px-4 py-2 text-xs font-mono uppercase tracking-wider text-[#F4F2ED] rounded-lg transition-all shadow-sm"
               >
-                Call Restaurant
+                Call Kitchen
               </a>
             )}
 
@@ -89,7 +92,7 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
               <button
                 type="button"
                 onClick={onScrollToLocation}
-                className="flex-1 sm:flex-initial inline-flex items-center justify-center px-3.5 py-2 border border-slate-300 text-slate-700 rounded text-xs font-semibold hover:bg-slate-50 transition-colors"
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center px-3.5 py-2 border border-white/15 bg-white/5 hover:border-[#C5A064]/50 hover:bg-white/10 text-zinc-300 hover:text-white rounded-lg text-xs font-mono uppercase tracking-wider transition-all"
               >
                 Directions
               </button>
@@ -98,7 +101,7 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
             <button
               type="button"
               onClick={onOpenReport}
-              className="inline-flex items-center justify-center px-3 py-2 text-slate-500 hover:text-slate-800 text-xs font-medium transition-colors"
+              className="inline-flex items-center justify-center px-3 py-2 text-zinc-500 hover:text-[#C5A064] text-xs font-mono uppercase tracking-widest transition-colors"
               title="Report incorrect information"
             >
               Report Info
@@ -107,30 +110,30 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
         </div>
 
         {/* Status & Timing Bar */}
-        <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-slate-500">Operating Status:</span>
+            <span className="text-zinc-500 uppercase text-[10px] tracking-widest">Operating Status:</span>
             {openingStatus.isOpen === true ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono text-[10px] uppercase tracking-widest bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
                 Open now {openingStatus.closingText ? `(${openingStatus.closingText})` : ''}
               </span>
             ) : openingStatus.isOpen === false ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono text-[10px] uppercase tracking-widest bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                 Closed {openingStatus.nextOpeningText ? `• ${openingStatus.nextOpeningText}` : ''}
               </span>
             ) : (
-              <span className="px-2 py-0.5 rounded text-slate-500 bg-slate-100 font-medium">
+              <span className="px-2.5 py-0.5 rounded-full text-zinc-500 bg-white/5 border border-white/10 text-[10px] uppercase tracking-widest">
                 Hours not available
               </span>
             )}
           </div>
 
           {restaurant.phone && (
-            <div className="text-slate-500">
-              Direct Phone:{' '}
-              <a href={`tel:${restaurant.phone}`} className="font-mono text-slate-800 hover:underline">
+            <div className="text-zinc-400 text-xs">
+              Direct Telemetry:{' '}
+              <a href={`tel:${restaurant.phone}`} className="font-mono text-[#C5A064] hover:underline">
                 {restaurant.phone}
               </a>
             </div>
@@ -139,7 +142,7 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
 
         {/* Optional Description */}
         {restaurant.description && (
-          <div className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-3xl">
+          <div className="mt-3.5 text-xs sm:text-sm text-zinc-400 font-light leading-relaxed max-w-3xl">
             {restaurant.description}
           </div>
         )}

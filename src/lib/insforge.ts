@@ -147,21 +147,24 @@ export interface RegisterPayload {
   email: string;
   password: string;
   phone?: string;
-  role: 'customer' | 'owner';
+  role?: 'owner';
 }
 
 /**
- * Register a user via the secure InsForge serverless edge function.
- * Validates inputs server-side, restricts roles to customer/owner,
- * auto-verifies email, and sets up profile.
+ * Register a shop owner via the secure InsForge serverless edge function.
+ * Validates inputs server-side, restricts roles exclusively to owner,
+ * auto-verifies email, and sets up owner profile.
  */
 export async function registerUser(payload: RegisterPayload) {
   const { data, error } = await insforge.functions.invoke('register-user', {
-    body: payload,
+    body: {
+      ...payload,
+      role: 'owner',
+    },
   });
 
   if (error) {
-    throw new Error(error.message || 'Failed to complete registration');
+    throw new Error(error.message || 'Failed to complete shop owner registration');
   }
 
   if (data?.error) {

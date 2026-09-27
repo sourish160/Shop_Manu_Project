@@ -26,15 +26,15 @@ export const EmptySearchState: React.FC<EmptySearchStateProps> = ({
 
   if (isDefaultState) {
     return (
-      <div className="bg-white border border-slate-200 rounded-lg p-8 sm:p-12 text-center my-6 max-w-xl mx-auto shadow-sm">
-        <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-500 mb-4">
+      <div className="forge-card rounded-2xl p-8 sm:p-12 text-center my-8 max-w-xl mx-auto shadow-2xl">
+        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-[#C5A064] mb-5 shadow-inner">
           <Search className="w-6 h-6" />
         </div>
-        <h2 className="text-lg font-bold text-slate-900 mb-1">
-          Search for a food or restaurant
+        <h2 className="font-editorial text-3xl font-light text-[#F4F2ED] mb-2 tracking-tight">
+          Query The Atelier Catalog
         </h2>
-        <p className="text-sm text-slate-600 mb-6 leading-relaxed">
-          Search for authentic dishes like <span className="font-medium text-slate-800">Chicken Biryani</span>, restaurant names, or click <span className="font-medium text-slate-800">Near Me</span> to discover places around you.
+        <p className="text-xs sm:text-sm text-zinc-400 font-light mb-6 leading-relaxed">
+          Search for authentic specimens like <span className="font-medium text-[#F4F2ED]">Chicken Biryani</span>, specific kitchen ateliers, or activate <span className="font-medium text-[#F4F2ED]">Near Me</span> telemetry.
         </p>
 
         {onSuggestedQuery && (
@@ -44,7 +44,7 @@ export const EmptySearchState: React.FC<EmptySearchStateProps> = ({
                 key={term}
                 type="button"
                 onClick={() => onSuggestedQuery(term)}
-                className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded border border-slate-200 transition-colors"
+                className="px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider text-zinc-300 bg-white/5 hover:border-[#C5A064]/50 hover:bg-white/10 rounded-lg border border-white/10 transition-all"
               >
                 {term}
               </button>
@@ -58,21 +58,21 @@ export const EmptySearchState: React.FC<EmptySearchStateProps> = ({
   // Case 2: Location active but 0 results within radius
   if (hasLocationFilter) {
     return (
-      <div className="bg-white border border-slate-200 rounded-lg p-8 sm:p-12 text-center my-6 max-w-xl mx-auto shadow-sm">
-        <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-400 mb-4">
+      <div className="forge-card rounded-2xl p-8 sm:p-12 text-center my-8 max-w-xl mx-auto shadow-2xl">
+        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-[#C5A064] mb-5 shadow-inner">
           <MapPin className="w-6 h-6" />
         </div>
-        <h2 className="text-lg font-bold text-slate-900 mb-1">
-          No restaurants found nearby
+        <h2 className="font-editorial text-3xl font-light text-[#F4F2ED] mb-2 tracking-tight">
+          Zero Nearby Ateliers
         </h2>
-        <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-          We couldn't find any approved {query ? `"${query}" results` : 'restaurants'}{' '}
-          within <span className="font-semibold text-slate-900">{radiusKm || 5} km</span> of{' '}
-          <span className="font-semibold text-slate-900">{locationName || 'your location'}</span>.
+        <p className="text-xs sm:text-sm text-zinc-400 font-light mb-4 leading-relaxed">
+          We couldn't locate any approved {query ? `"${query}" specimens` : 'kitchens'}{' '}
+          within <span className="font-mono font-medium text-[#F4F2ED]">{radiusKm || 5} km</span> of{' '}
+          <span className="font-mono font-medium text-[#F4F2ED]">{locationName || 'your coordinates'}</span>.
         </p>
 
-        <p className="text-xs text-slate-500 mb-6">
-          Try increasing your distance radius, searching a different location, or clearing dietary filters.
+        <p className="font-mono text-xs text-zinc-500 mb-6">
+          Try expanding your telemetry radius or resetting dietary restrictions.
         </p>
 
         <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -80,9 +80,9 @@ export const EmptySearchState: React.FC<EmptySearchStateProps> = ({
             <button
               type="button"
               onClick={onIncreaseRadius}
-              className="inline-flex items-center px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded transition-colors shadow-sm"
+              className="forge-btn inline-flex items-center px-4 py-2 text-xs font-mono uppercase tracking-wider text-[#F4F2ED] rounded-lg transition-all shadow-sm"
             >
-              Increase radius to 10 km
+              Expand radius to 10 km
             </button>
           )}
 
@@ -90,7 +90,7 @@ export const EmptySearchState: React.FC<EmptySearchStateProps> = ({
             <button
               type="button"
               onClick={onClearFilters}
-              className="inline-flex items-center px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300 transition-colors"
+              className="inline-flex items-center px-4 py-2 text-xs font-mono uppercase tracking-wider text-zinc-300 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 transition-colors"
             >
               Reset all filters
             </button>
@@ -102,27 +102,27 @@ export const EmptySearchState: React.FC<EmptySearchStateProps> = ({
 
   // Case 3: Regular zero results
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-8 sm:p-12 text-center my-6 max-w-xl mx-auto shadow-sm">
-      <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto text-slate-400 mb-4">
+    <div className="forge-card rounded-2xl p-8 sm:p-12 text-center my-8 max-w-xl mx-auto shadow-2xl">
+      <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-[#C5A064] mb-5 shadow-inner">
         <UtensilsCrossed className="w-6 h-6" />
       </div>
-      <h2 className="text-lg font-bold text-slate-900 mb-1">
-        No results found
+      <h2 className="font-editorial text-3xl font-light text-[#F4F2ED] mb-2 tracking-tight">
+        No Matching Specimens
       </h2>
-      <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-        We couldn't find any food items, restaurants, or locations matching{' '}
-        <span className="font-semibold text-slate-900">"{query}"</span>.
+      <p className="text-xs sm:text-sm text-zinc-400 font-light mb-4 leading-relaxed">
+        We couldn't find any dishes or kitchens matching{' '}
+        <span className="font-mono text-[#F4F2ED] font-medium">"{query}"</span>.
       </p>
 
-      <p className="text-xs text-slate-500 mb-6">
-        Try another food or restaurant name, check for spelling mistakes, or clear your applied filters.
+      <p className="font-mono text-xs text-zinc-500 mb-6">
+        Try alternative culinary queries or clear active criteria.
       </p>
 
       {hasActiveFilters && onClearFilters && (
         <button
           type="button"
           onClick={onClearFilters}
-          className="inline-flex items-center px-4 py-2 text-xs font-semibold text-slate-900 bg-slate-100 hover:bg-slate-200 rounded border border-slate-300 transition-colors"
+          className="forge-btn inline-flex items-center px-4 py-2 text-xs font-mono uppercase tracking-wider text-[#F4F2ED] rounded-lg transition-all"
         >
           Reset applied filters
         </button>

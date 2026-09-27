@@ -32,7 +32,7 @@ export const PrivacyPage: React.FC = () => {
             1. Platform Identity & Scope
           </h2>
           <p>
-            This Privacy Policy governs the collection, use, and protection of information by ShopManu (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), operated by <em>[ShopManu Legal Entity / Company Name]</em>. This policy applies to all users, including visitors searching for food, registered customers, and restaurant owners managing business menus.
+            This Privacy Policy governs the collection, use, and protection of information by ShopManu (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;), operated by <em>[ShopManu Legal Entity / Company Name]</em>. This platform operates an anonymous public discovery model for dining customers, while providing authenticated management accounts exclusively for verified shop and restaurant owners.
           </p>
         </section>
 
@@ -41,9 +41,10 @@ export const PrivacyPage: React.FC = () => {
             2. Customer Location & &quot;Near Me&quot; Proximity
           </h2>
           <p>
-            When you interact with the &quot;Near Me&quot; discovery feature, your browser requests permission to access your device&apos;s geographic coordinates (latitude and longitude).
+            When you interact with the &quot;Near Me&quot; discovery feature as a visitor, your browser requests permission to access your device&apos;s geographic coordinates (latitude and longitude).
           </p>
           <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600">
+            <li><strong>No Account Required:</strong> Customers and visitors freely search and discover nearby dining without creating an account or logging in.</li>
             <li><strong>Session-Only Processing:</strong> Your geographic coordinates are held strictly in temporary browser session memory (<code>sessionStorage</code>) while you actively search.</li>
             <li><strong>No Database Persistence:</strong> Customer coordinates are never written to, stored in, or linked with persistent profile records in our PostgreSQL database.</li>
             <li><strong>No Tracking or Profiling:</strong> We do not track user travel history, compile behavioral location profiles, or sell location data to third-party advertisers.</li>
@@ -53,17 +54,17 @@ export const PrivacyPage: React.FC = () => {
 
         <section className="space-y-3 text-sm text-slate-700 leading-relaxed">
           <h2 className="text-base font-semibold text-slate-900">
-            3. Account & Registration Data
+            3. Shop Owner Account & Registration Data
           </h2>
           <p>
-            When you register for an account (as a customer or restaurant owner), we collect:
+            Registration on ShopManu is exclusively for restaurant and shop owners who wish to list and manage their business menus. When registering as a shop owner, we collect:
           </p>
           <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600">
-            <li>Full Name</li>
-            <li>Email Address</li>
+            <li>Full Owner / Representative Name</li>
+            <li>Business Email Address</li>
             <li>Password (securely salted and hashed via our InsForge backend service; passwords are never visible to or stored in plain text by administrators)</li>
-            <li>Optional contact phone number</li>
-            <li>Account role classification (<code>customer</code>, <code>owner</code>, or <code>admin</code>)</li>
+            <li>Contact telephone number</li>
+            <li>Account role classification (<code>owner</code>)</li>
           </ul>
         </section>
 

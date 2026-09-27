@@ -186,9 +186,9 @@ export const PublicRestaurantPage: React.FC = () => {
   // 1. Loading State
   if (isLoading) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center p-8">
-        <div className="w-8 h-8 border-2 border-slate-900 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-xs text-slate-500 font-medium">Loading restaurant & menu...</p>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 bg-[#080808] text-[#F4F2ED]">
+        <div className="w-10 h-10 border-2 border-[#C5A064] border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="font-mono text-xs uppercase tracking-widest text-zinc-400">Summoning atelier catalog...</p>
       </div>
     );
   }
@@ -197,21 +197,21 @@ export const PublicRestaurantPage: React.FC = () => {
   if (isNotFound) {
     return (
       <div className="min-h-[70vh] max-w-lg mx-auto px-4 flex flex-col items-center justify-center text-center">
-        <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-slate-500 font-bold mb-4">
-          ?
+        <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-[#C5A064] font-mono text-xl mb-5 shadow-2xl">
+          404
         </div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-          Restaurant not found
+        <h1 className="font-editorial text-3xl font-light text-[#F4F2ED] tracking-tight">
+          Specimen Not Located
         </h1>
-        <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-          The restaurant you are looking for does not exist, has been moved, or is currently pending approval.
+        <p className="font-mono text-xs uppercase tracking-widest text-zinc-400 mt-2 leading-relaxed">
+          The atelier or kitchen you are seeking is unindexed or pending accreditation.
         </p>
-        <div className="mt-6">
+        <div className="mt-8">
           <Link
             to="/"
-            className="px-4 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 transition-colors shadow-sm"
+            className="forge-btn px-5 py-2.5 text-xs font-mono uppercase tracking-widest text-[#F4F2ED] rounded-lg transition-all"
           >
-            Back to Home
+            Return to Index
           </Link>
         </div>
       </div>
@@ -222,28 +222,28 @@ export const PublicRestaurantPage: React.FC = () => {
   if (errorMessage || !restaurant) {
     return (
       <div className="min-h-[70vh] max-w-lg mx-auto px-4 flex flex-col items-center justify-center text-center">
-        <div className="w-12 h-12 bg-red-50 text-red-700 rounded-full flex items-center justify-center font-bold mb-4">
+        <div className="w-14 h-14 bg-red-500/10 border border-red-500/30 text-red-400 rounded-2xl flex items-center justify-center font-mono font-bold text-xl mb-5 shadow-2xl">
           !
         </div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-          Unable to load restaurant
+        <h1 className="font-editorial text-3xl font-light text-[#F4F2ED] tracking-tight">
+          Telemetry Interrupted
         </h1>
-        <p className="text-xs text-red-600 mt-2">
-          {errorMessage || 'An unexpected error occurred while loading this page.'}
+        <p className="font-mono text-xs text-zinc-400 mt-2">
+          {errorMessage || 'An unexpected telemetry interruption occurred.'}
         </p>
-        <div className="mt-6 flex gap-3">
+        <div className="mt-8 flex gap-3">
           <button
             type="button"
             onClick={loadRestaurantData}
-            className="px-4 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 transition-colors"
+            className="forge-btn px-5 py-2.5 text-xs font-mono uppercase tracking-widest text-[#F4F2ED] rounded-lg transition-all"
           >
-            Retry
+            Retry Sync
           </button>
           <Link
             to="/"
-            className="px-4 py-2 border border-slate-300 text-slate-700 rounded text-xs font-semibold hover:bg-slate-50 transition-colors"
+            className="px-5 py-2.5 border border-white/15 bg-white/5 hover:border-white/30 text-zinc-300 rounded-lg text-xs font-mono uppercase tracking-widest transition-all"
           >
-            Back to Home
+            Return to Index
           </Link>
         </div>
       </div>
@@ -252,7 +252,7 @@ export const PublicRestaurantPage: React.FC = () => {
 
   // 4. Main Restaurant Content
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-[#080808] text-[#F4F2ED] flex flex-col">
       {/* Restaurant Header */}
       <RestaurantHeader
         restaurant={restaurant}

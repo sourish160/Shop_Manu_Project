@@ -14,8 +14,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
 
   if (isLoading) {
     return (
-      <div className="min-h-[50vh] flex items-center justify-center">
-        <div className="text-slate-500 text-sm">Loading session...</div>
+      <div className="min-h-[50vh] flex flex-col items-center justify-center p-8">
+        <div className="w-8 h-8 border-2 border-[#C5A064] border-t-transparent rounded-full animate-spin mb-3" />
+        <div className="text-zinc-500 font-mono text-xs uppercase tracking-widest">Authenticating Session...</div>
       </div>
     );
   }
@@ -26,23 +27,23 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requir
 
   if (requiredRole && profile?.role !== requiredRole) {
     return (
-      <div className="max-w-md mx-auto my-12 p-6 bg-white border border-slate-200 rounded shadow-sm text-center">
-        <h2 className="text-base font-semibold text-slate-900 mb-2">Access Restricted</h2>
-        <p className="text-sm text-slate-600 mb-4">
-          This area is restricted to {requiredRole} accounts. Your account has the {profile?.role || 'unassigned'} role.
+      <div className="max-w-md mx-auto my-16 p-8 forge-card rounded-2xl border border-white/10 text-center shadow-2xl">
+        <h2 className="font-editorial text-3xl font-light text-[#F4F2ED] mb-2 tracking-tight">Access Restricted</h2>
+        <p className="text-xs font-mono text-zinc-400 mb-6 leading-relaxed">
+          This portal is restricted to {requiredRole === 'owner' ? 'shop owner' : requiredRole} accounts. Your session possesses the {profile?.role || 'unassigned'} role.
         </p>
-        <div className="flex justify-center space-x-3">
+        <div className="flex justify-center space-x-3 font-mono text-xs uppercase tracking-wider">
           <Link
             to="/"
-            className="text-xs px-3 py-1.5 border border-slate-300 rounded font-medium text-slate-700 hover:bg-slate-50"
+            className="px-4 py-2 border border-white/15 bg-white/5 hover:bg-white/10 text-zinc-300 rounded-lg transition-colors"
           >
-            Go Home
+            Index
           </Link>
           <Link
             to="/login"
-            className="text-xs px-3 py-1.5 bg-slate-900 text-white rounded font-medium hover:bg-slate-800"
+            className="forge-btn px-4 py-2 text-[#F4F2ED] rounded-lg transition-all"
           >
-            Switch Account
+            Owner Login
           </Link>
         </div>
       </div>

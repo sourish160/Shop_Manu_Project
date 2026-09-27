@@ -17,10 +17,10 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
   return (
     <nav
       aria-label="Menu categories"
-      className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-slate-200"
+      className="sticky top-16 z-20 bg-[#080808]/90 backdrop-blur-xl border-b border-white/10"
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <ul className="flex items-center space-x-1 sm:space-x-2 overflow-x-auto py-2.5 scrollbar-none">
+        <ul className="flex items-center space-x-1.5 sm:space-x-2 overflow-x-auto py-3 scrollbar-none">
           {categories.map((cat) => {
             const isActive = cat.id === activeCategoryId;
             return (
@@ -28,10 +28,10 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
                 <button
                   type="button"
                   onClick={() => onSelectCategory(cat.id)}
-                  className={`px-3 py-1.5 text-xs font-semibold rounded transition-colors ${
+                  className={`px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider rounded-lg transition-all border ${
                     isActive
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
+                      : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
                   }`}
                 >
                   {cat.name}

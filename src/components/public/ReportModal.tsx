@@ -103,34 +103,34 @@ export const ReportModal: React.FC<ReportModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="report-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
     >
-      <div className="bg-white rounded-md border border-slate-200 shadow-xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
+      <div className="forge-card rounded-2xl border border-white/15 shadow-2xl max-w-md w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
         <button
           type="button"
           onClick={handleResetAndClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg leading-none"
+          className="absolute top-5 right-5 text-zinc-400 hover:text-white text-xl leading-none transition-colors"
           aria-label="Close report dialog"
         >
           &times;
         </button>
 
         {isSuccess ? (
-          <div className="py-6 text-center space-y-3">
-            <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-lg font-bold">
+          <div className="py-6 text-center space-y-3 font-mono">
+            <div className="w-12 h-12 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
               &#10003;
             </div>
-            <h3 id="report-modal-title" className="text-base font-bold text-slate-900">
-              Report Submitted
+            <h3 id="report-modal-title" className="font-editorial text-2xl font-light text-[#F4F2ED]">
+              Notice Recorded
             </h3>
-            <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
-              Thank you for keeping {restaurantName} information accurate. Our moderation team will review this notice.
+            <p className="text-xs text-zinc-400 max-w-sm mx-auto leading-relaxed">
+              Thank you for keeping {restaurantName} telemetry accurate. Our moderation team will review this notice.
             </p>
-            <div className="pt-2">
+            <div className="pt-3">
               <button
                 type="button"
                 onClick={handleResetAndClose}
-                className="px-4 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 transition-colors"
+                className="forge-btn px-5 py-2 text-xs uppercase tracking-widest text-[#F4F2ED] rounded-xl font-semibold"
               >
                 Close
               </button>
@@ -139,29 +139,29 @@ export const ReportModal: React.FC<ReportModalProps> = ({
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <h3 id="report-modal-title" className="text-base font-bold text-slate-900">
-                Report Incorrect Information
+              <h3 id="report-modal-title" className="font-editorial text-2xl sm:text-3xl font-light text-[#F4F2ED] tracking-tight">
+                Submit Information Notice
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Help us keep information accurate for {restaurantName}.
+              <p className="font-mono text-xs text-zinc-400 mt-1">
+                Help ensure accurate pricing & availability for {restaurantName}.
               </p>
             </div>
 
             {errorMsg && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+              <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs font-mono text-red-300">
                 {errorMsg}
               </div>
             )}
 
             <div>
-              <label htmlFor="report-type" className="block text-xs font-semibold text-slate-700 mb-1">
+              <label htmlFor="report-type" className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5">
                 Issue Category *
               </label>
               <select
                 id="report-type"
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value)}
-                className="w-full text-xs border border-slate-300 rounded px-3 py-2 bg-white text-slate-900 focus:outline-hidden focus:ring-1 focus:ring-slate-900"
+                className="w-full text-xs font-mono border border-white/15 rounded-xl px-3.5 py-2 bg-[#0C0C0C] text-[#F4F2ED] focus:outline-none focus:border-[#C5A064] cursor-pointer"
                 required
               >
                 {REPORT_TYPES.map((t) => (
@@ -174,14 +174,14 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 
             {(reportType === 'wrong_price' || reportType === 'food_unavailable') && (
               <div>
-                <label htmlFor="report-food" className="block text-xs font-semibold text-slate-700 mb-1">
+                <label htmlFor="report-food" className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5">
                   Specific Dish (Optional)
                 </label>
                 <select
                   id="report-food"
                   value={selectedFoodId}
                   onChange={(e) => setSelectedFoodId(e.target.value)}
-                  className="w-full text-xs border border-slate-300 rounded px-3 py-2 bg-white text-slate-900 focus:outline-hidden focus:ring-1 focus:ring-slate-900"
+                  className="w-full text-xs font-mono border border-white/15 rounded-xl px-3.5 py-2 bg-[#0C0C0C] text-[#F4F2ED] focus:outline-none focus:border-[#C5A064] cursor-pointer"
                 >
                   <option value="">General menu item issue</option>
                   {foods.map((f) => (
@@ -194,7 +194,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             )}
 
             <div>
-              <label htmlFor="report-details" className="block text-xs font-semibold text-slate-700 mb-1">
+              <label htmlFor="report-details" className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5">
                 Details or Corrections
               </label>
               <textarea
@@ -203,12 +203,12 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 value={details}
                 onChange={(e) => setDetails(e.target.value)}
                 placeholder="What seems incorrect? Provide accurate info if you know it."
-                className="w-full text-xs border border-slate-300 rounded px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-1 focus:ring-slate-900 resize-none"
+                className="w-full text-xs font-mono border border-white/15 rounded-xl px-3.5 py-2 text-[#F4F2ED] bg-white/5 placeholder-zinc-500 focus:outline-none focus:border-[#C5A064] resize-none"
               />
             </div>
 
             <div>
-              <label htmlFor="reporter-email" className="block text-xs font-semibold text-slate-700 mb-1">
+              <label htmlFor="reporter-email" className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5">
                 Your Email (Optional, for follow-up)
               </label>
               <input
@@ -216,23 +216,23 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 type="email"
                 value={reporterEmail}
                 onChange={(e) => setReporterEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="w-full text-xs border border-slate-300 rounded px-3 py-2 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-1 focus:ring-slate-900"
+                placeholder="visitor@example.com"
+                className="w-full text-xs font-mono border border-white/15 rounded-xl px-3.5 py-2 text-[#F4F2ED] bg-white/5 placeholder-zinc-500 focus:outline-none focus:border-[#C5A064]"
               />
             </div>
 
-            <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-100">
+            <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-white/10 font-mono text-xs">
               <button
                 type="button"
                 onClick={handleResetAndClose}
-                className="px-3.5 py-1.5 border border-slate-300 rounded text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                className="px-4 py-2 border border-white/15 rounded-xl uppercase tracking-wider text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
+                className="forge-btn px-5 py-2 uppercase tracking-widest text-[#F4F2ED] rounded-xl font-semibold transition-all disabled:opacity-50"
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Report'}
               </button>

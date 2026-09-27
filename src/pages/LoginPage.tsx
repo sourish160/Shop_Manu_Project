@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Loader2 } from 'lucide-react';
-
+import { Loader2, Store, Info } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
 
 // Safe internal redirect validator (prevents open redirects)
@@ -17,7 +16,8 @@ export const LoginPage: React.FC = () => {
   const location = useLocation();
 
   useSEO({
-    title: 'Sign In',
+    title: 'Shop Owner Login',
+    description: 'Sign in to access your restaurant management dashboard.',
     noIndex: true,
   });
 
@@ -31,7 +31,7 @@ export const LoginPage: React.FC = () => {
     setErrorMsg(null);
 
     if (!email.trim() || !password) {
-      setErrorMsg('Please enter both email and password.');
+      setErrorMsg('Please enter both your business email and password.');
       return;
     }
 
@@ -39,6 +39,7 @@ export const LoginPage: React.FC = () => {
     try {
       const profile = await login(email, password);
       const from = (location.state as any)?.from?.pathname;
+
       if (from && isSafeInternalRedirect(from)) {
         navigate(from, { replace: true });
       } else if (profile.role === 'admin') {
@@ -46,6 +47,7 @@ export const LoginPage: React.FC = () => {
       } else if (profile.role === 'owner') {
         navigate('/owner', { replace: true });
       } else {
+        // If a legacy account logs in, inform that browsing requires no account
         navigate('/', { replace: true });
       }
     } catch (err: any) {
@@ -57,18 +59,31 @@ export const LoginPage: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto my-12 px-4">
-      <div className="bg-white border border-slate-200 rounded-lg p-6 sm:p-8 shadow-sm">
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight mb-1">
-          Sign In
+      <div className="forge-card rounded-2xl p-6 sm:p-8 shadow-2xl">
+        {/* Header Icon & Title */}
+        <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#C5A064] mb-4 shadow-inner">
+          <Store className="w-6 h-6" />
+        </div>
+
+        <h1 className="font-editorial text-3xl font-light text-[#F4F2ED] tracking-tight mb-1.5">
+          Shop Owner Login
         </h1>
-        <p className="text-xs text-slate-500 mb-6">
-          Access your restaurant owner, customer, or administrator account.
+        <p className="text-xs text-zinc-400 font-light mb-6 leading-relaxed">
+          Sign in with your registered shop owner credentials to manage your restaurant, menu items, variant pricing, and operating schedule.
         </p>
+
+        {/* Public Visitor Notice */}
+        <div className="mb-6 p-3 bg-white/5 border border-white/10 rounded-xl flex items-start space-x-2.5 text-xs text-zinc-400 font-light">
+          <Info className="w-4 h-4 text-[#C5A064] flex-shrink-0 mt-0.5" />
+          <p className="leading-relaxed">
+            <span className="text-[#F4F2ED] font-medium">Visiting customer?</span> Browsing menus, finding restaurants, and checking prices does not require login or registration.
+          </p>
+        </div>
 
         {errorMsg && (
           <div
             role="alert"
-            className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700 leading-relaxed"
+            className="mb-5 p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-300 leading-relaxed font-mono"
           >
             {errorMsg}
           </div>
@@ -78,9 +93,9 @@ export const LoginPage: React.FC = () => {
           <div>
             <label
               htmlFor="login-email"
-              className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1"
+              className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5"
             >
-              Email Address <span className="text-red-500" aria-hidden="true">*</span>
+              Business Email Address <span className="text-amber-500" aria-hidden="true">*</span>
             </label>
             <input
               id="login-email"
@@ -89,20 +104,20 @@ export const LoginPage: React.FC = () => {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="user@example.com"
+              placeholder="owner@atelier.com"
               required
               aria-required="true"
               disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent disabled:bg-slate-100"
+              className="w-full px-3.5 py-2.5 text-sm bg-white/5 border border-white/15 rounded-xl text-[#F4F2ED] placeholder-zinc-500 focus:outline-none focus:border-[#C5A064] font-mono disabled:opacity-50 transition-colors"
             />
           </div>
 
           <div>
             <label
               htmlFor="login-password"
-              className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1"
+              className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5"
             >
-              Password <span className="text-red-500" aria-hidden="true">*</span>
+              Password <span className="text-amber-500" aria-hidden="true">*</span>
             </label>
             <input
               id="login-password"
@@ -111,34 +126,36 @@ export const LoginPage: React.FC = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your account password"
+              placeholder="Enter your owner password"
               required
               aria-required="true"
               disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent disabled:bg-slate-100"
+              className="w-full px-3.5 py-2.5 text-sm bg-white/5 border border-white/15 rounded-xl text-[#F4F2ED] placeholder-zinc-500 focus:outline-none focus:border-[#C5A064] font-mono disabled:opacity-50 transition-colors"
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-2.5 bg-slate-900 text-white rounded text-sm font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors flex items-center justify-center space-x-2"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-white" aria-hidden="true" />
-                <span>Signing in...</span>
-              </>
-            ) : (
-              <span>Sign In</span>
-            )}
-          </button>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="forge-btn w-full py-3 text-xs font-mono uppercase tracking-widest text-[#F4F2ED] rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-[#C5A064]" aria-hidden="true" />
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <span>Shop Owner Sign In</span>
+              )}
+            </button>
+          </div>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
-          Do not have an account?{' '}
-          <Link to="/register" className="text-slate-900 font-semibold hover:underline">
-            Register here
+        <div className="mt-6 pt-5 border-t border-white/10 text-center text-xs font-mono text-zinc-400">
+          Want to list your restaurant?{' '}
+          <Link to="/register" className="text-[#C5A064] hover:text-white transition-colors underline">
+            Register Your Shop
           </Link>
         </div>
       </div>
