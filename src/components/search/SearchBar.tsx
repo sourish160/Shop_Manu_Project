@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, X, Loader2, Utensils, Store, MapPin } from 'lucide-react';
+import { Search, X, Loader2, Utensils, Store, MapPin, Layers } from 'lucide-react';
 import { fetchSearchSuggestions, SearchSuggestion } from '../../services/searchService';
 
 interface SearchBarProps {
@@ -16,7 +16,7 @@ interface SearchBarProps {
 export const SearchBar: React.FC<SearchBarProps> = ({
   initialValue = '',
   onSearch,
-  placeholder = 'Search food or restaurant',
+  placeholder = 'Search dishes, portions, or food shops...',
   autoFocus = false,
   className = '',
   size = 'default',
@@ -33,12 +33,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Sync external initialValue if it changes
   useEffect(() => {
     setQuery(initialValue);
   }, [initialValue]);
 
-  // Handle outside clicks to close suggestion dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -51,7 +49,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     };
   }, []);
 
-  // Fetch suggestions with debounce
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setQuery(val);
@@ -79,7 +76,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       } finally {
         setIsSuggesting(false);
       }
-    }, 280); // 280ms debounce
+    }, 280);
   };
 
   const handleClear = () => {
@@ -102,7 +99,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     onSearch(item.title);
   };
 
-  // Keyboard navigation through suggestions
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!isOpen || suggestions.length === 0) {
       if (e.key === 'Enter') {
@@ -135,8 +131,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     <div ref={containerRef} className={`relative w-full ${className}`}>
       <form onSubmit={handleSubmit} role="search" className="relative flex items-center">
         {/* Leading Search Icon */}
-        <div className="absolute left-3.5 sm:left-4 pointer-events-none text-[#C5A064] flex items-center">
-          <Search className={isLarge ? 'w-5 h-5' : 'w-4 h-4'} aria-hidden="true" />
+        <div className="absolute left-4 pointer-events-none text-cream-200/50 flex items-center">
+          <Search className={isLarge ? 'w-5 h-5 text-amber-400' : 'w-4 h-4 text-amber-400'} aria-hidden="true" />
         </div>
 
         {/* Input Field */}
@@ -154,17 +150,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           aria-label="Search food or restaurant"
           aria-autocomplete="list"
           aria-expanded={isOpen}
-          className={`w-full bg-[#0C0C0C]/80 text-[#F4F2ED] border border-white/15 rounded-xl placeholder-zinc-500
-            transition-all duration-300 focus:outline-none focus:border-[#C5A064] focus:ring-1 focus:ring-[#C5A064]/50
-            backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.5)]
-            ${isLarge ? 'pl-12 pr-28 py-3.5 text-base sm:text-lg' : 'pl-10 pr-24 py-2.5 text-sm'}
+          className={`w-full bg-[#14100D] text-cream-100 border border-cream-200/20 placeholder-cream-200/40 rounded-xl
+            transition-all duration-200 focus:outline-none focus:border-amber-400/70 focus:bg-[#1A1410] focus:ring-1 focus:ring-amber-400/50 shadow-xl
+            ${isLarge ? 'pl-12 pr-32 py-4 text-sm sm:text-base font-normal tracking-wide' : 'pl-10 pr-28 py-3 text-xs sm:text-sm font-normal tracking-wide'}
           `}
         />
 
-        {/* Trailing Controls: Loading Spinner, Clear Button, Search Action */}
-        <div className="absolute right-2 flex items-center space-x-1.5">
+        {/* Trailing Controls */}
+        <div className="absolute right-2.5 flex items-center space-x-2">
           {(isSuggesting || isLoading) && (
-            <div className="p-1.5 text-[#C5A064] animate-spin" aria-label="Loading suggestions">
+            <div className="p-1 text-amber-400 animate-spin" aria-label="Loading suggestions">
               <Loader2 className={isLarge ? 'w-4 h-4' : 'w-3.5 h-3.5'} />
             </div>
           )}
@@ -174,7 +169,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
               type="button"
               onClick={handleClear}
               aria-label="Clear search input"
-              className="p-1.5 text-zinc-400 hover:text-white rounded-full hover:bg-white/10 transition-colors"
+              className="p-1.5 text-cream-200/50 hover:text-cream-100 transition-colors"
             >
               <X className={isLarge ? 'w-4 h-4' : 'w-3.5 h-3.5'} />
             </button>
@@ -183,8 +178,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <button
             type="submit"
             aria-label="Submit search"
-            className={`font-mono uppercase tracking-widest text-xs font-semibold rounded-lg text-[#F4F2ED] forge-btn transition-all
-              ${isLarge ? 'px-4 py-2 text-xs' : 'px-3 py-1.5 text-[11px]'}
+            className={`font-sans uppercase tracking-widest text-[11px] font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-espresso-950 transition-all rounded-lg shadow-md active:scale-95
+              ${isLarge ? 'px-4 py-2.5' : 'px-3.5 py-1.5'}
             `}
           >
             Search
@@ -192,12 +187,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         </div>
       </form>
 
-      {/* Debounced Real-Data Suggestions Dropdown */}
+      {/* Real-Data Suggestions Dropdown */}
       {isOpen && suggestions.length > 0 && (
         <ul
           role="listbox"
           aria-label="Search suggestions"
-          className="absolute z-50 left-0 right-0 mt-2 bg-[#0C0C0C]/95 backdrop-blur-2xl border border-[#C5A064]/30 rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] overflow-hidden py-1 max-h-72 overflow-y-auto divide-y divide-white/5 animate-fadeIn"
+          className="absolute z-50 left-0 right-0 mt-2 bg-[#16110E] border border-cream-200/15 shadow-2xl rounded-xl overflow-hidden py-1.5 max-h-72 overflow-y-auto divide-y divide-cream-200/10 backdrop-blur-md"
         >
           {suggestions.map((item, index) => {
             const isHighlighted = index === highlightedIndex;
@@ -209,33 +204,35 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 onMouseEnter={() => setHighlightedIndex(index)}
                 onClick={() => handleSelectSuggestion(item)}
                 className={`px-4 py-3 cursor-pointer flex items-center justify-between text-left transition-colors ${
-                  isHighlighted ? 'bg-[#C5A064]/15 text-[#F4F2ED]' : 'text-zinc-300 hover:bg-white/5'
+                  isHighlighted ? 'bg-amber-400/15 text-cream-100' : 'text-cream-200/80 hover:bg-cream-100/[0.06]'
                 }`}
               >
                 <div className="flex items-center space-x-3 overflow-hidden">
-                  <div className="text-[#C5A064] flex-shrink-0">
+                  <div className="text-amber-400 flex-shrink-0">
                     {item.type === 'food' ? (
-                      <Utensils className="w-4 h-4" />
+                      <Utensils className="w-4 h-4 text-amber-400" />
                     ) : item.type === 'restaurant' ? (
-                      <Store className="w-4 h-4" />
+                      <Store className="w-4 h-4 text-amber-300" />
+                    ) : item.type === 'category' ? (
+                      <Layers className="w-4 h-4 text-amber-400" />
                     ) : (
-                      <MapPin className="w-4 h-4" />
+                      <MapPin className="w-4 h-4 text-amber-400" />
                     )}
                   </div>
                   <div className="truncate">
-                    <span className="font-medium text-[#F4F2ED] text-sm block truncate">
+                    <span className="font-serif font-normal text-cream-100 text-sm block truncate">
                       {item.title}
                     </span>
                     {item.subtitle && (
-                      <span className="text-xs text-zinc-400 font-mono block truncate">
+                      <span className="text-[11px] text-cream-200/50 block truncate font-sans">
                         {item.subtitle}
                       </span>
                     )}
                   </div>
                 </div>
 
-                <span className="ml-2 text-[9px] font-mono uppercase tracking-widest text-[#C5A064] bg-[#C5A064]/10 px-2 py-0.5 rounded border border-[#C5A064]/30 flex-shrink-0">
-                  {item.type === 'food' ? 'Food' : item.type === 'restaurant' ? 'Restaurant' : 'Location'}
+                <span className="ml-2 text-[9px] font-mono uppercase tracking-widest text-amber-300 bg-amber-400/10 px-2 py-0.5 border border-amber-400/20 rounded flex-shrink-0">
+                  {item.type === 'food' ? 'Dish' : item.type === 'restaurant' ? 'Shop' : item.type === 'category' ? 'Category' : 'Area'}
                 </span>
               </li>
             );

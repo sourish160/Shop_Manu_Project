@@ -17,10 +17,10 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
   return (
     <nav
       aria-label="Menu categories"
-      className="sticky top-16 z-20 bg-[#080808]/90 backdrop-blur-xl border-b border-white/10"
+      className="sticky top-16 z-20 bg-[#0A0807]/92 backdrop-blur-md border-b border-cream-200/10 shadow-xl"
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <ul className="flex items-center space-x-1.5 sm:space-x-2 overflow-x-auto py-3 scrollbar-none">
+        <ul className="flex items-center space-x-2.5 overflow-x-auto py-3 scrollbar-none">
           {categories.map((cat) => {
             const isActive = cat.id === activeCategoryId;
             return (
@@ -28,10 +28,10 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
                 <button
                   type="button"
                   onClick={() => onSelectCategory(cat.id)}
-                  className={`px-3.5 py-1.5 text-xs font-mono uppercase tracking-wider rounded-lg transition-all border ${
+                  className={`px-4 py-2 text-xs font-mono uppercase tracking-wider rounded-lg transition-all whitespace-nowrap border ${
                     isActive
-                      ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
-                      : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-espresso-950 border-amber-500 font-semibold shadow-md'
+                      : 'bg-[#14100D] border-cream-200/15 text-cream-200/70 hover:bg-cream-100/[0.08] hover:text-cream-100'
                   }`}
                 >
                   {cat.name}

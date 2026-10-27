@@ -11,30 +11,149 @@
 
   body {
     margin: 0;
-    font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
-    background-color: #080808;
-    color: #F4F2ED;
+    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+    background-color: #0A0807;
+    color: #F5F2EB;
     line-height: 1.6;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.005em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Accessible focus indicators with gold luxury accent */
+  /* Selection styling with warm amber */
+  ::selection {
+    background-color: rgba(200, 138, 88, 0.35);
+    color: #FAF8F5;
+  }
+
+  /* Accessible focus indicators with amber accent */
   *:focus-visible {
-    outline: 2px solid #C5A064;
-    outline-offset: 3px;
+    outline: 2px solid #C88A58;
+    outline-offset: 2px;
   }
 
   /* Form control defaults */
   input, select, textarea, button {
     font-family: inherit;
   }
+
+  /* Editorial serif headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: #FAF8F5;
+  }
+}
+
+@layer components {
+  /* Cinematic editorial card */
+  .editorial-card {
+    background-color: rgba(18, 14, 12, 0.82);
+    border: 1px solid rgba(245, 242, 235, 0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    color: #F5F2EB;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .editorial-card:hover {
+    border-color: rgba(200, 138, 88, 0.45);
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.7), 0 0 24px -6px rgba(200, 138, 88, 0.18);
+    transform: translateY(-2px);
+  }
+
+  /* Velluto-style backward compatible card */
+  .velluto-card {
+    background-color: rgba(18, 14, 12, 0.82);
+    border: 1px solid rgba(245, 242, 235, 0.12);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    color: #F5F2EB;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .velluto-card:hover {
+    border-color: rgba(200, 138, 88, 0.45);
+    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.7), 0 0 24px -6px rgba(200, 138, 88, 0.18);
+    transform: translateY(-2px);
+  }
+
+  /* Amber accent button */
+  .velluto-btn-amber {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.625rem 1.5rem;
+    background-color: #C88A58;
+    color: #12100E;
+    border: 1px solid #C88A58;
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.15s ease;
+  }
+
+  .velluto-btn-amber:hover {
+    background-color: #D49A65;
+    border-color: #D49A65;
+  }
+
+  /* Chapter label — uppercase letter-spaced tracking */
+  .chapter-label {
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #C88A58;
+  }
+
+  .velluto-label {
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #C88A58;
+  }
+
+  /* Luxury glass panel */
+  .glass-panel {
+    background: rgba(18, 14, 12, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(245, 242, 235, 0.12);
+  }
+
+  .glass-panel-elevated {
+    background: rgba(22, 18, 15, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(245, 242, 235, 0.16);
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.8), 0 0 35px -8px rgba(200, 138, 88, 0.12);
+  }
 }
 
 @layer utilities {
-  /* Minimal touch targets for mobile accessibility */
-  .touch-target {
-    min-height: 44px;
-    min-width: 44px;
+  /* Large Outlined Typography (Velluto signature) */
+  .text-stroke-cream {
+    -webkit-text-stroke: 1px rgba(245, 242, 235, 0.22);
+    color: transparent;
+  }
+
+  .text-stroke-amber {
+    -webkit-text-stroke: 1px rgba(200, 138, 88, 0.35);
+    color: transparent;
+  }
+
+  .text-stroke-gold {
+    -webkit-text-stroke: 1px rgba(251, 191, 36, 0.38);
+    color: transparent;
   }
 
   /* Hide scrollbars while preserving scrolling */
@@ -46,156 +165,47 @@
     scrollbar-width: none;
   }
 
-  .bg-radial-gradient {
-    background-image: radial-gradient(circle at center, var(--tw-gradient-stops));
-  }
-
-  .animate-spin-slow {
-    animation: spin 12s linear infinite;
-  }
-
-  /* High-contrast black text border and shadow utilities for map/video overlays */
-  .text-outline-black {
-    -webkit-text-stroke: 1.5px #000000;
-    paint-order: stroke fill;
-    text-shadow:
-      -2px -2px 0 #000000,
-       2px -2px 0 #000000,
-      -2px  2px 0 #000000,
-       2px  2px 0 #000000,
-       0 4px 12px rgba(0, 0, 0, 0.95),
-       0 8px 30px rgba(0, 0, 0, 0.9);
-  }
-
-  .text-outline-sm {
-    -webkit-text-stroke: 1px #000000;
-    paint-order: stroke fill;
-    text-shadow:
-      -1px -1px 0 #000000,
-       1px -1px 0 #000000,
-      -1px  1px 0 #000000,
-       1px  1px 0 #000000,
-       0 2px 8px rgba(0, 0, 0, 0.95);
-  }
-
-  .text-shadow-deep {
-    text-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.95),
-      0 4px 12px rgba(0, 0, 0, 0.95),
-      0 8px 24px rgba(0, 0, 0, 0.9);
-  }
-
-  .filter-outline-glow {
-    filter:
-      drop-shadow(0 0 2px #000000)
-      drop-shadow(0 0 4px #000000)
-      drop-shadow(0 4px 10px rgba(0, 0, 0, 0.95));
-  }
-
-  /* Forge Automotive Signature Conic Shimmer Button */
-  .forge-btn {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.85rem 1.8rem;
-    background: #0E0E0E;
-    color: #F4F2ED;
-    border: 1px solid rgba(244, 242, 237, 0.15);
-    font-family: "Space Mono", monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    text-decoration: none;
-    cursor: pointer;
-    overflow: hidden;
-    transition: border-color 0.4s ease, color 0.4s ease, transform 0.3s ease;
-  }
-
-  .forge-btn:hover {
-    border-color: #C5A064;
-    color: #FFFFFF;
-    transform: translateY(-1px);
-    box-shadow: 0 0 20px rgba(197, 160, 100, 0.2);
-  }
-
-  .forge-btn::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    background: conic-gradient(
-      from var(--gradient-angle) at center,
-      transparent 0%,
-      rgba(197, 160, 100, 0.8) 15%,
-      #ffffff 20%,
-      rgba(197, 160, 100, 0.8) 25%,
-      transparent 40%
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    padding: 1px;
-    animation: gradient-angle 4s linear infinite;
-    pointer-events: none;
-    opacity: 0.4;
-    transition: opacity 0.3s ease;
-  }
-
-  .forge-btn:hover::before {
-    opacity: 1;
-    animation-duration: 2.2s;
-  }
-
-  /* Forge Atelier Frosted Glass Card */
-  .forge-card {
-    background: radial-gradient(120% 120% at 50% 0%, rgba(26, 26, 26, 0.8) 0%, rgba(13, 13, 13, 0.95) 100%);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(244, 242, 237, 0.08);
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .forge-card:hover {
-    border-color: rgba(197, 160, 100, 0.4);
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.8), 0 0 30px rgba(197, 160, 100, 0.08);
-    transform: translateY(-2px);
-  }
-
-  /* Forge Subtle Carbon Texture Overlay */
-  .forge-carbon-bg {
-    background-color: #080808;
-    background-image: radial-gradient(rgba(244, 242, 237, 0.04) 1px, transparent 1px);
-    background-size: 24px 24px;
-  }
-
-  /* Editorial Marquee Ticker */
-  .animate-marquee {
-    display: flex;
-    width: max-content;
-    animation: marqueeTicker 30s linear infinite;
-  }
-
-  .animate-marquee:hover {
-    animation-play-state: paused;
+  /* Minimal touch targets for mobile accessibility */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 
-@property --gradient-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes gradient-angle {
-  to {
-    --gradient-angle: 360deg;
+/* Continuous Marquee Animation */
+@keyframes marqueeLeft {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }
 
-@keyframes marqueeTicker {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+@keyframes marqueeRight {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: marqueeLeft 32s linear infinite;
+}
+
+.animate-marquee-right {
+  display: flex;
+  width: max-content;
+  animation: marqueeRight 32s linear infinite;
+}
+
+.animate-marquee-left:hover,
+.animate-marquee-right:hover {
+  animation-play-state: paused;
 }
 
 /* Reduced motion accessibility */
@@ -207,5 +217,11 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .animate-marquee-left,
+  .animate-marquee-right {
+    animation: none !important;
+    transform: none !important;
   }
 }

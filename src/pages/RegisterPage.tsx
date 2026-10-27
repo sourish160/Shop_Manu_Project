@@ -9,8 +9,8 @@ export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
 
   useSEO({
-    title: 'Register Your Shop',
-    description: 'Create a verified shop owner account to list and manage your restaurant on Shop Manu.',
+    title: 'Register Your Food Shop',
+    description: 'Create a verified shop owner account to list and manage your food shop on ManuMania.',
     noIndex: true,
   });
 
@@ -65,32 +65,35 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto my-12 px-4">
-      <div className="forge-card rounded-2xl p-6 sm:p-8 shadow-2xl">
+    <div className="max-w-md mx-auto my-16 px-4 w-full">
+      <div className="editorial-card bg-[#120E0C] border border-cream-200/10 p-8 sm:p-10 rounded-sm">
         {/* Header Icon & Title */}
-        <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-[#C5A064] mb-4 shadow-inner">
-          <Store className="w-6 h-6" />
+        <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-6 rounded-sm">
+          <Store className="w-6 h-6 stroke-[1.2]" />
         </div>
 
-        <h1 className="font-editorial text-3xl font-light text-[#F4F2ED] tracking-tight mb-1.5">
-          Register Your Shop
+        <span className="font-mono text-[10px] uppercase tracking-widest text-amber-400 block mb-1">
+          MERCHANT ONBOARDING
+        </span>
+        <h1 className="font-serif text-2xl sm:text-3xl font-medium text-cream-100 tracking-tight mb-2">
+          Register Your Food Shop
         </h1>
-        <p className="text-xs text-zinc-400 font-light mb-6 leading-relaxed">
-          Create an authenticated shop owner account to list and manage your restaurant, menu items, live portion pricing, and weekly schedules.
+        <p className="text-xs text-cream-300/60 mb-6 leading-relaxed">
+          Create an owner account to list your business, manage menus, set dish variant prices, and configure operating schedules.
         </p>
 
         {/* Public Visitor Notice */}
-        <div className="mb-6 p-3 bg-white/5 border border-white/10 rounded-xl flex items-start space-x-2.5 text-xs text-zinc-400 font-light">
-          <Info className="w-4 h-4 text-[#C5A064] flex-shrink-0 mt-0.5" />
+        <div className="mb-6 p-4 bg-[#181310] border border-cream-200/10 flex items-start space-x-3 text-xs text-cream-300/70 rounded-xs">
+          <Info className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
           <p className="leading-relaxed">
-            <span className="text-[#F4F2ED] font-medium">Looking for food?</span> Customers do not require an account. You can freely search, view menus, and get directions without registering.
+            <strong className="text-cream-100 font-medium">Looking for food?</strong> Customers do not need an account. You can freely search, view menus, and get directions without registering.
           </p>
         </div>
 
         {errorMsg && (
           <div
             role="alert"
-            className="mb-5 p-3.5 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-300 leading-relaxed font-mono"
+            className="mb-5 p-3.5 bg-red-950/40 border border-red-500/40 text-xs font-mono text-red-200 leading-relaxed rounded-xs"
           >
             {errorMsg}
           </div>
@@ -100,9 +103,9 @@ export const RegisterPage: React.FC = () => {
           <div>
             <label
               htmlFor="reg-name"
-              className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5"
+              className="block text-[10px] font-mono uppercase tracking-wider text-cream-300/60 mb-1"
             >
-              Owner / Representative Name <span className="text-amber-500" aria-hidden="true">*</span>
+              Owner / Representative Name <span className="text-amber-400" aria-hidden="true">*</span>
             </label>
             <input
               id="reg-name"
@@ -111,20 +114,20 @@ export const RegisterPage: React.FC = () => {
               autoComplete="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Marco Rossi"
+              placeholder="e.g. Ramesh Kumar"
               required
               aria-required="true"
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 text-sm bg-white/5 border border-white/15 rounded-xl text-[#F4F2ED] placeholder-zinc-500 focus:outline-none focus:border-[#C5A064] font-mono disabled:opacity-50 transition-colors"
+              className="w-full px-3.5 py-2.5 text-xs font-mono bg-[#181310] border border-cream-200/15 text-cream-100 placeholder-cream-300/30 focus:outline-none focus:border-amber-400/60 disabled:opacity-50 transition-colors rounded-xs"
             />
           </div>
 
           <div>
             <label
               htmlFor="reg-email"
-              className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5"
+              className="block text-[10px] font-mono uppercase tracking-wider text-cream-300/60 mb-1"
             >
-              Business Email Address <span className="text-amber-500" aria-hidden="true">*</span>
+              Business Email Address <span className="text-amber-400" aria-hidden="true">*</span>
             </label>
             <input
               id="reg-email"
@@ -133,20 +136,20 @@ export const RegisterPage: React.FC = () => {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="owner@atelier.com"
+              placeholder="owner@yourrestaurant.com"
               required
               aria-required="true"
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 text-sm bg-white/5 border border-white/15 rounded-xl text-[#F4F2ED] placeholder-zinc-500 focus:outline-none focus:border-[#C5A064] font-mono disabled:opacity-50 transition-colors"
+              className="w-full px-3.5 py-2.5 text-xs font-mono bg-[#181310] border border-cream-200/15 text-cream-100 placeholder-cream-300/30 focus:outline-none focus:border-amber-400/60 disabled:opacity-50 transition-colors rounded-xs"
             />
           </div>
 
           <div>
             <label
               htmlFor="reg-password"
-              className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5"
+              className="block text-[10px] font-mono uppercase tracking-wider text-cream-300/60 mb-1"
             >
-              Password <span className="text-amber-500" aria-hidden="true">*</span>
+              Password <span className="text-amber-400" aria-hidden="true">*</span>
             </label>
             <input
               id="reg-password"
@@ -159,16 +162,16 @@ export const RegisterPage: React.FC = () => {
               required
               aria-required="true"
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 text-sm bg-white/5 border border-white/15 rounded-xl text-[#F4F2ED] placeholder-zinc-500 focus:outline-none focus:border-[#C5A064] font-mono disabled:opacity-50 transition-colors"
+              className="w-full px-3.5 py-2.5 text-xs font-mono bg-[#181310] border border-cream-200/15 text-cream-100 placeholder-cream-300/30 focus:outline-none focus:border-amber-400/60 disabled:opacity-50 transition-colors rounded-xs"
             />
           </div>
 
           <div>
             <label
               htmlFor="reg-phone"
-              className="block text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-1.5"
+              className="block text-[10px] font-mono uppercase tracking-wider text-cream-300/60 mb-1"
             >
-              Contact Telephone <span className="text-zinc-500 font-normal lowercase">(optional)</span>
+              Contact Telephone <span className="text-cream-300/40 font-normal">(optional)</span>
             </label>
             <input
               id="reg-phone"
@@ -179,32 +182,32 @@ export const RegisterPage: React.FC = () => {
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+91 98301 23456"
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 text-sm bg-white/5 border border-white/15 rounded-xl text-[#F4F2ED] placeholder-zinc-500 focus:outline-none focus:border-[#C5A064] font-mono disabled:opacity-50 transition-colors"
+              className="w-full px-3.5 py-2.5 text-xs font-mono bg-[#181310] border border-cream-200/15 text-cream-100 placeholder-cream-300/30 focus:outline-none focus:border-amber-400/60 disabled:opacity-50 transition-colors rounded-xs"
             />
           </div>
 
-          <div className="pt-2">
+          <div className="pt-3">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="forge-btn w-full py-3 text-xs font-mono uppercase tracking-widest text-[#F4F2ED] rounded-xl font-semibold flex items-center justify-center space-x-2 transition-all disabled:opacity-50"
+              className="w-full py-3 px-4 text-xs font-mono uppercase tracking-wider font-semibold text-[#0A0807] bg-amber-400 hover:bg-amber-300 flex items-center justify-center space-x-2 transition-colors disabled:opacity-50 rounded-xs"
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-[#C5A064]" aria-hidden="true" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#0A0807]" aria-hidden="true" />
                   <span>Registering shop...</span>
                 </>
               ) : (
-                <span>Register Your Shop</span>
+                <span>Register & Open Dashboard</span>
               )}
             </button>
           </div>
         </form>
 
-        <div className="mt-6 pt-5 border-t border-white/10 text-center text-xs font-mono text-zinc-400">
+        <div className="mt-8 pt-5 border-t border-cream-200/10 text-center text-xs text-cream-300/60">
           Already registered as a shop owner?{' '}
-          <Link to="/login" className="text-[#C5A064] hover:text-white transition-colors underline">
-            Shop Owner Login
+          <Link to="/owner/login" className="text-amber-400 hover:text-amber-300 font-mono font-medium underline">
+            Owner Sign In
           </Link>
         </div>
       </div>

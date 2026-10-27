@@ -48,10 +48,13 @@ export interface Restaurant {
   updated_at: string;
 }
 
+export type FoodVegType = 'veg' | 'non_veg';
+
 export interface Category {
   id: string;
   restaurant_id: string;
   name: string;
+  description?: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -67,6 +70,16 @@ export interface FoodVariant {
   updated_at: string;
 }
 
+export interface FoodAddon {
+  id: string;
+  restaurant_id: string;
+  name: string;
+  price: number;
+  available: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Food {
   id: string;
   restaurant_id: string;
@@ -75,13 +88,58 @@ export interface Food {
   slug: string;
   description: string | null;
   image_url: string | null;
-  veg_type: 'veg' | 'non_veg';
+  veg_type: FoodVegType;
   available: boolean;
   status: 'active' | 'archived';
+  prep_time_minutes?: number | null;
+  base_price?: number | null;
+  discount_price?: number | null;
   created_at: string;
   updated_at: string;
   variants?: FoodVariant[];
   category?: Category;
+  addons?: FoodAddon[];
+  addon_ids?: string[];
+}
+
+export type ComboType =
+  | 'single'
+  | 'meal'
+  | 'family'
+  | 'couple'
+  | 'party'
+  | 'breakfast'
+  | 'lunch'
+  | 'dinner';
+
+export interface ComboItem {
+  id: string;
+  combo_id: string;
+  food_id: string;
+  quantity: number;
+  variant_id?: string | null;
+  created_at: string;
+  food?: Food;
+  variant?: FoodVariant;
+}
+
+export interface Combo {
+  id: string;
+  restaurant_id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  combo_type: ComboType;
+  veg_type: FoodVegType;
+  original_price: number;
+  combo_price: number;
+  savings: number;
+  image_url: string | null;
+  available: boolean;
+  status: 'active' | 'archived';
+  created_at: string;
+  updated_at: string;
+  items?: ComboItem[];
 }
 
 export interface PriceHistory {
@@ -90,6 +148,7 @@ export interface PriceHistory {
   old_price: number;
   new_price: number;
   changed_by: string | null;
+  changed_by_name?: string | null;
   changed_at: string;
 }
 

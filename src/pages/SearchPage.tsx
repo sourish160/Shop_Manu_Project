@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { SearchBar } from '../components/search/SearchBar';
 import { SearchFilters } from '../components/search/SearchFilters';
 import { FoodResultCard } from '../components/search/FoodResultCard';
@@ -7,6 +7,7 @@ import { RestaurantResultCard } from '../components/search/RestaurantResultCard'
 import { EmptySearchState } from '../components/search/EmptySearchState';
 import { SearchErrorState } from '../components/search/SearchErrorState';
 import { Pagination } from '../components/search/Pagination';
+import { PriceComparisonView } from '../components/search/PriceComparisonView';
 import {
   executeUnifiedSearch,
   UnifiedSearchResult,
@@ -21,8 +22,9 @@ import {
   validateCoordinates,
   getCurrentLocation,
 } from '../../src/utils/geolocation';
-import { Utensils, Store, MapPin, Layers, Loader2, Navigation } from 'lucide-react';
+import { Utensils, Store, MapPin, Layers, Loader2, Navigation, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
+import { sanitizeErrorMessage } from '../utils/errorHandler';
 
 const PAGE_SIZE = 12;
 
@@ -32,6 +34,8 @@ export const SearchPage: React.FC = () => {
   // Extract params from URL
   const queryParam = searchParams.get('q') || '';
   const tabParam = (searchParams.get('tab') as 'all' | 'foods' | 'restaurants' | 'locations') || 'all';
+  const categoryParam = searchParams.get('category') || '';
+  const viewModeParam = (searchParams.get('view') as 'grid' | 'comparison') || 'grid';
   const vegParam = (searchParams.get('veg') as 'all' | 'veg' | 'non_veg') || 'all';
   const availableParam = searchParams.get('available') === 'true';
   const openNowParam = searchParams.get('openNow') === 'true';
@@ -42,9 +46,11 @@ export const SearchPage: React.FC = () => {
   const radiusParam = searchParams.get('radius') ? parseFloat(searchParams.get('radius')!) : DEFAULT_RADIUS_KM;
   const sortByParam = (searchParams.get('sortBy') as 'nearest' | 'relevance' | 'price_asc' | 'price_desc') || null;
 
+  // View Mode: Grid (responsive cards) or Comparison (side-by-side portion prices across shops)
+  const [viewMode, setViewMode] = useState<'grid' | 'comparison'>(viewModeParam);
+
   // Location State
   const [locationState, setLocationState] = useState<LocationState>(() => {
-    // 1. If location param is 'near-me'
     if (locationParam === 'near-me') {
       const saved = loadSessionLocation();
       if (saved && saved.type === 'current' && saved.latitude && saved.longitude) {
@@ -59,7 +65,6 @@ export const SearchPage: React.FC = () => {
       };
     }
 
-    // 2. If location param matches a known locality
     if (locationParam) {
       const resolved = resolveLocationQuery(locationParam);
       if (resolved) {
@@ -73,7 +78,6 @@ export const SearchPage: React.FC = () => {
       }
     }
 
-    // 3. Fallback: check session location if any
     const saved = loadSessionLocation();
     if (saved && saved.type !== 'none' && saved.latitude && saved.longitude) {
       return { ...saved, radiusKm: radiusParam };
@@ -105,26 +109,30 @@ export const SearchPage: React.FC = () => {
     ogType: 'website',
   });
 
-  // If user navigated with location=near-me but coordinates are not yet loaded in session, request them
-  useEffect(() => {
-    if (locationParam === 'near-me' && (locationState.latitude === null || locationState.longitude === null)) {
-      getCurrentLocation()
-        .then((coords) => {
-          const updated: LocationState = {
-            type: 'current',
-            name: 'Near Me',
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            radiusKm: radiusParam,
-          };
-          saveSessionLocation(updated);
-          setLocationState(updated);
-        })
-        .catch((err) => {
-          console.warn('Geolocation request failed:', err.message);
-        });
+  const isNearMePendingConsent =
+    locationParam === 'near-me' &&
+    (locationState.latitude === null || locationState.longitude === null);
+
+  const handleGrantLocationConsent = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const coords = await getCurrentLocation();
+      const updated: LocationState = {
+        type: 'current',
+        name: 'Near Me',
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        radiusKm: radiusParam,
+      };
+      saveSessionLocation(updated);
+      setLocationState(updated);
+    } catch (err: unknown) {
+      setErrorMessage(sanitizeErrorMessage(err, 'Location access was not allowed. Search a location instead.'));
+    } finally {
+      setIsLoading(false);
     }
-  }, [locationParam, locationState.latitude, locationState.longitude, radiusParam]);
+  };
 
   const isLocationActive =
     locationState.type !== 'none' &&
@@ -132,9 +140,9 @@ export const SearchPage: React.FC = () => {
     locationState.longitude !== null &&
     validateCoordinates(locationState.latitude, locationState.longitude);
 
-  // Filters state reconstructed from URL & location
   const currentFilters: FilterType = useMemo(
     () => ({
+      category: categoryParam || undefined,
       vegType: vegParam,
       availableOnly: availableParam,
       openNow: openNowParam,
@@ -148,6 +156,7 @@ export const SearchPage: React.FC = () => {
       sortBy: sortByParam || (isLocationActive ? 'nearest' : 'relevance'),
     }),
     [
+      categoryParam,
       vegParam,
       availableParam,
       openNowParam,
@@ -163,20 +172,28 @@ export const SearchPage: React.FC = () => {
     ]
   );
 
-  // Perform search query
+  const latestRequestIdRef = useRef<number>(0);
+
   const performSearch = useCallback(async () => {
+    const requestId = ++latestRequestIdRef.current;
     setIsLoading(true);
     setErrorMessage(null);
 
     try {
       const data = await executeUnifiedSearch(queryParam, currentFilters, pageParam, PAGE_SIZE);
-      setResults(data);
-    } catch (err: any) {
-      console.error('Search execution failed:', err);
-      setErrorMessage(err.message || 'Unable to retrieve search results. Please try again.');
-      setResults(null);
+      if (requestId === latestRequestIdRef.current) {
+        setResults(data);
+      }
+    } catch (err: unknown) {
+      if (requestId === latestRequestIdRef.current) {
+        console.error('Search execution failed:', err);
+        setErrorMessage(sanitizeErrorMessage(err, 'Unable to retrieve search results. Please try again.'));
+        setResults(null);
+      }
     } finally {
-      setIsLoading(false);
+      if (requestId === latestRequestIdRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [queryParam, currentFilters, pageParam]);
 
@@ -184,7 +201,6 @@ export const SearchPage: React.FC = () => {
     performSearch();
   }, [performSearch]);
 
-  // Update query in URL
   const handleSearchSubmit = (newQuery: string) => {
     const nextParams = new URLSearchParams(searchParams);
     if (newQuery) {
@@ -196,7 +212,6 @@ export const SearchPage: React.FC = () => {
     setSearchParams(nextParams);
   };
 
-  // Update location in URL and state
   const handleLocationChange = (newLocation: LocationState) => {
     setLocationState(newLocation);
     const nextParams = new URLSearchParams(searchParams);
@@ -219,9 +234,14 @@ export const SearchPage: React.FC = () => {
     setSearchParams(nextParams);
   };
 
-  // Update filters in URL
   const handleFilterChange = (newFilters: FilterType) => {
     const nextParams = new URLSearchParams(searchParams);
+
+    if (newFilters.category) {
+      nextParams.set('category', newFilters.category);
+    } else {
+      nextParams.delete('category');
+    }
 
     if (newFilters.vegType && newFilters.vegType !== 'all') {
       nextParams.set('veg', newFilters.vegType);
@@ -259,15 +279,10 @@ export const SearchPage: React.FC = () => {
       nextParams.delete('sortBy');
     }
 
-    if (newFilters.radiusKm) {
-      nextParams.set('radius', String(newFilters.radiusKm));
-    }
-
     nextParams.set('page', '1');
     setSearchParams(nextParams);
   };
 
-  // Update active tab in URL
   const handleTabChange = (newTab: 'all' | 'foods' | 'restaurants' | 'locations') => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('tab', newTab);
@@ -275,7 +290,17 @@ export const SearchPage: React.FC = () => {
     setSearchParams(nextParams);
   };
 
-  // Update pagination in URL
+  const handleViewModeChange = (mode: 'grid' | 'comparison') => {
+    setViewMode(mode);
+    const nextParams = new URLSearchParams(searchParams);
+    if (mode === 'comparison') {
+      nextParams.set('view', 'comparison');
+    } else {
+      nextParams.delete('view');
+    }
+    setSearchParams(nextParams);
+  };
+
   const handlePageChange = (newPage: number) => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('page', String(newPage));
@@ -284,18 +309,17 @@ export const SearchPage: React.FC = () => {
   };
 
   const hasActiveFilters =
-    (currentFilters.vegType && currentFilters.vegType !== 'all') ||
-    currentFilters.availableOnly ||
-    (currentFilters.minPrice !== null && currentFilters.minPrice !== undefined && currentFilters.minPrice > 0) ||
-    (currentFilters.maxPrice !== null && currentFilters.maxPrice !== undefined && currentFilters.maxPrice > 0) ||
-    currentFilters.openNow ||
+    Boolean(categoryParam) ||
+    (vegParam && vegParam !== 'all') ||
+    availableParam ||
+    openNowParam ||
+    minPriceParam !== null ||
+    maxPriceParam !== null ||
     isLocationActive;
 
   const handleClearFilters = () => {
     const nextParams = new URLSearchParams();
     if (queryParam) nextParams.set('q', queryParam);
-    if (tabParam) nextParams.set('tab', tabParam);
-    nextParams.set('page', '1');
     setSearchParams(nextParams);
 
     setLocationState({
@@ -305,6 +329,7 @@ export const SearchPage: React.FC = () => {
       longitude: null,
       radiusKm: 5,
     });
+    setViewMode('grid');
   };
 
   const handleIncreaseRadius = () => {
@@ -314,7 +339,23 @@ export const SearchPage: React.FC = () => {
     setLocationState((prev) => ({ ...prev, radiusKm: 10 }));
   };
 
-  // Category counts
+  // Compute how many dishes appear in 2 or more distinct restaurants
+  const comparableGroupsCount = useMemo(() => {
+    if (!results || !results.foods || results.foods.length < 2) return 0;
+    const dishToShops = new Map<string, Set<string>>();
+    results.foods.forEach((food) => {
+      const key = food.name.toLowerCase().trim();
+      const shopSet = dishToShops.get(key) || new Set<string>();
+      shopSet.add(food.restaurant.id);
+      dishToShops.set(key, shopSet);
+    });
+    let count = 0;
+    dishToShops.forEach((shops) => {
+      if (shops.size >= 2) count++;
+    });
+    return count;
+  }, [results]);
+
   const foodCount = results?.foods.length || 0;
   const restCount = results?.restaurants.length || 0;
   const locCount = results?.locations.length || 0;
@@ -323,7 +364,37 @@ export const SearchPage: React.FC = () => {
   const activeTab = tabParam;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      {/* Back Breadcrumb to Cinematic Chapters */}
+      <div className="mb-6">
+        <Link
+          to="/"
+          className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-widest text-cream-200/60 hover:text-amber-300 transition-colors group"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" />
+          <span>Back to Story Chapters</span>
+        </Link>
+      </div>
+
+      {/* Editorial Page Header */}
+      <div className="text-center max-w-3xl mx-auto mb-10">
+        <div className="inline-flex items-center space-x-2 mb-3">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+          <span className="font-mono text-[10px] sm:text-[11px] text-amber-400 font-semibold tracking-[0.25em] uppercase">
+            Discovery Catalogue · Real Menus & Portions
+          </span>
+        </div>
+        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-cream-100 tracking-tight leading-tight mb-4">
+          Find your next bite,{' '}
+          <span className="italic bg-gradient-to-r from-[#FDE68A] via-[#FBBF24] to-[#F59E0B] bg-clip-text text-transparent">
+            verified portion by portion.
+          </span>
+        </h1>
+        <p className="text-xs sm:text-sm text-cream-200/75 font-sans leading-relaxed max-w-xl mx-auto">
+          Explore transparent digital menus, compare real dish portion prices, and discover participating local shops with zero algorithmic markups.
+        </p>
+      </div>
+
       {/* Top Search Controls */}
       <div className="max-w-3xl mx-auto mb-6">
         <SearchBar
@@ -332,12 +403,51 @@ export const SearchPage: React.FC = () => {
           isLoading={isLoading}
           autoFocus={!queryParam && !isLocationActive}
           size="large"
-          placeholder="Search food or restaurant"
+          placeholder="Search dishes, portions, or food shops..."
         />
+
+        {/* Quick Discovery Category & Area Pills */}
+        <div className="flex items-center justify-center flex-wrap gap-2 mt-3.5">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-cream-200/50 mr-1">
+            Discover:
+          </span>
+          {[
+            { label: 'Biryani Specials', query: 'Biryani' },
+            { label: 'Kathi Rolls', query: 'Roll' },
+            { label: 'Tandoor & Kebabs', query: 'Kebab' },
+            { label: 'Pure Veg', veg: 'veg' },
+            { label: 'Park Street', location: 'Park Street' },
+            { label: 'Salt Lake', location: 'Salt Lake' },
+          ].map((pill) => (
+            <button
+              key={pill.label}
+              type="button"
+              onClick={() => {
+                if (pill.query) handleSearchSubmit(pill.query);
+                else if (pill.veg) handleFilterChange({ ...currentFilters, vegType: 'veg' });
+                else if (pill.location) {
+                  const resolved = resolveLocationQuery(pill.location);
+                  if (resolved) {
+                    handleLocationChange({
+                      type: 'manual',
+                      name: resolved.name,
+                      latitude: resolved.latitude,
+                      longitude: resolved.longitude,
+                      radiusKm: 5,
+                    });
+                  }
+                }
+              }}
+              className="text-[11px] font-mono uppercase tracking-wider px-3 py-1 rounded-full bg-cream-100/[0.04] hover:bg-amber-400 hover:text-[#0A0807] border border-cream-200/12 text-cream-200/80 transition-all cursor-pointer"
+            >
+              {pill.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Main Filter & Location Controls */}
-      <div className="mb-6">
+      <div className="mb-8">
         <SearchFilters
           filters={currentFilters}
           onChange={handleFilterChange}
@@ -349,106 +459,175 @@ export const SearchPage: React.FC = () => {
 
       {/* Results Header & Category Tabs */}
       {!isLoading && !errorMessage && totalCount > 0 && (
-        <div className="border-b border-white/10 pb-6 mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+        <div className="border-b border-cream-200/10 pb-6 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 mb-6">
             <div>
-              <h1 className="font-editorial text-3xl sm:text-4xl font-light text-[#F4F2ED] tracking-tight flex items-center space-x-3">
-                {isLocationActive && <Navigation className="w-5 h-5 text-[#C5A064] flex-shrink-0" />}
+              <span className="font-mono text-[10px] uppercase tracking-widest text-amber-400 block mb-1">
+                DISCOVERY CATALOGUE
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl font-normal text-cream-100 tracking-tight flex items-center space-x-2.5">
+                {isLocationActive && <Navigation className="w-5 h-5 text-amber-400 flex-shrink-0" />}
                 <span>
                   {queryParam && isLocationActive
                     ? `Results for "${queryParam}" near ${locationState.name}`
                     : queryParam
                     ? `Results for "${queryParam}"`
+                    : categoryParam
+                    ? `Dishes in Category "${categoryParam}"`
                     : isLocationActive
-                    ? `Nearby Kitchens near ${locationState.name}`
-                    : 'Atelier Search Results'}
+                    ? `Food Shops near ${locationState.name}`
+                    : 'Search Results'}
                 </span>
-              </h1>
-              <p className="font-mono text-xs uppercase tracking-widest text-zinc-400 mt-1">
-                Telemetry: {totalCount} matching {totalCount === 1 ? 'specimen' : 'specimens'}
-                {isLocationActive ? ` within ${locationState.radiusKm} km radius` : ' across curated network'}
+              </h2>
+              <p className="font-mono text-xs text-cream-200/50 mt-1">
+                Found {totalCount} matching {totalCount === 1 ? 'item' : 'items'}
+                {isLocationActive ? ` within ${locationState.radiusKm} km radius` : ' across registered food shops'}
               </p>
             </div>
 
-            {results?.prominentCategory && results.prominentCategory !== 'none' && (
-              <span className="self-start sm:self-auto text-[10px] font-mono uppercase tracking-widest px-3 py-1 rounded-full bg-[#C5A064]/10 text-[#C5A064] border border-[#C5A064]/30">
-                Optimal Match:{' '}
-                <span className="font-bold text-[#F4F2ED] uppercase">
-                  {results.prominentCategory}
-                </span>
-              </span>
+            {/* View Mode Toggle: Grid Cards vs Side-by-Side Portion Price Comparison */}
+            {results && results.foods.length > 0 && (
+              <div className="flex items-center space-x-1.5 bg-[#0E0B09] border border-cream-200/15 p-1 rounded-lg shrink-0">
+                <button
+                  type="button"
+                  onClick={() => handleViewModeChange('grid')}
+                  className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-md transition-all ${
+                    viewMode === 'grid'
+                      ? 'bg-amber-400 text-[#0A0807] font-semibold shadow-sm'
+                      : 'text-cream-200/70 hover:text-cream-100'
+                  }`}
+                >
+                  Grid View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleViewModeChange('comparison')}
+                  className={`px-3 py-1.5 text-xs font-mono uppercase tracking-wider rounded-md transition-all flex items-center space-x-1.5 ${
+                    viewMode === 'comparison'
+                      ? 'bg-amber-400 text-[#0A0807] font-semibold shadow-sm'
+                      : 'text-cream-200/70 hover:text-cream-100'
+                  }`}
+                >
+                  <span>Compare Prices</span>
+                  {comparableGroupsCount > 0 && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${
+                        viewMode === 'comparison'
+                          ? 'bg-[#0A0807]/20 text-[#0A0807]'
+                          : 'bg-amber-400/20 text-amber-300'
+                      }`}
+                    >
+                      {comparableGroupsCount}
+                    </span>
+                  )}
+                </button>
+              </div>
             )}
           </div>
 
           {/* Category Tabs */}
-          <div className="flex items-center space-x-2 overflow-x-auto scrollbar-none pb-1">
+          <div className="flex items-center space-x-2.5 overflow-x-auto scrollbar-none pb-1">
             <button
               type="button"
               onClick={() => handleTabChange('all')}
-              className={`inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap border ${
+              className={`inline-flex items-center space-x-2 px-4 py-2 text-xs font-mono uppercase tracking-wider rounded-lg transition-all whitespace-nowrap border ${
                 activeTab === 'all'
-                  ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
-                  : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-espresso-950 border-amber-500 font-semibold shadow-md'
+                  : 'bg-[#14100D] text-cream-200/70 border-cream-200/15 hover:bg-cream-100/[0.08] hover:text-cream-100'
               }`}
             >
-              <Layers className="w-3.5 h-3.5 text-[#C5A064]" />
+              <Layers className="w-3.5 h-3.5" />
               <span>All Results</span>
-              <span className="text-[10px] opacity-70 font-mono">({totalCount})</span>
+              <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${activeTab === 'all' ? 'bg-espresso-950/20 text-espresso-950 font-bold' : 'bg-amber-400/10 text-amber-300'}`}>
+                {totalCount}
+              </span>
             </button>
 
             <button
               type="button"
               onClick={() => handleTabChange('foods')}
-              className={`inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap border ${
+              className={`inline-flex items-center space-x-2 px-4 py-2 text-xs font-mono uppercase tracking-wider rounded-lg transition-all whitespace-nowrap border ${
                 activeTab === 'foods'
-                  ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
-                  : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-espresso-950 border-amber-500 font-semibold shadow-md'
+                  : 'bg-[#14100D] text-cream-200/70 border-cream-200/15 hover:bg-cream-100/[0.08] hover:text-cream-100'
               }`}
             >
-              <Utensils className="w-3.5 h-3.5 text-[#C5A064]" />
+              <Utensils className="w-3.5 h-3.5" />
               <span>Food Items</span>
-              <span className="text-[10px] opacity-70 font-mono">({foodCount})</span>
+              <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${activeTab === 'foods' ? 'bg-espresso-950/20 text-espresso-950 font-bold' : 'bg-amber-400/10 text-amber-300'}`}>
+                {foodCount}
+              </span>
             </button>
 
             <button
               type="button"
               onClick={() => handleTabChange('restaurants')}
-              className={`inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap border ${
+              className={`inline-flex items-center space-x-2 px-4 py-2 text-xs font-mono uppercase tracking-wider rounded-lg transition-all whitespace-nowrap border ${
                 activeTab === 'restaurants'
-                  ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
-                  : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-espresso-950 border-amber-500 font-semibold shadow-md'
+                  : 'bg-[#14100D] text-cream-200/70 border-cream-200/15 hover:bg-cream-100/[0.08] hover:text-cream-100'
               }`}
             >
-              <Store className="w-3.5 h-3.5 text-[#C5A064]" />
-              <span>Kitchens</span>
-              <span className="text-[10px] opacity-70 font-mono">({restCount})</span>
+              <Store className="w-3.5 h-3.5" />
+              <span>Food Shops</span>
+              <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${activeTab === 'restaurants' ? 'bg-espresso-950/20 text-espresso-950 font-bold' : 'bg-amber-400/10 text-amber-300'}`}>
+                {restCount}
+              </span>
             </button>
 
             {!isLocationActive && locCount > 0 && (
               <button
                 type="button"
                 onClick={() => handleTabChange('locations')}
-                className={`inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider transition-all whitespace-nowrap border ${
+                className={`inline-flex items-center space-x-2 px-4 py-2 text-xs font-mono uppercase tracking-wider rounded-lg transition-all whitespace-nowrap border ${
                   activeTab === 'locations'
-                    ? 'bg-[#C5A064]/20 border-[#C5A064]/50 text-[#F4F2ED] shadow-sm font-semibold'
-                    : 'text-zinc-400 border-white/5 hover:text-white hover:bg-white/5'
+                    ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-espresso-950 border-amber-500 font-semibold shadow-md'
+                    : 'bg-[#14100D] text-cream-200/70 border-cream-200/15 hover:bg-cream-100/[0.08] hover:text-cream-100'
                 }`}
               >
-                <MapPin className="w-3.5 h-3.5 text-[#C5A064]" />
-                <span>Locations</span>
-                <span className="text-[10px] opacity-70 font-mono">({locCount})</span>
+                <MapPin className="w-3.5 h-3.5" />
+                <span>By Locality</span>
+                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded ${activeTab === 'locations' ? 'bg-espresso-950/20 text-espresso-950 font-bold' : 'bg-amber-400/10 text-amber-300'}`}>
+                  {locCount}
+                </span>
               </button>
             )}
           </div>
         </div>
       )}
 
+      {/* Privacy-First Location Consent Prompt */}
+      {isNearMePendingConsent && (
+        <div className="editorial-card mb-8 p-6 bg-[#14100D] border border-amber-400/30 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-start gap-3.5">
+            <div className="w-10 h-10 bg-amber-400/10 border border-amber-400/25 rounded-lg flex items-center justify-center text-amber-400 shrink-0">
+              <Navigation className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-serif text-lg font-normal text-cream-100">
+                Enable Location for "Near Me" Results
+              </h3>
+              <p className="text-xs text-cream-200/70 mt-0.5 leading-relaxed font-sans">
+                Privacy-first: We only access neighborhood-level coordinates for this session. Your location is never logged or stored.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleGrantLocationConsent}
+            className="self-start sm:self-auto px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-espresso-950 font-sans text-xs uppercase tracking-wider font-semibold rounded-lg shadow-md transition-all shrink-0"
+          >
+            Detect My Location
+          </button>
+        </div>
+      )}
+
       {/* Main Content Area */}
       {isLoading ? (
-        <div className="py-24 flex flex-col items-center justify-center text-zinc-400">
-          <Loader2 className="w-8 h-8 animate-spin text-[#C5A064] mb-3" />
-          <p className="font-mono text-xs uppercase tracking-widest text-zinc-400">
-            {isLocationActive ? `Calibrating network within ${locationState.radiusKm} km...` : 'Querying atelier database...'}
+        <div className="py-24 flex flex-col items-center justify-center text-cream-200/60">
+          <Loader2 className="w-8 h-8 animate-spin text-amber-400 mb-4" />
+          <p className="font-mono text-xs uppercase tracking-widest text-cream-200/60">
+            {isLocationActive ? `Searching food shops within ${locationState.radiusKm} km...` : 'Searching digital menus...'}
           </p>
         </div>
       ) : errorMessage ? (
@@ -471,53 +650,62 @@ export const SearchPage: React.FC = () => {
           {/* TAB 1: ALL RESULTS */}
           {activeTab === 'all' && (
             <div className="space-y-12">
-              {/* Prominent Food Results */}
+              {/* Food Results */}
               {results && results.foods.length > 0 && (
                 <section aria-labelledby="section-foods">
-                  <div className="flex items-center justify-between mb-5">
-                    <h2 id="section-foods" className="font-editorial text-2xl sm:text-3xl font-light text-[#F4F2ED] flex items-center space-x-2.5">
-                      <Utensils className="w-4 h-4 text-[#C5A064]" />
-                      <span>Curated Food Items ({results.foods.length})</span>
-                    </h2>
-                    {results.foods.length > 6 && (
+                  <div className="flex items-center justify-between mb-6 pb-2.5 border-b border-cream-200/10">
+                    <h3 id="section-foods" className="font-serif text-xl sm:text-2xl font-normal text-cream-100 flex items-center space-x-2">
+                      <Utensils className="w-4 h-4 text-amber-400" />
+                      <span>
+                        {viewMode === 'comparison' ? 'Portion Price Comparison' : 'Food Items'} ({results.foods.length})
+                      </span>
+                    </h3>
+                    {results.foods.length > 6 && viewMode === 'grid' && (
                       <button
                         type="button"
                         onClick={() => handleTabChange('foods')}
-                        className="text-xs font-mono uppercase tracking-widest text-[#C5A064] hover:text-white transition-colors"
+                        className="text-xs font-mono uppercase tracking-wider text-amber-400 hover:text-amber-300 flex items-center space-x-1"
                       >
-                        View all foods →
+                        <span>View all {results.foods.length} items</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {results.foods.slice(0, 6).map((food) => (
-                      <FoodResultCard key={food.id} item={food} />
-                    ))}
-                  </div>
+
+                  {viewMode === 'comparison' ? (
+                    <PriceComparisonView foods={results.foods} onSuggestedQuery={handleSearchSubmit} />
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {results.foods.slice(0, 6).map((food) => (
+                        <FoodResultCard key={food.id} item={food} />
+                      ))}
+                    </div>
+                  )}
                 </section>
               )}
 
-              {/* Prominent Restaurant Results */}
+              {/* Restaurant Results */}
               {results && results.restaurants.length > 0 && (
                 <section aria-labelledby="section-restaurants">
-                  <div className="flex items-center justify-between mb-5">
-                    <h2 id="section-restaurants" className="font-editorial text-2xl sm:text-3xl font-light text-[#F4F2ED] flex items-center space-x-2.5">
-                      <Store className="w-4 h-4 text-[#C5A064]" />
+                  <div className="flex items-center justify-between mb-6 pb-2.5 border-b border-cream-200/10">
+                    <h3 id="section-restaurants" className="font-serif text-xl sm:text-2xl font-normal text-cream-100 flex items-center space-x-2">
+                      <Store className="w-4 h-4 text-amber-400" />
                       <span>
-                        {isLocationActive ? `Ateliers near ${locationState.name} (${results.restaurants.length})` : `Curated Kitchens (${results.restaurants.length})`}
+                        {isLocationActive ? `Food Shops near ${locationState.name} (${results.restaurants.length})` : `Food Shops (${results.restaurants.length})`}
                       </span>
-                    </h2>
-                    {results.restaurants.length > 4 && (
+                    </h3>
+                    {results.restaurants.length > 6 && (
                       <button
                         type="button"
                         onClick={() => handleTabChange('restaurants')}
-                        className="text-xs font-mono uppercase tracking-widest text-[#C5A064] hover:text-white transition-colors"
+                        className="text-xs font-mono uppercase tracking-wider text-amber-400 hover:text-amber-300 flex items-center space-x-1"
                       >
-                        View all kitchens →
+                        <span>View all {results.restaurants.length} shops</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {results.restaurants.slice(0, 6).map((rest) => (
                       <RestaurantResultCard key={rest.id} restaurant={rest} />
                     ))}
@@ -525,16 +713,16 @@ export const SearchPage: React.FC = () => {
                 </section>
               )}
 
-              {/* Matching Location Text Results (Only when no coordinates active) */}
+              {/* Matching Location Text Results */}
               {!isLocationActive && results && results.locations.length > 0 && (
                 <section aria-labelledby="section-locations">
-                  <div className="flex items-center justify-between mb-5">
-                    <h2 id="section-locations" className="font-editorial text-2xl sm:text-3xl font-light text-[#F4F2ED] flex items-center space-x-2.5">
-                      <MapPin className="w-4 h-4 text-[#C5A064]" />
-                      <span>Kitchens in Locality ({results.locations.length})</span>
-                    </h2>
+                  <div className="flex items-center justify-between mb-6 pb-2.5 border-b border-cream-200/10">
+                    <h3 id="section-locations" className="font-serif text-xl sm:text-2xl font-normal text-cream-100 flex items-center space-x-2">
+                      <MapPin className="w-4 h-4 text-amber-400" />
+                      <span>Shops in Matching Locality ({results.locations.length})</span>
+                    </h3>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {results.locations.slice(0, 6).map((rest) => (
                       <RestaurantResultCard key={`loc-${rest.id}`} restaurant={rest} />
                     ))}
@@ -549,18 +737,24 @@ export const SearchPage: React.FC = () => {
             <section aria-label="Food search results">
               {results && results.foods.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {results.foods.map((food) => (
-                      <FoodResultCard key={food.id} item={food} />
-                    ))}
-                  </div>
-                  <Pagination
-                    currentPage={pageParam}
-                    totalItems={results.foods.length}
-                    pageSize={PAGE_SIZE}
-                    onPageChange={handlePageChange}
-                    className="mt-6"
-                  />
+                  {viewMode === 'comparison' ? (
+                    <PriceComparisonView foods={results.foods} onSuggestedQuery={handleSearchSubmit} />
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {results.foods.map((food) => (
+                          <FoodResultCard key={food.id} item={food} />
+                        ))}
+                      </div>
+                      <Pagination
+                        currentPage={pageParam}
+                        totalItems={results.foods.length}
+                        pageSize={PAGE_SIZE}
+                        onPageChange={handlePageChange}
+                        className="mt-10"
+                      />
+                    </>
+                  )}
                 </>
               ) : (
                 <EmptySearchState
@@ -582,7 +776,7 @@ export const SearchPage: React.FC = () => {
             <section aria-label="Restaurant search results">
               {results && results.restaurants.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {results.restaurants.map((rest) => (
                       <RestaurantResultCard key={rest.id} restaurant={rest} />
                     ))}
@@ -592,7 +786,7 @@ export const SearchPage: React.FC = () => {
                     totalItems={results.restaurants.length}
                     pageSize={PAGE_SIZE}
                     onPageChange={handlePageChange}
-                    className="mt-6"
+                    className="mt-10"
                   />
                 </>
               ) : (
@@ -615,7 +809,7 @@ export const SearchPage: React.FC = () => {
             <section aria-label="Location search results">
               {results && results.locations.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {results.locations.map((rest) => (
                       <RestaurantResultCard key={`loc-page-${rest.id}`} restaurant={rest} />
                     ))}
@@ -625,7 +819,7 @@ export const SearchPage: React.FC = () => {
                     totalItems={results.locations.length}
                     pageSize={PAGE_SIZE}
                     onPageChange={handlePageChange}
-                    className="mt-6"
+                    className="mt-10"
                   />
                 </>
               ) : (

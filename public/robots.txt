@@ -1,4 +1,4 @@
-# Robots.txt for ShopManu Production Food Discovery Platform
+# Robots.txt for ManuMania Production Food Discovery Platform
 # Controls search engine crawler indexation behavior
 
 User-agent: *

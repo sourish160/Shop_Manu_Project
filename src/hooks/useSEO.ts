@@ -10,9 +10,9 @@ export interface SEOProps {
   jsonLd?: Record<string, any> | null;
 }
 
-const DEFAULT_TITLE = 'ShopManu | Restaurant & Menu Discovery';
+const DEFAULT_TITLE = 'ManuMania | Restaurant & Menu Discovery';
 const DEFAULT_DESCRIPTION = 'Find restaurants, menus, dishes, authentic variant prices, and verified dining places near you.';
-const SITE_NAME = 'ShopManu';
+const SITE_NAME = 'ManuMania';
 
 /**
  * Custom hook to dynamically manage head metadata, Open Graph, Twitter cards,
@@ -86,7 +86,7 @@ export function useSEO(props: SEOProps) {
     }
 
     // 7. Schema.org Structured Data (JSON-LD)
-    const scriptId = 'shopmanu-jsonld-structured-data';
+    const scriptId = 'manumania-jsonld-structured-data';
     let scriptEl = document.getElementById(scriptId) as HTMLScriptElement | null;
 
     if (props.jsonLd) {

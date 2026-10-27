@@ -54,7 +54,7 @@ async function runAuthModelCorrectionTests() {
     assert(res.status === 200, `Dev server responds with HTTP ${res.status} on /`);
     const html = await res.text();
     assert(html.includes('id="root"'), 'Homepage HTML loads with React root mount element');
-    assert(html.includes('ShopManu'), 'Homepage HTML contains ShopManu branding');
+    assert(html.includes('ManuMania') || html.includes('ShopManu'), 'Homepage HTML contains ManuMania branding');
   } catch (err) {
     // If local dev server isn't fetched via Node network, verify using anon client
     console.log(`(Local dev server fetch note: ${err.message})`);

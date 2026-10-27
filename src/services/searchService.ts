@@ -6,6 +6,7 @@ import { formatCurrency } from '../utils/formatters.ts';
 import { validateCoordinates, DEFAULT_RADIUS_KM } from '../utils/geolocation.ts';
 
 export interface SearchFilters {
+  category?: string;
   vegType?: 'all' | 'veg' | 'non_veg';
   availableOnly?: boolean;
   minPrice?: number | null;
@@ -77,7 +78,7 @@ export interface RestaurantSearchResult {
 export interface SearchSuggestion {
   id: string;
   title: string;
-  type: 'food' | 'restaurant' | 'location';
+  type: 'food' | 'restaurant' | 'location' | 'category';
   subtitle?: string;
 }
 
@@ -121,7 +122,7 @@ function calculateRelevance(text: string, query: string): number {
 
 /**
  * Fetches lightweight search suggestions while the user types.
- * Queries actual database records for active foods, approved restaurants, and approved locations.
+ * Queries actual database records for active foods, approved restaurants, categories, and approved locations.
  */
 export async function fetchSearchSuggestions(rawQuery: string): Promise<SearchSuggestion[]> {
   const query = normalizeQuery(rawQuery);
@@ -130,7 +131,7 @@ export async function fetchSearchSuggestions(rawQuery: string): Promise<SearchSu
   }
 
   try {
-    const [foodRes, restRes] = await Promise.all([
+    const [foodRes, restRes, catRes] = await Promise.all([
       insforge.database
         .from('foods')
         .select('id, name, veg_type, restaurant:restaurants(name)')
@@ -144,6 +145,12 @@ export async function fetchSearchSuggestions(rawQuery: string): Promise<SearchSu
         .eq('status', 'approved')
         .or(`name.ilike.%${query}%,area.ilike.%${query}%,city.ilike.%${query}%`)
         .limit(6),
+
+      insforge.database
+        .from('categories')
+        .select('id, name')
+        .ilike('name', `%${query}%`)
+        .limit(3),
     ]);
 
     const suggestions: SearchSuggestion[] = [];
@@ -159,6 +166,21 @@ export async function fetchSearchSuggestions(rawQuery: string): Promise<SearchSu
             title,
             type: 'food',
             subtitle: f.restaurant?.name ? `in ${f.restaurant.name}` : 'Food item',
+          });
+        }
+      }
+    }
+
+    if (catRes.data) {
+      for (const c of catRes.data as any[]) {
+        const title = c.name;
+        if (!seenTitles.has(title.toLowerCase())) {
+          seenTitles.add(title.toLowerCase());
+          suggestions.push({
+            id: `cat-${c.id}`,
+            title,
+            type: 'category',
+            subtitle: 'Food Category',
           });
         }
       }

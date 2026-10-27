@@ -34,72 +34,75 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
     : null;
 
   return (
-    <section id="restaurant-location" className="border-t border-white/10 pt-10 pb-12">
-      <div className="border-b border-white/10 pb-4 mb-6">
-        <h2 className="font-editorial text-3xl sm:text-4xl font-light text-[#F4F2ED] tracking-tight">
-          Location & Telemetry
+    <section id="restaurant-location" className="border-t border-cream-200/10 pt-12 pb-14">
+      <div className="border-b border-cream-200/10 pb-4 mb-8">
+        <span className="font-mono text-[10px] uppercase tracking-widest text-amber-400 block mb-1">
+          VISIT & OPERATING SCHEDULE
+        </span>
+        <h2 className="font-serif text-2xl sm:text-3xl font-medium text-cream-100 tracking-tight">
+          Location & Hours
         </h2>
-        <p className="font-mono text-xs uppercase tracking-widest text-zinc-500 mt-1">
-          Coordinate map & operating schedule for {restaurant.name}.
+        <p className="text-xs text-cream-300/60 mt-1">
+          Address, operating schedule, and directions for {restaurant.name}.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        {/* Left Column: Address, Phone, & Operating Hours */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+        {/* Left Column: Address & Operating Hours */}
         <div className="space-y-6">
           {/* Physical Address */}
-          <div className="forge-card rounded-2xl p-6 shadow-xl">
-            <h3 className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-2.5">
-              Atelier Coordinates
+          <div className="editorial-card bg-[#120E0C] border border-cream-200/10 p-6 rounded-sm">
+            <h3 className="font-mono text-[10px] uppercase tracking-wider text-cream-300/50 mb-2">
+              Physical Address
             </h3>
-            <p className="text-base font-light text-[#F4F2ED] leading-snug">
+            <p className="font-serif text-base font-medium text-cream-100 leading-snug">
               {restaurant.address}
             </p>
             {(restaurant.area || restaurant.city) && (
-              <p className="text-xs text-zinc-400 mt-1 font-light">
+              <p className="text-xs text-cream-300/70 mt-1">
                 {[restaurant.area, restaurant.city].filter(Boolean).join(', ')}
               </p>
             )}
 
             {hasValidCoordinates ? (
-              <p className="text-[11px] font-mono text-zinc-500 mt-3 pt-3 border-t border-white/10 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#C5A064] shrink-0" />
-                <span>Geospatial: {restaurant.latitude?.toFixed(4)}, {restaurant.longitude?.toFixed(4)}</span>
+              <p className="text-xs font-mono text-cream-300/50 mt-4 pt-3 border-t border-cream-200/10 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span>Coordinates: {restaurant.latitude?.toFixed(4)}, {restaurant.longitude?.toFixed(4)}</span>
               </p>
             ) : (
-              <p className="text-[11px] font-mono text-zinc-500 mt-3 pt-3 border-t border-white/10">
-                Coordinates uncalibrated
+              <p className="text-xs font-mono text-cream-300/40 mt-4 pt-3 border-t border-cream-200/10">
+                Exact map coordinates not provided
               </p>
             )}
 
             {restaurant.phone && (
-              <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
-                <div className="text-xs text-zinc-400 font-mono">
-                  Direct: <span className="text-[#C5A064] font-medium">{restaurant.phone}</span>
+              <div className="mt-4 pt-3 border-t border-cream-200/10 flex items-center justify-between">
+                <div className="text-xs font-mono text-cream-300/80">
+                  Phone: <span className="font-semibold text-cream-100">{restaurant.phone}</span>
                 </div>
                 <a
                   href={`tel:${restaurant.phone}`}
-                  className="forge-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider text-[#F4F2ED] transition-all"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono uppercase tracking-wider text-cream-200 bg-cream-200/10 hover:bg-amber-400/20 hover:text-amber-300 border border-cream-200/15 transition-colors rounded-xs"
                 >
-                  <Phone className="w-3 h-3 text-[#C5A064]" />
-                  Call Kitchen
+                  <Phone className="w-3 h-3 text-amber-400" />
+                  <span>Call Shop</span>
                 </a>
               </div>
             )}
           </div>
 
           {/* Operating Hours Table */}
-          <div className="forge-card rounded-2xl p-6 shadow-xl">
-            <h3 className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] mb-3.5">
-              Weekly Service Schedule
+          <div className="editorial-card bg-[#120E0C] border border-cream-200/10 p-6 rounded-sm">
+            <h3 className="font-mono text-[10px] uppercase tracking-wider text-cream-300/50 mb-4">
+              Weekly Schedule
             </h3>
 
             {sortedHours.length === 0 ? (
-              <p className="text-xs font-mono text-zinc-500">
-                Operating hours have not been configured for this restaurant yet.
+              <p className="text-xs font-mono text-cream-300/40">
+                Operating hours have not been added for this shop yet.
               </p>
             ) : (
-              <ul className="divide-y divide-white/5 text-xs font-mono">
+              <ul className="divide-y divide-cream-200/10 text-xs font-mono">
                 {DAY_NAMES.map((dayName, idx) => {
                   const dayHour = sortedHours.find((h) => h.day_of_week === idx);
                   const isToday = currentDayIndex === idx;
@@ -107,23 +110,23 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
                   return (
                     <li
                       key={dayName}
-                      className={`py-2.5 flex items-center justify-between transition-colors ${
-                        isToday ? 'font-medium text-[#F4F2ED] bg-[#C5A064]/10 border border-[#C5A064]/30 -mx-2 px-2.5 rounded-lg' : 'text-zinc-400'
+                      className={`py-2.5 flex items-center justify-between ${
+                        isToday ? 'font-medium text-amber-300 bg-amber-500/10 -mx-3 px-3 rounded-xs' : 'text-cream-300/70'
                       }`}
                     >
                       <span className="flex items-center gap-2">
-                        {dayName}
+                        <span>{dayName}</span>
                         {isToday && (
-                          <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#C5A064] text-black font-semibold uppercase tracking-wider">
+                          <span className="text-[9px] px-1.5 py-0.2 bg-amber-400 text-[#0A0807] uppercase tracking-wider font-mono font-semibold rounded-xs">
                             Today
                           </span>
                         )}
                       </span>
                       <span>
                         {!dayHour || dayHour.is_closed || !dayHour.open_time || !dayHour.close_time ? (
-                          <span className="text-zinc-600 font-normal">Closed</span>
+                          <span className="text-cream-300/40">Closed</span>
                         ) : (
-                          `${formatTime12Hour(dayHour.open_time)} to ${formatTime12Hour(dayHour.close_time)}`
+                          `${formatTime12Hour(dayHour.open_time)} – ${formatTime12Hour(dayHour.close_time)}`
                         )}
                       </span>
                     </li>
@@ -135,21 +138,21 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
         </div>
 
         {/* Right Column: Google Maps & Directions */}
-        <div className="forge-card rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+        <div className="editorial-card bg-[#120E0C] border border-cream-200/10 p-6 rounded-sm flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
-              <h3 className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064]">
-                Interactive Satellite HUD
+            <div className="flex items-center justify-between border-b border-cream-200/10 pb-3 mb-4">
+              <h3 className="font-mono text-[10px] uppercase tracking-wider text-cream-300/50">
+                Location Map
               </h3>
               {hasValidCoordinates && (
-                <span className="text-[10px] font-mono text-zinc-500">
+                <span className="text-xs font-mono text-cream-300/50">
                   {restaurant.latitude?.toFixed(4)}, {restaurant.longitude?.toFixed(4)}
                 </span>
               )}
             </div>
 
-            {/* Interactive Google Map Component */}
-            <div className="rounded-xl overflow-hidden border border-white/10">
+            {/* Interactive Map Component */}
+            <div className="overflow-hidden border border-cream-200/10 rounded-sm">
               <RestaurantMap
                 latitude={restaurant.latitude}
                 longitude={restaurant.longitude}
@@ -163,10 +166,10 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
           </div>
 
           {/* Directions Action Footer */}
-          <div className="mt-5 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 font-mono">
-            <div className="text-xs text-zinc-400">
-              <span className="text-zinc-500 block sm:inline">Destination:</span>{' '}
-              <span className="text-[#F4F2ED] font-medium">{restaurant.name}</span>
+          <div className="mt-5 pt-4 border-t border-cream-200/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="text-xs font-mono text-cream-300/60">
+              <span>Map location for:</span>{' '}
+              <strong className="text-amber-300 font-medium font-serif">{restaurant.name}</strong>
             </div>
 
             {directionsUrl ? (
@@ -174,13 +177,13 @@ export const LocationSection: React.FC<LocationSectionProps> = ({
                 href={directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="forge-btn inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-mono uppercase tracking-wider text-[#F4F2ED] rounded-lg transition-all shadow-sm shrink-0"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-mono uppercase tracking-wider font-semibold text-[#0A0807] bg-amber-400 hover:bg-amber-300 transition-colors shrink-0 rounded-xs"
               >
-                <Navigation className="w-3.5 h-3.5 text-[#C5A064]" />
-                Navigate
+                <Navigation className="w-3.5 h-3.5 text-[#0A0807]" />
+                <span>Get Directions</span>
               </a>
             ) : (
-              <span className="text-[11px] text-zinc-600 italic">
+              <span className="text-xs font-mono text-cream-300/40 italic">
                 Directions unavailable without coordinates
               </span>
             )}

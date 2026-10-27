@@ -1,6 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { insforge, Restaurant, Category, Food, FoodVariant, RestaurantHours } from '../lib/insforge';
+import {
+  insforge,
+  Restaurant,
+  Category,
+  Food,
+  FoodVariant,
+  FoodAddon,
+  Combo,
+  ComboItem,
+  RestaurantHours,
+} from '../lib/insforge';
 import { RestaurantHeader } from '../components/public/RestaurantHeader';
 import { CategoryNav } from '../components/public/CategoryNav';
 import { MenuSection } from '../components/public/MenuSection';
@@ -8,6 +18,8 @@ import { LocationSection } from '../components/public/LocationSection';
 import { ReportModal } from '../components/public/ReportModal';
 import { useSEO } from '../hooks/useSEO';
 import { generateRestaurantSchema } from '../utils/schemaGenerator';
+import { Loader2, Store, AlertCircle, ArrowLeft } from 'lucide-react';
+import { sanitizeErrorMessage } from '../utils/errorHandler';
 
 export const PublicRestaurantPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -15,6 +27,7 @@ export const PublicRestaurantPage: React.FC = () => {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [foods, setFoods] = useState<Food[]>([]);
+  const [combos, setCombos] = useState<Combo[]>([]);
   const [hours, setHours] = useState<RestaurantHours[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -38,10 +51,10 @@ export const PublicRestaurantPage: React.FC = () => {
     setIsNotFound(false);
 
     try {
-      // 1. Fetch approved restaurant by slug
+      // 1. Fetch approved restaurant by slug - select ONLY public columns, omitting owner_id and admin_notes
       const { data: resData, error: resError } = await insforge.database
         .from('restaurants')
-        .select('*')
+        .select('id, name, slug, description, phone, address, area, city, latitude, longitude, status, verified, logo_url, cover_url, created_at, updated_at')
         .eq('slug', slug)
         .eq('status', 'approved')
         .maybeSingle();
@@ -59,27 +72,34 @@ export const PublicRestaurantPage: React.FC = () => {
       const currentRes = resData as Restaurant;
       setRestaurant(currentRes);
 
-      // 2. Fetch categories, foods, variants, and hours in parallel
-      const [catRes, foodRes, hoursRes] = await Promise.all([
+      // 2. Fetch categories, foods, combos, and hours in parallel
+      const [catRes, foodRes, hoursRes, combosRes] = await Promise.all([
         insforge.database
           .from('categories')
-          .select('*')
+          .select('id, restaurant_id, name, description, sort_order, created_at, updated_at')
           .eq('restaurant_id', currentRes.id)
           .order('sort_order', { ascending: true })
           .order('name', { ascending: true }),
 
         insforge.database
           .from('foods')
-          .select('*')
+          .select('id, restaurant_id, category_id, name, slug, description, image_url, veg_type, available, status, prep_time_minutes, base_price, discount_price, created_at, updated_at')
           .eq('restaurant_id', currentRes.id)
           .eq('status', 'active')
           .order('name', { ascending: true }),
 
         insforge.database
           .from('restaurant_hours')
-          .select('*')
+          .select('id, restaurant_id, day_of_week, open_time, close_time, is_closed')
           .eq('restaurant_id', currentRes.id)
           .order('day_of_week', { ascending: true }),
+
+        insforge.database
+          .from('combos')
+          .select('*')
+          .eq('restaurant_id', currentRes.id)
+          .eq('status', 'active')
+          .order('created_at', { ascending: false }),
       ]);
 
       if (catRes.error) throw new Error(catRes.error.message);
@@ -88,76 +108,145 @@ export const PublicRestaurantPage: React.FC = () => {
       const loadedCats = (catRes.data || []) as Category[];
       const loadedFoods = (foodRes.data || []) as Food[];
       const loadedHours = (hoursRes.data || []) as RestaurantHours[];
+      const loadedCombos = (combosRes.data || []) as Combo[];
 
-      // 3. Fetch variants for all foods in one query
+      // 3. Fetch variants and add-ons for foods
       if (loadedFoods.length > 0) {
         const foodIds = loadedFoods.map((f) => f.id);
-        const { data: variantsData, error: varError } = await insforge.database
-          .from('food_variants')
-          .select('*')
-          .in('food_id', foodIds)
-          .order('price', { ascending: true });
+        const [variantsRes, addonsRes, mappingRes] = await Promise.all([
+          insforge.database
+            .from('food_variants')
+            .select('id, food_id, name, price, available, created_at, updated_at')
+            .in('food_id', foodIds)
+            .order('price', { ascending: true }),
 
-        if (varError) throw new Error(varError.message);
+          insforge.database
+            .from('food_addons')
+            .select('*')
+            .eq('restaurant_id', currentRes.id)
+            .eq('available', true),
+
+          insforge.database
+            .from('food_to_addons')
+            .select('*')
+            .in('food_id', foodIds),
+        ]);
 
         const variantsByFoodId = new Map<string, FoodVariant[]>();
-        ((variantsData || []) as FoodVariant[]).forEach((v) => {
+        ((variantsRes.data || []) as FoodVariant[]).forEach((v) => {
           const list = variantsByFoodId.get(v.food_id) || [];
           list.push(v);
           variantsByFoodId.set(v.food_id, list);
         });
 
-        loadedFoods.forEach((f) => {
-          f.variants = variantsByFoodId.get(f.id) || [];
+        const addonsById = new Map<string, FoodAddon>();
+        ((addonsRes.data || []) as FoodAddon[]).forEach((a) => {
+          addonsById.set(a.id, a);
         });
+
+        const addonIdsByFoodId = new Map<string, string[]>();
+        ((mappingRes.data || []) as { food_id: string; addon_id: string }[]).forEach((m) => {
+          const list = addonIdsByFoodId.get(m.food_id) || [];
+          list.push(m.addon_id);
+          addonIdsByFoodId.set(m.food_id, list);
+        });
+
+        loadedFoods.forEach((food) => {
+          food.variants = variantsByFoodId.get(food.id) || [];
+          const adIds = addonIdsByFoodId.get(food.id) || [];
+          food.addons = adIds.map((id) => addonsById.get(id)!).filter(Boolean);
+        });
+      }
+
+      // 4. Fetch combo items for combos
+      if (loadedCombos.length > 0) {
+        const comboIds = loadedCombos.map((c) => c.id);
+        const { data: comboItemsData, error: ciError } = await insforge.database
+          .from('combo_items')
+          .select('*, food:foods(id, name, image_url, veg_type)')
+          .in('combo_id', comboIds);
+
+        if (!ciError && comboItemsData) {
+          const itemsByCombo = new Map<string, ComboItem[]>();
+          (comboItemsData as ComboItem[]).forEach((item) => {
+            const list = itemsByCombo.get(item.combo_id) || [];
+            list.push(item);
+            itemsByCombo.set(item.combo_id, list);
+          });
+          loadedCombos.forEach((c) => {
+            c.items = itemsByCombo.get(c.id) || [];
+          });
+        }
       }
 
       setCategories(loadedCats);
       setFoods(loadedFoods);
       setHours(loadedHours);
+      setCombos(loadedCombos);
 
       if (loadedCats.length > 0) {
         setActiveCategoryId(loadedCats[0].id);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load restaurant data:', err);
-      setErrorMessage(err.message || 'Failed to load restaurant details.');
+      setErrorMessage(sanitizeErrorMessage(err, 'Unable to load menu. Please try again.'));
     } finally {
       setIsLoading(false);
     }
   }, [slug]);
 
-  // SEO & Schema.org Structured Data
-  const locationPart = restaurant ? [restaurant.area, restaurant.city].filter(Boolean).join(', ') : '';
-  const seoOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://shopmanu.com';
-  const restaurantSchema = restaurant
-    ? generateRestaurantSchema(restaurant, hours, categories, seoOrigin)
-    : null;
-
-  useSEO({
-    title: isNotFound
-      ? 'Restaurant Not Found'
-      : errorMessage
-      ? 'Restaurant Unavailable'
-      : restaurant
-      ? (locationPart ? `${restaurant.name} | ${locationPart}` : restaurant.name)
-      : 'Loading Restaurant...',
-    description: restaurant
-      ? (restaurant.description ||
-          `Explore the menu, portion prices, and dining hours for ${restaurant.name} located at ${restaurant.address}, ${locationPart}.`)
-      : undefined,
-    canonicalUrl: restaurant ? `${seoOrigin}/restaurant/${restaurant.slug}` : undefined,
-    ogType: 'restaurant',
-    ogImage: restaurant?.cover_url || restaurant?.logo_url || null,
-    noIndex: isNotFound || !!errorMessage,
-    jsonLd: restaurantSchema,
-  });
-
   useEffect(() => {
     loadRestaurantData();
   }, [loadRestaurantData]);
 
-  // Scroll to section handler
+  // SEO & Structured Schema
+  const seoOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://shopmanu.com';
+  const canonicalUrl = `${seoOrigin}/restaurant/${slug}`;
+  const seoTitle = restaurant ? `${restaurant.name} - Digital Menu & Prices` : 'Food Menu';
+  const seoDesc = restaurant
+    ? `Explore the complete, verified digital menu and prices for ${restaurant.name} at ${restaurant.address}.`
+    : 'View food menus, dish prices, and operating hours.';
+
+  const jsonLdSchema = restaurant ? generateRestaurantSchema(restaurant, hours) : null;
+
+  useSEO({
+    title: seoTitle,
+    description: seoDesc,
+    canonicalUrl,
+    ogImage: restaurant?.cover_url || restaurant?.logo_url,
+    ogType: 'restaurant',
+    jsonLd: jsonLdSchema,
+  });
+
+  // Category Intersection Observer
+  useEffect(() => {
+    if (categories.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const catId = entry.target.id.replace('category-', '');
+            if (catId) {
+              setActiveCategoryId(catId);
+            }
+          }
+        });
+      },
+      {
+        rootMargin: '-100px 0px -70% 0px',
+        threshold: 0,
+      }
+    );
+
+    categories.forEach((cat) => {
+      const el = document.getElementById(`category-${cat.id}`);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [categories]);
+
   const handleSelectCategory = (categoryId: string) => {
     setActiveCategoryId(categoryId);
     const element = document.getElementById(`category-${categoryId}`);
@@ -173,45 +262,46 @@ export const PublicRestaurantPage: React.FC = () => {
     }
   };
 
-  const handleOpenReportDish = (food: Food) => {
-    setReportTargetFood(food);
+  const handleOpenGeneralReport = () => {
+    setReportTargetFood(null);
     setIsReportModalOpen(true);
   };
 
-  const handleOpenGeneralReport = () => {
-    setReportTargetFood(null);
+  const handleOpenReportDish = (food: Food) => {
+    setReportTargetFood(food);
     setIsReportModalOpen(true);
   };
 
   // 1. Loading State
   if (isLoading) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 bg-[#080808] text-[#F4F2ED]">
-        <div className="w-10 h-10 border-2 border-[#C5A064] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="font-mono text-xs uppercase tracking-widest text-zinc-400">Summoning atelier catalog...</p>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 bg-[#0A0807] text-cream-200">
+        <Loader2 className="w-8 h-8 text-amber-400 animate-spin mb-4" />
+        <p className="font-mono text-xs uppercase tracking-widest text-cream-200/50">Loading restaurant menu...</p>
       </div>
     );
   }
 
-  // 2. 404 Not Found State (Pending, Rejected, Suspended, or Nonexistent)
+  // 2. 404 Not Found State
   if (isNotFound) {
     return (
-      <div className="min-h-[70vh] max-w-lg mx-auto px-4 flex flex-col items-center justify-center text-center">
-        <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-[#C5A064] font-mono text-xl mb-5 shadow-2xl">
-          404
+      <div className="min-h-[60vh] max-w-md mx-auto px-4 flex flex-col items-center justify-center text-center my-16">
+        <div className="editorial-card w-16 h-16 bg-[#14100D] border border-cream-200/15 rounded-2xl flex items-center justify-center text-amber-400 mb-5 shadow-2xl">
+          <Store className="w-8 h-8 stroke-[1.2]" />
         </div>
-        <h1 className="font-editorial text-3xl font-light text-[#F4F2ED] tracking-tight">
-          Specimen Not Located
+        <h1 className="font-serif text-3xl font-normal text-cream-100 tracking-tight">
+          Restaurant Not Found
         </h1>
-        <p className="font-mono text-xs uppercase tracking-widest text-zinc-400 mt-2 leading-relaxed">
-          The atelier or kitchen you are seeking is unindexed or pending accreditation.
+        <p className="text-xs sm:text-sm text-cream-200/60 mt-2 leading-relaxed font-sans">
+          The restaurant or food shop you are seeking does not exist or has not yet been approved.
         </p>
         <div className="mt-8">
           <Link
             to="/"
-            className="forge-btn px-5 py-2.5 text-xs font-mono uppercase tracking-widest text-[#F4F2ED] rounded-lg transition-all"
+            className="inline-flex items-center space-x-2 px-6 py-2.5 text-xs font-sans uppercase tracking-wider font-semibold text-espresso-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 rounded-lg transition-colors shadow-md"
           >
-            Return to Index
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Return to Home</span>
           </Link>
         </div>
       </div>
@@ -221,29 +311,29 @@ export const PublicRestaurantPage: React.FC = () => {
   // 3. Error State
   if (errorMessage || !restaurant) {
     return (
-      <div className="min-h-[70vh] max-w-lg mx-auto px-4 flex flex-col items-center justify-center text-center">
-        <div className="w-14 h-14 bg-red-500/10 border border-red-500/30 text-red-400 rounded-2xl flex items-center justify-center font-mono font-bold text-xl mb-5 shadow-2xl">
-          !
+      <div className="min-h-[60vh] max-w-md mx-auto px-4 flex flex-col items-center justify-center text-center my-16">
+        <div className="editorial-card w-16 h-16 bg-[#160E0B] border border-red-500/30 text-red-400 rounded-2xl flex items-center justify-center mb-5 shadow-2xl">
+          <AlertCircle className="w-8 h-8 stroke-[1.5]" />
         </div>
-        <h1 className="font-editorial text-3xl font-light text-[#F4F2ED] tracking-tight">
-          Telemetry Interrupted
+        <h1 className="font-serif text-3xl font-normal text-cream-100 tracking-tight">
+          Unable to Load Menu
         </h1>
-        <p className="font-mono text-xs text-zinc-400 mt-2">
-          {errorMessage || 'An unexpected telemetry interruption occurred.'}
+        <p className="text-xs sm:text-sm text-cream-200/60 mt-2 leading-relaxed font-sans">
+          {errorMessage || 'A network error occurred while loading this shop.'}
         </p>
         <div className="mt-8 flex gap-3">
           <button
             type="button"
             onClick={loadRestaurantData}
-            className="forge-btn px-5 py-2.5 text-xs font-mono uppercase tracking-widest text-[#F4F2ED] rounded-lg transition-all"
+            className="px-5 py-2.5 text-xs font-sans uppercase tracking-wider font-semibold text-espresso-950 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 rounded-lg transition-colors shadow-md"
           >
-            Retry Sync
+            Try Again
           </button>
           <Link
             to="/"
-            className="px-5 py-2.5 border border-white/15 bg-white/5 hover:border-white/30 text-zinc-300 rounded-lg text-xs font-mono uppercase tracking-widest transition-all"
+            className="px-5 py-2.5 border border-cream-200/15 bg-cream-100/[0.06] hover:bg-cream-100/[0.12] text-cream-100 text-xs font-sans uppercase tracking-wider rounded-lg transition-colors"
           >
-            Return to Index
+            Back to Home
           </Link>
         </div>
       </div>
@@ -252,7 +342,7 @@ export const PublicRestaurantPage: React.FC = () => {
 
   // 4. Main Restaurant Content
   return (
-    <div className="min-h-screen bg-[#080808] text-[#F4F2ED] flex flex-col">
+    <div className="min-h-screen bg-[#0A0807] text-cream-100 flex flex-col font-sans">
       {/* Restaurant Header */}
       <RestaurantHeader
         restaurant={restaurant}
@@ -269,11 +359,12 @@ export const PublicRestaurantPage: React.FC = () => {
       />
 
       {/* Main Container */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 flex-1 w-full pb-16">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 flex-1 w-full pb-20">
         {/* Menu Section */}
         <MenuSection
           categories={categories}
           foods={foods}
+          combos={combos}
           onReportDish={handleOpenReportDish}
         />
 

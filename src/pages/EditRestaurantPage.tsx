@@ -7,6 +7,7 @@ import { DAY_NAMES } from '../utils/operatingHours';
 import { OwnerLocationPicker } from '../components/maps/OwnerLocationPicker';
 import { validateCoordinates } from '../utils/geolocation';
 import { useSEO } from '../hooks/useSEO';
+import { sanitizeErrorMessage } from '../utils/errorHandler';
 
 interface DayScheduleForm {
   day_of_week: number;
@@ -69,6 +70,7 @@ export const EditRestaurantPage: React.FC = () => {
       const { data, error } = await insforge.database
         .from('restaurants')
         .select('*')
+        .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw new Error(error.message);
@@ -84,7 +86,15 @@ export const EditRestaurantPage: React.FC = () => {
       let active = items[0];
       if (restaurantId) {
         const found = items.find((r) => r.id === restaurantId);
-        if (found) active = found;
+        if (found) {
+          active = found;
+        } else {
+          // Security: Block cross-tenant access via URL parameter tampering
+          setErrorMsg('Access Denied: Restaurant not found or you do not have permission to manage this establishment.');
+          setRestaurant(null);
+          setIsLoading(false);
+          return;
+        }
       } else {
         setSearchParams({ id: active.id }, { replace: true });
       }
@@ -121,8 +131,8 @@ export const EditRestaurantPage: React.FC = () => {
           })
         );
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to load restaurant profile.');
+    } catch (err: unknown) {
+      setErrorMsg(sanitizeErrorMessage(err, 'Failed to load restaurant profile.'));
     } finally {
       setIsLoading(false);
     }
@@ -283,15 +293,15 @@ export const EditRestaurantPage: React.FC = () => {
           },
         ]);
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to update restaurant.');
+    } catch (err: unknown) {
+      setErrorMsg(sanitizeErrorMessage(err, 'Failed to update restaurant.'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50">
       <OwnerNav />
       <div className="max-w-4xl mx-auto px-4 pb-12">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">

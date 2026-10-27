@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Filter, Check, Clock, RotateCcw, ArrowUpDown } from 'lucide-react';
+import { Filter, Check, Clock, RotateCcw, ArrowUpDown, Layers } from 'lucide-react';
 import { SearchFilters as FilterType } from '../../services/searchService';
 import { LocationSelector } from '../location/LocationSelector';
 import { RadiusFilter } from '../location/RadiusFilter';
@@ -37,6 +37,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
   const activeFiltersCount = [
     isLocationActive,
     filters.vegType && filters.vegType !== 'all',
+    filters.category,
     filters.availableOnly,
     filters.minPrice !== null && filters.minPrice !== undefined && filters.minPrice > 0,
     filters.maxPrice !== null && filters.maxPrice !== undefined && filters.maxPrice > 0,
@@ -98,6 +99,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
       radiusKm: 5,
     });
     onChange({
+      category: undefined,
       vegType: 'all',
       availableOnly: false,
       minPrice: null,
@@ -112,11 +114,11 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
   };
 
   return (
-    <aside aria-label="Search filters and location controls" className={`w-full ${className}`}>
+    <aside aria-label="Search filters and location controls" className={`w-full bg-[#120E0C] border border-cream-200/12 rounded-xl p-4 sm:p-5 shadow-xl ${className}`}>
       {/* Location Bar & Mobile Toggle */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-white/10">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3.5 border-b border-cream-200/10">
         <div className="flex items-center space-x-2 flex-wrap gap-y-2">
-          <span className="text-[10px] font-mono font-semibold text-[#C5A064] uppercase tracking-widest">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-cream-200/50">
             Location:
           </span>
           <LocationSelector
@@ -144,24 +146,24 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
         </div>
 
         {/* Mobile Filter Toggle Header */}
-        <div className="md:hidden flex items-center justify-between pt-2 border-t border-white/10 sm:border-none sm:pt-0">
+        <div className="md:hidden flex items-center justify-between pt-2 border-t border-cream-200/10 sm:border-none sm:pt-0">
           <div className="flex items-center space-x-2">
             <button
               type="button"
               onClick={() => setIsMobileDrawerOpen(!isMobileDrawerOpen)}
-              className="inline-flex items-center space-x-2 text-xs font-mono text-[#F4F2ED] bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors shadow-sm"
+              className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-cream-100 bg-[#1A1410] border border-cream-200/20 px-3 py-1.5 rounded-lg transition-colors"
               aria-expanded={isMobileDrawerOpen}
             >
-              <Filter className="w-3.5 h-3.5 text-[#C5A064]" />
+              <Filter className="w-3.5 h-3.5 text-amber-400" />
               <span>Filters</span>
               {activeFiltersCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.2 text-[10px] font-mono font-semibold rounded-full bg-[#C5A064] text-black">
+                <span className="ml-1 px-1.5 py-0.2 text-[9px] font-mono bg-amber-400 text-espresso-950 font-bold rounded">
                   {activeFiltersCount}
                 </span>
               )}
             </button>
             {totalResultsCount !== undefined && totalResultsCount > 0 && (
-              <span className="text-[11px] font-mono text-zinc-500">
+              <span className="text-xs font-mono text-cream-200/50">
                 {totalResultsCount} items
               </span>
             )}
@@ -171,7 +173,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
             <button
               type="button"
               onClick={handleClearFilters}
-              className="text-xs font-mono text-zinc-400 hover:text-[#C5A064] flex items-center space-x-1"
+              className="text-xs font-mono text-cream-200/60 hover:text-amber-300 flex items-center space-x-1"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset</span>
@@ -183,21 +185,21 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
       {/* Filter Options (Always visible on desktop, toggleable on mobile) */}
       <div
         className={`${
-          isMobileDrawerOpen ? 'block mt-3 p-4 bg-[#0C0C0C]/95 backdrop-blur-xl border border-white/15 rounded-xl shadow-2xl' : 'hidden'
-        } md:block pt-3`}
+          isMobileDrawerOpen ? 'block mt-3 pt-3 border-t border-cream-200/10' : 'hidden'
+        } md:block pt-3.5`}
       >
-        <div className="flex flex-col md:flex-row md:items-center md:flex-wrap gap-4 text-sm">
+        <div className="flex flex-col md:flex-row md:items-center md:flex-wrap gap-4 text-xs">
           {/* Diet Filter: All / Veg / Non-Veg */}
           <div className="flex items-center space-x-2">
-            <span className="text-[10px] font-mono font-semibold text-[#C5A064] uppercase tracking-widest">Diet:</span>
-            <div className="inline-flex rounded-lg border border-white/15 bg-white/5 p-0.5">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-cream-200/50">Diet:</span>
+            <div className="inline-flex border border-cream-200/15 bg-[#0D0A08] p-0.5 rounded-lg">
               <button
                 type="button"
                 onClick={() => handleVegChange('all')}
                 className={`px-2.5 py-1 text-xs font-mono rounded transition-colors ${
                   !filters.vegType || filters.vegType === 'all'
-                    ? 'bg-white/15 text-[#F4F2ED] shadow-sm font-semibold'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-amber-400 text-espresso-950 font-semibold'
+                    : 'text-cream-200/70 hover:text-cream-100'
                 }`}
               >
                 All
@@ -205,10 +207,10 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
               <button
                 type="button"
                 onClick={() => handleVegChange('veg')}
-                className={`px-2.5 py-1 text-xs font-mono rounded transition-colors flex items-center space-x-1 ${
+                className={`px-2.5 py-1 text-xs font-mono rounded transition-colors flex items-center space-x-1.5 ${
                   filters.vegType === 'veg'
-                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm font-semibold'
-                    : 'text-emerald-400/80 hover:text-emerald-300'
+                    ? 'bg-amber-400 text-espresso-950 font-semibold'
+                    : 'text-cream-200/70 hover:text-cream-100'
                 }`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
@@ -217,10 +219,10 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
               <button
                 type="button"
                 onClick={() => handleVegChange('non_veg')}
-                className={`px-2.5 py-1 text-xs font-mono rounded transition-colors flex items-center space-x-1 ${
+                className={`px-2.5 py-1 text-xs font-mono rounded transition-colors flex items-center space-x-1.5 ${
                   filters.vegType === 'non_veg'
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm font-semibold'
-                    : 'text-amber-400/80 hover:text-amber-300'
+                    ? 'bg-amber-400 text-espresso-950 font-semibold'
+                    : 'text-cream-200/70 hover:text-cream-100'
                 }`}
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
@@ -234,26 +236,26 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
             <button
               type="button"
               onClick={handleAvailabilityToggle}
-              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${
+              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono uppercase tracking-wider transition-colors ${
                 filters.availableOnly
-                  ? 'bg-[#C5A064]/20 text-[#F4F2ED] border-[#C5A064]/50 shadow-sm'
-                  : 'bg-white/5 text-zinc-400 border-white/10 hover:border-white/20 hover:text-white'
+                  ? 'bg-amber-400/15 text-amber-300 border-amber-400/40 font-medium'
+                  : 'bg-cream-100/[0.04] text-cream-200/70 border-cream-200/15 hover:bg-cream-100/[0.08] hover:text-cream-100'
               }`}
             >
-              {filters.availableOnly && <Check className="w-3 h-3 text-[#C5A064]" />}
-              <span>Available Only</span>
+              {filters.availableOnly && <Check className="w-3 h-3 text-amber-400" />}
+              <span>In Stock Only</span>
             </button>
 
             <button
               type="button"
               onClick={handleOpenNowToggle}
-              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${
+              className={`inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono uppercase tracking-wider transition-colors ${
                 filters.openNow
-                  ? 'bg-[#C5A064]/20 text-[#F4F2ED] border-[#C5A064]/50 shadow-sm'
-                  : 'bg-white/5 text-zinc-400 border-white/10 hover:border-white/20 hover:text-white'
+                  ? 'bg-amber-400/15 text-amber-300 border-amber-400/40 font-medium'
+                  : 'bg-cream-100/[0.04] text-cream-200/70 border-cream-200/15 hover:bg-cream-100/[0.08] hover:text-cream-100'
               }`}
             >
-              <Clock className="w-3 h-3 text-[#C5A064]" />
+              <Clock className="w-3 h-3 text-amber-400" />
               <span>Open Now</span>
             </button>
           </div>
@@ -261,9 +263,9 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
           {/* Price Range Filter */}
           <form
             onSubmit={handleApplyPriceFilter}
-            className="flex items-center space-x-2 text-xs"
+            className="flex items-center space-x-1.5 text-xs font-mono"
           >
-            <span className="text-[10px] font-mono font-semibold text-[#C5A064] uppercase tracking-widest">Price (₹):</span>
+            <span className="text-[10px] uppercase tracking-wider text-cream-200/50">Price (₹):</span>
             <label htmlFor="filter-min-price" className="sr-only">Minimum price in rupees</label>
             <input
               id="filter-min-price"
@@ -272,9 +274,9 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
               placeholder="Min"
               value={minPriceInput}
               onChange={(e) => setMinPriceInput(e.target.value)}
-              className="w-16 px-2 py-1 bg-white/5 border border-white/15 rounded-lg text-[#F4F2ED] placeholder-zinc-500 text-xs font-mono focus:outline-none focus:border-[#C5A064]"
+              className="w-16 px-2 py-1 bg-[#0A0807] border border-cream-200/20 text-cream-100 placeholder-cream-200/40 rounded text-xs focus:outline-none focus:border-amber-400"
             />
-            <span className="text-zinc-500 font-mono">to</span>
+            <span className="text-cream-200/40">to</span>
             <label htmlFor="filter-max-price" className="sr-only">Maximum price in rupees</label>
             <input
               id="filter-max-price"
@@ -283,27 +285,50 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
               placeholder="Max"
               value={maxPriceInput}
               onChange={(e) => setMaxPriceInput(e.target.value)}
-              className="w-16 px-2 py-1 bg-white/5 border border-white/15 rounded-lg text-[#F4F2ED] placeholder-zinc-500 text-xs font-mono focus:outline-none focus:border-[#C5A064]"
+              className="w-16 px-2 py-1 bg-[#0A0807] border border-cream-200/20 text-cream-100 placeholder-cream-200/40 rounded text-xs focus:outline-none focus:border-amber-400"
             />
             <button
               type="submit"
-              className="forge-btn px-2.5 py-1 text-xs font-mono uppercase text-[#F4F2ED] rounded-lg transition-all"
+              className="px-2.5 py-1 text-xs font-mono uppercase tracking-wider bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-espresso-950 font-semibold rounded transition-colors"
             >
               Apply
             </button>
           </form>
 
+          {/* Category Selector */}
+          <div className="flex items-center space-x-1.5 text-xs font-mono">
+            <label htmlFor="filter-category" className="text-[10px] uppercase tracking-wider text-cream-200/50 flex items-center space-x-1">
+              <Layers className="w-3 h-3 text-amber-400" />
+              <span>Category:</span>
+            </label>
+            <select
+              id="filter-category"
+              value={filters.category || ''}
+              onChange={(e) => onChange({ ...filters, category: e.target.value || undefined })}
+              className="px-2.5 py-1 bg-[#0A0807] border border-cream-200/20 text-cream-100 rounded text-xs focus:outline-none focus:border-amber-400 cursor-pointer"
+            >
+              <option value="">All Categories</option>
+              <option value="Biryani">Biryani & Rice</option>
+              <option value="Roll">Kathi Rolls</option>
+              <option value="Kebab">Tandoor & Kebabs</option>
+              <option value="Vegetarian">Vegetarian Specialties</option>
+              <option value="Main Course">Main Courses</option>
+              <option value="Snack">Snacks & Fries</option>
+              <option value="Dessert">Breads & Sweets</option>
+            </select>
+          </div>
+
           {/* Sort By Selector */}
-          <div className="flex items-center space-x-1.5 text-xs">
-            <label htmlFor="filter-sort-by" className="text-[10px] font-mono font-semibold text-[#C5A064] uppercase tracking-widest flex items-center space-x-1">
-              <ArrowUpDown className="w-3 h-3 text-[#C5A064]" />
+          <div className="flex items-center space-x-1.5 text-xs font-mono">
+            <label htmlFor="filter-sort-by" className="text-[10px] uppercase tracking-wider text-cream-200/50 flex items-center space-x-1">
+              <ArrowUpDown className="w-3 h-3 text-amber-400" />
               <span>Sort:</span>
             </label>
             <select
               id="filter-sort-by"
               value={filters.sortBy || (isLocationActive ? 'nearest' : 'relevance')}
               onChange={handleSortChange}
-              className="px-2.5 py-1 bg-[#0C0C0C] border border-white/15 rounded-lg text-[#F4F2ED] text-xs font-mono focus:outline-none focus:border-[#C5A064] cursor-pointer"
+              className="px-2.5 py-1 bg-[#0A0807] border border-cream-200/20 text-cream-100 rounded text-xs focus:outline-none focus:border-amber-400 cursor-pointer"
             >
               {isLocationActive && <option value="nearest">Nearest first</option>}
               <option value="relevance">Relevance</option>
@@ -317,10 +342,10 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
             <button
               type="button"
               onClick={handleClearFilters}
-              className="hidden md:inline-flex items-center space-x-1 text-xs font-mono text-zinc-400 hover:text-[#C5A064] ml-auto transition-colors"
+              className="hidden md:inline-flex items-center space-x-1 text-xs font-mono uppercase tracking-wider text-cream-200/60 hover:text-amber-300 ml-auto transition-colors"
             >
               <RotateCcw className="w-3 h-3" />
-              <span>Reset ({activeFiltersCount})</span>
+              <span>Reset all ({activeFiltersCount})</span>
             </button>
           )}
         </div>

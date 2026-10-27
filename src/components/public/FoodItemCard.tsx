@@ -1,6 +1,8 @@
 import React from 'react';
 import { Food } from '../../lib/insforge';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { DietaryBadge } from '../menu/DietaryBadge';
+import { Utensils, Clock } from 'lucide-react';
 
 interface FoodItemCardProps {
   food: Food;
@@ -17,64 +19,64 @@ export const FoodItemCard: React.FC<FoodItemCardProps> = ({ food, onReportDish }
 
   return (
     <article
-      className={`forge-card rounded-2xl p-5 sm:p-6 transition-all duration-300 hover:border-[#C5A064]/50 flex flex-col sm:flex-row justify-between gap-5 group ${
+      className={`editorial-card bg-[#120E0C] border border-cream-200/10 p-5 hover:border-amber-400/40 transition-all flex flex-col sm:flex-row justify-between gap-4 group rounded-sm ${
         food.available ? '' : 'opacity-70'
       }`}
     >
       {/* Left Column: Details */}
       <div className="flex-1 min-w-0">
         {/* Badges Bar */}
-        <div className="flex flex-wrap items-center gap-2 mb-2.5">
-          {/* Veg / Non-Veg Text Badge */}
-          {food.veg_type === 'veg' ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-widest text-emerald-300 bg-emerald-500/20 border border-emerald-500/40">
-              Veg
-            </span>
-          ) : (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-widest text-amber-300 bg-amber-500/20 border border-amber-500/40">
-              Non-Veg
-            </span>
-          )}
+        <div className="flex items-center space-x-2 mb-2.5 flex-wrap gap-y-1">
+          {/* Dietary Badge */}
+          <DietaryBadge type={food.veg_type || 'veg'} showText={true} size="sm" />
 
-          {/* Availability Text Badge */}
-          {food.available ? (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-widest text-[#C5A064] bg-[#C5A064]/10 border border-[#C5A064]/30">
-              Available
-            </span>
-          ) : (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-widest text-zinc-500 bg-white/5 border border-white/10">
-              Unavailable
-            </span>
+          <span className="text-cream-200/20">•</span>
+
+          {/* Availability Badge */}
+          <span
+            className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 border ${
+              food.available
+                ? 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                : 'bg-cream-200/5 text-cream-300/40 border-cream-200/10'
+            }`}
+          >
+            {food.available ? 'In Stock' : 'Sold Out'}
+          </span>
+
+          {food.prep_time_minutes && (
+            <>
+              <span className="text-cream-200/20">•</span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider text-cream-300/60">
+                <Clock className="w-3 h-3 text-amber-400" />
+                <span>{food.prep_time_minutes}m prep</span>
+              </span>
+            </>
           )}
         </div>
 
         {/* Food Name */}
-        <h3 className="font-editorial text-2xl font-light text-[#F4F2ED] group-hover:text-white transition-colors leading-tight">
+        <h3 className="font-serif text-lg font-medium text-cream-100 group-hover:text-amber-300 transition-colors leading-snug">
           {food.name}
         </h3>
 
         {/* Optional Description */}
         {food.description && (
-          <p className="mt-1.5 text-xs text-zinc-400 font-light leading-relaxed line-clamp-3">
+          <p className="mt-1 text-xs text-cream-300/70 font-normal leading-relaxed line-clamp-2">
             {food.description}
           </p>
         )}
 
-        {/* Variants & Pricing List */}
-        <div className="mt-4 pt-3.5 border-t border-white/10">
-          <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-[#C5A064] block mb-2">
-            Pricing & Variants
-          </span>
-
+        {/* Pricing & Variants List */}
+        <div className="mt-3">
           {variants.length === 0 ? (
-            <span className="text-xs font-mono text-zinc-500">Price not configured</span>
+            <span className="text-xs font-mono text-cream-300/40 italic">Price not listed</span>
           ) : variants.length === 1 ? (
             <div className="flex items-baseline gap-2">
-              <span className="font-mono text-base sm:text-lg font-medium text-[#C5A064]">
+              <span className="font-serif text-xl font-medium text-amber-300">
                 {formatCurrency(variants[0].price)}
               </span>
               {variants[0].name.toLowerCase() !== 'regular' && (
-                <span className="text-xs font-mono text-zinc-500">({variants[0].name})</span>
+                <span className="text-xs font-mono text-cream-300/50">({variants[0].name})</span>
               )}
             </div>
           ) : (
@@ -82,12 +84,12 @@ export const FoodItemCard: React.FC<FoodItemCardProps> = ({ food, onReportDish }
               {variants.map((v) => (
                 <div
                   key={v.id}
-                  className="px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-xs font-mono flex items-center gap-1.5"
+                  className="px-2.5 py-1 bg-[#181310] border border-cream-200/10 text-xs font-mono flex items-center gap-1.5 rounded-xs"
                 >
-                  <span className="text-zinc-400">{v.name}:</span>
-                  <span className="font-medium text-[#C5A064]">{formatCurrency(v.price)}</span>
+                  <span className="text-cream-300/60">{v.name}:</span>
+                  <span className="font-medium text-amber-300">{formatCurrency(v.price)}</span>
                   {!v.available && (
-                    <span className="text-[9px] uppercase tracking-wider text-amber-400 font-semibold">(Sold out)</span>
+                    <span className="text-[10px] text-amber-400/70 font-semibold">(Sold out)</span>
                   )}
                 </div>
               ))}
@@ -95,47 +97,48 @@ export const FoodItemCard: React.FC<FoodItemCardProps> = ({ food, onReportDish }
           )}
         </div>
 
+        {/* Attached Add-ons */}
+        {food.addons && food.addons.length > 0 && (
+          <div className="mt-3 pt-2.5 border-t border-cream-200/10 flex flex-wrap items-center gap-1.5 font-mono text-xs">
+            <span className="text-[10px] uppercase tracking-wider text-cream-300/50">Add-ons:</span>
+            {food.addons.map((ad) => (
+              <span
+                key={ad.id}
+                className="text-[10px] px-2 py-0.5 bg-[#181310] text-cream-200/80 border border-cream-200/10 rounded-xs"
+              >
+                +{ad.name} ({formatCurrency(ad.price)})
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* Freshness / Last Updated Info */}
-        <div className="mt-4 pt-2 flex items-center justify-between text-[10px] font-mono text-zinc-500">
-          <span>Price updated: {formatDate(latestTimestamp)}</span>
+        <div className="mt-4 pt-3 border-t border-cream-200/10 flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-cream-300/50">
+          <span>Updated: {formatDate(latestTimestamp)}</span>
           {onReportDish && (
             <button
               type="button"
               onClick={() => onReportDish(food)}
-              className="text-zinc-500 hover:text-[#C5A064] uppercase tracking-widest transition-colors"
+              className="text-cream-300/50 hover:text-amber-300 transition-colors"
             >
-              Report dish issue
+              Report price issue
             </button>
           )}
         </div>
       </div>
 
       {/* Right Column: Dish Photo */}
-      <div className="w-full sm:w-28 sm:h-28 h-36 rounded-xl bg-white/5 border border-white/10 overflow-hidden shrink-0 self-start sm:self-center group-hover:border-[#C5A064]/40 transition-colors">
+      <div className="w-24 h-24 sm:w-28 sm:h-28 bg-[#181310] border border-cream-200/10 overflow-hidden shrink-0 self-start sm:self-center rounded-sm">
         {food.image_url ? (
           <img
             src={food.image_url}
             alt={food.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-zinc-600 bg-white/5 p-2 text-center">
-            <svg
-              className="w-6 h-6 mb-1 text-zinc-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
-            <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-500">No photo</span>
+          <div className="w-full h-full flex items-center justify-center text-cream-300/20">
+            <Utensils className="w-6 h-6 stroke-[1.2]" />
           </div>
         )}
       </div>

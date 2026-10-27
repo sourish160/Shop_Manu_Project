@@ -6,6 +6,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 
 import { HomePage } from './pages/HomePage';
 import { LoginPage } from './pages/LoginPage';
+import { AdminLoginPage } from './pages/AdminLoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { OwnerDashboardPage } from './pages/OwnerDashboardPage';
 import { NewRestaurantPage } from './pages/NewRestaurantPage';
@@ -26,7 +27,7 @@ export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="min-h-screen bg-[#080808] text-[#F4F2ED] flex flex-col font-sans selection:bg-[#C5A064] selection:text-[#080808]">
+        <div className="min-h-screen bg-[#0A0807] text-cream-100 flex flex-col font-sans">
           <Navbar />
           <main className="flex-1">
             <Routes>
@@ -34,6 +35,7 @@ export const App: React.FC = () => {
               <Route path="/search" element={<SearchPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/owner/login" element={<LoginPage />} />
+              <Route path="/admin/login" element={<AdminLoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/owner/register" element={<RegisterPage />} />
               <Route path="/restaurant/:slug" element={<PublicRestaurantPage />} />

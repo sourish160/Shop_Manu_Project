@@ -136,8 +136,21 @@ export function formatDistance(distanceKm: number | null | undefined): string {
 }
 
 /**
+ * Privacy-Preserving Coordinate Truncation
+ *
+ * Limits coordinate precision to neighborhood-level resolution (~110 meters at 3 decimals).
+ * Prevents sub-meter location tracking and protects user home/residential privacy.
+ */
+export function truncateCoordinate(coord: number, decimals: number = 3): number {
+  if (typeof coord !== 'number' || isNaN(coord)) return coord;
+  const factor = Math.pow(10, decimals);
+  return Math.round(coord * factor) / factor;
+}
+
+/**
  * Requests the customer's current position from the browser Geolocation API.
- * Returns normalized coordinates or a friendly, actionable error message.
+ * Uses minimum precision required (3 decimal places, ~110m neighborhood scale).
+ * Never activates continuous tracking and does not collect high-precision hardware coordinates.
  */
 export async function getCurrentLocation(): Promise<GeoCoordinates> {
   return new Promise((resolve, reject) => {
@@ -148,12 +161,21 @@ export async function getCurrentLocation(): Promise<GeoCoordinates> {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
+        // Privacy truncation: 3 decimals gives ~110m neighborhood accuracy,
+        // preventing sub-meter tracking or home-address pinpointing.
+        const latitude = truncateCoordinate(position.coords.latitude, 3);
+        const longitude = truncateCoordinate(position.coords.longitude, 3);
+
         if (!validateCoordinates(latitude, longitude)) {
           reject(new Error('Received invalid location coordinates from browser.'));
           return;
         }
-        resolve({ latitude, longitude, accuracy });
+
+        resolve({
+          latitude,
+          longitude,
+          accuracy: undefined, // Omit raw hardware accuracy to prevent device fingerprinting
+        });
       },
       (error) => {
         switch (error.code) {
@@ -172,9 +194,9 @@ export async function getCurrentLocation(): Promise<GeoCoordinates> {
         }
       },
       {
-        enableHighAccuracy: true,
+        enableHighAccuracy: false, // Privacy-first: standard cell/wifi triangulation, no high-precision GPS hardware drain
         timeout: 10000,
-        maximumAge: 60000,
+        maximumAge: 120000, // Reuse cached reading up to 2 minutes
       }
     );
   });

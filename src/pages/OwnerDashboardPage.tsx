@@ -5,7 +5,7 @@ import { OwnerNav } from '../components/OwnerNav';
 import { insforge, Restaurant } from '../lib/insforge';
 import { formatDateTime } from '../utils/formatters';
 import { getFreshnessStatus } from '../utils/freshness';
-import { Clock } from 'lucide-react';
+import { Clock, Store, ExternalLink } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
 
 interface DashboardStats {
@@ -27,7 +27,7 @@ export const OwnerDashboardPage: React.FC = () => {
   });
 
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   const [stats, setStats] = useState<DashboardStats>({
     categoryCount: 0,
     foodCount: 0,
@@ -40,15 +40,18 @@ export const OwnerDashboardPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const fetchDashboardData = useCallback(async () => {
+  const selectedRestaurant =
+    restaurants.find((r) => r.id === selectedRestaurantId) || (restaurants.length > 0 ? restaurants[0] : null);
+
+  const fetchRestaurants = useCallback(async () => {
     if (!user) return;
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      // 1. Fetch owner's restaurants
       const { data: resList, error: resError } = await insforge.database
         .from('restaurants')
         .select('*')
+        .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
 
       if (resError) throw new Error(resError.message);
@@ -57,12 +60,35 @@ export const OwnerDashboardPage: React.FC = () => {
       setRestaurants(items);
 
       if (items.length > 0) {
-        const activeRes = selectedRestaurant
-          ? items.find((r) => r.id === selectedRestaurant.id) || items[0]
-          : items[0];
-        setSelectedRestaurant(activeRes);
+        setSelectedRestaurantId((prev) => {
+          if (prev && items.some((r) => r.id === prev)) {
+            return prev;
+          }
+          return items[0].id;
+        });
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to load dashboard.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user]);
 
-        // 2. Fetch category count
+  useEffect(() => {
+    fetchRestaurants();
+  }, [fetchRestaurants]);
+
+  // Fetch category count & food freshness stats for the active restaurant
+  useEffect(() => {
+    if (!selectedRestaurant) return;
+
+    let isMounted = true;
+
+    async function fetchStats() {
+      try {
+        const activeRes = selectedRestaurant!;
+
+        // 1. Fetch category count
         const { count: catCount, error: catError } = await insforge.database
           .from('categories')
           .select('id', { count: 'exact', head: true })
@@ -70,7 +96,7 @@ export const OwnerDashboardPage: React.FC = () => {
 
         if (catError) console.error('Category count error:', catError);
 
-        // 3. Fetch active food items with updated_at timestamps for freshness calculation
+        // 2. Fetch active food items with updated_at timestamps for freshness calculation
         const { data: foodRows, error: foodError } = await insforge.database
           .from('foods')
           .select('id, updated_at, available')
@@ -92,33 +118,35 @@ export const OwnerDashboardPage: React.FC = () => {
           else stale++;
         });
 
-        setStats({
-          categoryCount: catCount || 0,
-          foodCount: (foodRows || []).length,
-          lastUpdate: activeRes.updated_at,
-          freshCount: fresh,
-          reviewRecommendedCount: review,
-          staleCount: stale,
-          unavailableCount: unavail,
-        });
+        if (isMounted) {
+          setStats({
+            categoryCount: catCount || 0,
+            foodCount: (foodRows || []).length,
+            lastUpdate: activeRes.updated_at,
+            freshCount: fresh,
+            reviewRecommendedCount: review,
+            staleCount: stale,
+            unavailableCount: unavail,
+          });
+        }
+      } catch (err: any) {
+        console.error('Failed to load dashboard stats:', err);
       }
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to load dashboard.');
-    } finally {
-      setIsLoading(false);
     }
-  }, [user, selectedRestaurant]);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
+    fetchStats();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedRestaurant?.id, selectedRestaurant?.updated_at]);
 
   const handleSelectRestaurant = (res: Restaurant) => {
-    setSelectedRestaurant(res);
+    setSelectedRestaurantId(res.id);
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-50">
       <OwnerNav />
       <div className="max-w-5xl mx-auto px-4 pb-12">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
@@ -167,21 +195,44 @@ export const OwnerDashboardPage: React.FC = () => {
           <div className="space-y-6">
             {/* Multiple restaurant switcher if owner has > 1 */}
             {restaurants.length > 1 && (
-              <div className="flex items-center space-x-2 overflow-x-auto pb-1">
-                <span className="text-xs font-medium text-slate-500 shrink-0">Switch:</span>
-                {restaurants.map((r) => (
-                  <button
-                    key={r.id}
-                    onClick={() => handleSelectRestaurant(r)}
-                    className={`px-3 py-1 rounded text-xs font-medium border transition-colors ${
-                      r.id === selectedRestaurant.id
-                        ? 'bg-slate-900 text-white border-slate-900'
-                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                    }`}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Store className="w-4 h-4 text-brand-600" />
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                      Your Food Shops ({restaurants.length})
+                    </span>
+                  </div>
+                  <Link
+                    to="/owner/restaurant/new"
+                    className="text-xs font-semibold text-brand-600 hover:text-brand-700 underline flex items-center gap-1"
                   >
-                    {r.name}
-                  </button>
-                ))}
+                    + Register Another Shop
+                  </Link>
+                </div>
+                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                  {restaurants.map((r) => (
+                    <button
+                      key={r.id}
+                      onClick={() => handleSelectRestaurant(r)}
+                      className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all flex items-center space-x-2 shrink-0 ${
+                        r.id === selectedRestaurant.id
+                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
+                      }`}
+                    >
+                      <Store className={`w-3.5 h-3.5 ${r.id === selectedRestaurant.id ? 'text-amber-400' : 'text-slate-400'}`} />
+                      <span className="font-semibold">{r.name}</span>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-semibold ${
+                        r.id === selectedRestaurant.id
+                          ? 'bg-slate-800 text-slate-200'
+                          : 'bg-slate-200 text-slate-600'
+                      }`}>
+                        {r.area || r.city}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -359,6 +410,17 @@ export const OwnerDashboardPage: React.FC = () => {
                 >
                   Manage Restaurant Profile
                 </Link>
+                {selectedRestaurant.slug && selectedRestaurant.status === 'approved' && (
+                  <Link
+                    to={`/restaurant/${selectedRestaurant.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded text-xs font-semibold transition-colors inline-flex items-center space-x-1.5"
+                  >
+                    <span>View Public Menu</span>
+                    <ExternalLink className="w-3 h-3 text-slate-400" />
+                  </Link>
+                )}
               </div>
             </div>
           </div>
