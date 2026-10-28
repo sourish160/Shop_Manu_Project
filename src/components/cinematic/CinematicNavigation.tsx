@@ -96,12 +96,14 @@ export const CinematicNavigation: React.FC = () => {
           to="/"
           onClick={closeMenu}
           aria-label="ManuMania Home"
-          className="flex items-center space-x-2.5 focus-visible:ring-2 focus-visible:ring-amber-500 rounded p-1 group shrink-0"
+          className="flex items-center focus-visible:ring-2 focus-visible:ring-amber-500 rounded p-1 group shrink-0"
         >
-          <span className="w-2 h-2 rounded-full bg-amber-400 group-hover:scale-125 transition-transform" />
-          <span className="font-serif text-xl sm:text-2xl tracking-tight text-cream-100 group-hover:text-amber-300 transition-colors font-medium">
-            ManuMania
-          </span>
+          <img
+            src="/images/ManuMania%20Chef%20Sticker%20Logo.png"
+            alt="ManuMania"
+            className="h-8 sm:h-9 lg:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+            style={{ width: 'auto', height: 'auto', maxHeight: '2.5rem' }}
+          />
         </Link>
 
         {/* Desktop Chapter Navigation Band (Generously Spaced) */}

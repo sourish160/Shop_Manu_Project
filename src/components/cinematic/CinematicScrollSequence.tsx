@@ -6,7 +6,7 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from 'motion/react';
-import { ChevronDown, ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import { ScrollReveal } from './ScrollReveal';
 
 export const TOTAL_FRAMES = 240;
@@ -53,8 +53,11 @@ export const CinematicScrollSequence: React.FC<CinematicScrollSequenceProps> = (
   const inFlightRef = useRef<Set<number>>(new Set());
 
   // Text transitions mapped to scroll progress
+  // Scroll-triggered gradient disappearance: Fades out smoothly as visitor scrolls down
+  const heroGradientOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
+
   // Phase 1 (0 -> 0.30): Hero text smoothly fades out and lifts
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.2, 0.32], [1, 0.9, 0]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.15, 0.32], [1, 1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 0.32], [0, -45]);
   const heroPointerEvents = useTransform(scrollYProgress, (v) => (v > 0.3 ? 'none' : 'auto'));
 
@@ -332,12 +335,32 @@ export const CinematicScrollSequence: React.FC<CinematicScrollSequenceProps> = (
             />
           </noscript>
 
+          {/* Layer 2: Dedicated Scroll-Triggered Hero Dark Gradient Overlay (Fades out as visitor scrolls) */}
+          <motion.div
+            style={{
+              opacity: prefersReducedMotion ? 0.85 : heroGradientOpacity,
+            }}
+            className="absolute inset-0 pointer-events-none z-[2]"
+            aria-hidden="true"
+          >
+            <div
+              className="w-full h-full"
+              style={{
+                background: `
+                  linear-gradient(90deg, rgba(8, 7, 6, 0.96) 0%, rgba(8, 7, 6, 0.90) 28%, rgba(8, 7, 6, 0.72) 46%, rgba(8, 7, 6, 0.30) 68%, transparent 88%),
+                  radial-gradient(ellipse 65% 55% at 20% 45%, rgba(8, 7, 6, 0.92) 0%, rgba(8, 7, 6, 0.60) 50%, transparent 80%),
+                  linear-gradient(180deg, rgba(8, 7, 6, 0.75) 0%, transparent 20%, transparent 75%, rgba(8, 7, 6, 0.85) 100%)
+                `,
+              }}
+            />
+          </motion.div>
+
           {/* Layered Cinematic Atmospheric Lighting & Scrims */}
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none z-[1]"
             style={{
               background:
-                'linear-gradient(90deg, rgba(10, 8, 7, 0.94) 0%, rgba(10, 8, 7, 0.82) 32%, rgba(10, 8, 7, 0.5) 60%, rgba(10, 8, 7, 0.28) 85%, rgba(10, 8, 7, 0.2) 100%)',
+                'linear-gradient(90deg, rgba(10, 8, 7, 0.85) 0%, rgba(10, 8, 7, 0.65) 32%, rgba(10, 8, 7, 0.35) 60%, rgba(10, 8, 7, 0.18) 85%, transparent 100%)',
             }}
           />
 
@@ -380,80 +403,74 @@ export const CinematicScrollSequence: React.FC<CinematicScrollSequenceProps> = (
           }}
           className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-between pt-24 pb-8"
         >
-          <div className="flex-1 flex flex-col justify-center max-w-2xl">
+          <div className="flex-1 flex flex-col justify-center max-w-3xl">
             <ScrollReveal direction="up" delay={0.04}>
-              {/* Small uppercase chapter label */}
+              {/* Chapter Label */}
+              {/* Chapter I — The Discovery */}
               <div className="inline-flex items-center space-x-2.5 mb-5 sm:mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                <span className="chapter-label text-[10px] sm:text-[11px] text-amber-400 font-semibold tracking-[0.25em] uppercase">
-                  Chapter I — The Discovery
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" aria-hidden="true" />
+                <span className="chapter-label text-xs sm:text-sm text-amber-300 font-medium tracking-[0.25em] uppercase font-mono">
+                  CHAPTER I — THE DISCOVERY
                 </span>
               </div>
 
-              {/* Large editorial headline with signature gold italic emphasis */}
-              <h1 className="font-serif text-4xl sm:text-6xl lg:text-[4.75rem] font-normal tracking-tight leading-[1.06] mb-6 drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)]">
-                <span className="bg-gradient-to-b from-[#FFFFFF] via-[#FAF8F5] to-[#DDD5C8] bg-clip-text text-transparent block">
-                  Slow grilled,
+              {/* Main Headline: FIND FOOD THAT FEELS Right */}
+              {/* previous headline reference: Slow grilled, stacked like velvet. */}
+              <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6.75rem] xl:text-[7.5rem] font-normal tracking-tight leading-[0.92] mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
+                <span className="block text-[#FAF8F5]">
+                  FIND FOOD
                 </span>
-                <span className="bg-gradient-to-b from-[#FFFFFF] via-[#FAF8F5] to-[#DDD5C8] bg-clip-text text-transparent block">
-                  stacked like
+                <span className="block text-[#FAF8F5]">
+                  THAT
                 </span>
-                <span
-                  className="italic font-normal sm:font-medium bg-gradient-to-r from-[#FDE68A] via-[#FBBF24] to-[#F59E0B] bg-clip-text text-transparent inline-block"
-                  style={{
-                    filter: 'drop-shadow(0 0 24px rgba(251, 191, 36, 0.38))',
-                  }}
-                >
-                  velvet.
+                <span className="flex items-baseline flex-wrap">
+                  <span className="text-[#FAF8F5] mr-3 sm:mr-4">
+                    FEELS
+                  </span>
+                  <span className="italic font-normal text-[#E8A856] tracking-normal font-serif drop-shadow-[0_0_24px_rgba(232,168,86,0.35)]">
+                    Right
+                  </span>
                 </span>
               </h1>
 
-              {/* Short paragraph introducing ManuMania */}
-              <p className="text-xs sm:text-sm text-cream-100/85 font-sans leading-relaxed max-w-lg mb-8 drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
-                A transparent, chapter-based food discovery platform. Real digital menus, verified portion prices, and honest kitchen operating schedules across local dining rooms—with zero fake ratings or algorithmic markups.
-              </p>
+              {/* Supporting Paragraph: Clean modern sans-serif, ivory-white text directly over dark gradient */}
+              <div className="max-w-md sm:max-w-lg mb-8">
+                <p className="text-sm sm:text-base text-cream-100/90 font-sans font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
+                  Discover local food spots, explore real menus, compare prices, and find your next favourite bite.
+                </p>
+              </div>
 
-              {/* Interactive Scroll Cue */}
-              <div className="flex items-center space-x-6">
+              {/* Primary CTA: MANU SEARCH -> in warm golden-amber */}
+              <div className="flex items-center mb-8 sm:mb-10">
+                <a
+                  href="/search"
+                  onClick={onExploreClick ? (e) => { e.preventDefault(); onExploreClick(); } : undefined}
+                  className="group inline-flex items-center justify-center bg-[#D98A48] hover:bg-[#E59755] active:bg-[#C87D3E] text-[#1A1817] font-sans font-bold text-xs sm:text-sm uppercase tracking-widest px-8 sm:px-10 py-3.5 sm:py-4 rounded-md transition-all shadow-xl hover:shadow-[#D98A48]/35 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none cursor-pointer"
+                >
+                  <span>MANU SEARCH</span>
+                  <ArrowRight className="w-4 h-4 ml-3 transition-transform group-hover:translate-x-1.5 text-[#1A1817] stroke-[2.5]" />
+                </a>
+              </div>
+
+              {/* Bottom text: SCROLL TO EXPLORE  ⌄  |  SIX CHAPTERS · ONE CITY */}
+              <div className="flex items-center text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-cream-200/60">
                 <a
                   href="#chapter-craving"
-                  onClick={(e) => {
-                    if (onExploreClick) {
-                      e.preventDefault();
-                      onExploreClick();
-                    }
-                  }}
-                  className="group inline-flex items-center space-x-2.5 text-xs uppercase tracking-[0.2em] font-sans font-semibold text-amber-300 hover:text-amber-200 transition-colors py-2"
+                  onClick={onExploreClick ? (e) => { e.preventDefault(); onExploreClick(); } : undefined}
+                  className="group inline-flex items-center space-x-2 text-cream-200/80 hover:text-amber-300 transition-colors py-1 cursor-pointer"
                 >
-                  <span>Scroll to Explore</span>
-                  <ChevronDown className="w-3.5 h-3.5 transition-transform group-hover:translate-y-1" />
+                  <span>SCROLL TO EXPLORE</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-amber-400 group-hover:translate-y-0.5 transition-transform" />
                 </a>
-
-                <span className="text-cream-200/20 text-xs font-mono">·</span>
-
-                <span className="text-[11px] text-cream-200/50 uppercase tracking-widest font-mono">
-                  Frame-by-Frame Cinema
+                <span className="mx-3.5 text-cream-200/30" aria-hidden="true">|</span>
+                <span className="text-cream-200/50 tracking-[0.2em]">
+                  SIX CHAPTERS · ONE CITY
                 </span>
               </div>
             </ScrollReveal>
           </div>
 
-          {/* Oversized ManuMania wordmark branding at bottom */}
-          <div
-            className="w-full pointer-events-none select-none z-[1] flex justify-center items-end overflow-hidden pt-8 pb-2"
-            aria-hidden="true"
-          >
-            <span
-              className="w-full text-center font-serif font-normal tracking-[0.03em] leading-[0.82] whitespace-nowrap bg-gradient-to-b from-[#FAF8F5]/30 via-[#F5F2EB]/10 to-transparent bg-clip-text text-transparent"
-              style={{
-                fontSize: 'clamp(3.5rem, 13vw, 13rem)',
-                filter:
-                  'drop-shadow(0 20px 45px rgba(0, 0, 0, 0.92)) drop-shadow(0 0 35px rgba(200, 138, 88, 0.12))',
-              }}
-            >
-              ManuMania
-            </span>
-          </div>
+          {/* Removed oversized ManuMania bottom wordmark branding: clamp(3.5rem, 13vw, 13rem) */}
         </motion.div>
 
         {/* =====================================================================

@@ -13,10 +13,13 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Brand & Purpose */}
           <div className="md:col-span-2 space-y-4">
-            <Link to="/" className="inline-block group">
-              <span className="font-serif text-2xl tracking-tight text-cream-100 group-hover:text-amber-300 transition-colors">
-                ManuMania
-              </span>
+            <Link to="/" className="inline-block group" aria-label="ManuMania Home">
+              <img
+                src="/images/ManuMania%20Chef%20Sticker%20Logo.png"
+                alt="ManuMania"
+                className="h-9 sm:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                style={{ width: 'auto', height: 'auto', maxHeight: '2.5rem' }}
+              />
             </Link>
             <p className="text-xs text-cream-200/60 max-w-md leading-relaxed font-sans">
               A transparent, chapter-based food discovery atelier. Real dish portion prices, live operating schedules, and authentic dining locations with zero fake ratings.

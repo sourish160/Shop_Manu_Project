@@ -11,6 +11,8 @@ export default {
         serif: ['Fraunces', 'Georgia', 'Times New Roman', 'serif'],
         editorial: ['Fraunces', 'Georgia', 'Times New Roman', 'serif'],
         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        display: ['Anton', 'Impact', 'Arial Black', 'sans-serif-condensed', 'sans-serif'],
+        script: ['Satisfy', 'Caveat', 'Brush Script MT', 'cursive'],
       },
       colors: {
         cream: {
