@@ -519,13 +519,21 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
                 Combo Photo <span className="text-slate-400 font-normal">(Optional)</span>
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
-                  {imageUrl ? (
-                    <img src={imageUrl} alt="Combo" className="w-full h-full object-cover" />
-                  ) : (
-                    <Package className="w-5 h-5 text-slate-400" />
-                  )}
-                </div>
+                  <div className="w-14 h-14 rounded border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 relative">
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt="Combo"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          const fallback = e.currentTarget.parentElement?.querySelector('.no-combo-fallback');
+                          if (fallback) (fallback as HTMLElement).style.display = 'block';
+                        }}
+                      />
+                    ) : null}
+                    <Package className={`no-combo-fallback w-5 h-5 text-slate-400 ${imageUrl ? 'hidden' : 'block'}`} />
+                  </div>
                 <div className="space-y-1">
                   <label className="cursor-pointer inline-flex items-center gap-1 px-3 py-1 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50">
                     <UploadCloud className="w-3.5 h-3.5" />

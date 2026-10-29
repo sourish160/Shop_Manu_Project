@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Clock, ArrowRight, Store, CheckCircle2, Navigation } from 'lucide-react';
+import { MapPin, Clock, ArrowRight, CheckCircle2, Navigation } from 'lucide-react';
 import { RestaurantSearchResult } from '../../services/searchService';
 import { formatDistance } from '../../utils/geolocation';
+import { resolveShopImage, STOREFRONT_IMAGES } from '../cinematic/shopAssets';
 
 interface RestaurantResultCardProps {
   restaurant: RestaurantSearchResult;
@@ -13,24 +14,26 @@ export const RestaurantResultCard: React.FC<RestaurantResultCardProps> = ({ rest
 
   const isOpen = openingStatus.isOpen === true;
   const isClosed = openingStatus.isOpen === false;
+  const shopImage = restaurant.logo_url || restaurant.cover_url || resolveShopImage(restaurant).url;
 
   return (
     <article className="editorial-card p-6 rounded-xl flex flex-col justify-between group border border-cream-200/12 bg-[#120E0C] hover:border-amber-400/40 transition-all shadow-xl">
       <div>
-        {/* Header: Logo / Image & Title */}
+        {/* Header: Logo / Storefront Image & Title */}
         <div className="flex items-start space-x-4 mb-4">
-          {restaurant.logo_url ? (
+          <div className="w-14 h-14 rounded-lg overflow-hidden border border-cream-200/20 bg-espresso-950/60 flex-shrink-0 relative">
             <img
-              src={restaurant.logo_url}
+              src={shopImage}
               alt={restaurant.name}
-              className="w-12 h-12 rounded-lg object-cover border border-cream-200/20 bg-espresso-950/60 flex-shrink-0"
+              className="w-full h-full object-cover filter brightness-[0.92] contrast-[1.05]"
               loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                e.currentTarget.src = STOREFRONT_IMAGES[0];
+              }}
             />
-          ) : (
-            <div className="w-12 h-12 rounded-lg bg-espresso-900/60 border border-cream-200/20 flex items-center justify-center text-cream-200/50 flex-shrink-0">
-              <Store className="w-5 h-5 text-amber-400" />
-            </div>
-          )}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807]/30 via-transparent to-transparent pointer-events-none" />
+          </div>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-1.5">

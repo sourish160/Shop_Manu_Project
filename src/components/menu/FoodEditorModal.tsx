@@ -645,13 +645,21 @@ export const FoodEditorModal: React.FC<FoodEditorModalProps> = ({
                   <div className="flex flex-col sm:flex-row items-center gap-4 p-4 border border-slate-200 rounded-md bg-slate-50">
                     <div className="w-28 h-28 rounded-md border border-slate-300 bg-white flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                       {imageUrl ? (
-                        <img src={imageUrl} alt="Dish preview" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="text-center p-2 text-slate-400">
-                          <Tag className="w-6 h-6 mx-auto mb-1 stroke-1" />
-                          <span className="text-[10px] font-medium block">No Photo</span>
-                        </div>
-                      )}
+                        <img
+                          src={imageUrl}
+                          alt="Dish preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.parentElement?.querySelector('.no-photo-fallback');
+                            if (fallback) (fallback as HTMLElement).style.display = 'block';
+                          }}
+                        />
+                      ) : null}
+                      <div className={`no-photo-fallback text-center p-2 text-slate-400 ${imageUrl ? 'hidden' : 'block'}`}>
+                        <Tag className="w-6 h-6 mx-auto mb-1 stroke-1" />
+                        <span className="text-[10px] font-medium block">No Photo</span>
+                      </div>
                     </div>
 
                     <div className="flex-1 space-y-2 text-center sm:text-left">

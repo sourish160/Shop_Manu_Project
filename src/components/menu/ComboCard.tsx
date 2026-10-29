@@ -71,20 +71,24 @@ export const ComboCard: React.FC<ComboCardProps> = ({
 
         {/* Combo Header: Image & Name */}
         <div className="flex items-start gap-3">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 relative">
             {combo.image_url ? (
               <img
                 src={combo.image_url}
                 alt={combo.name}
                 loading="lazy"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fallback = e.currentTarget.parentElement?.querySelector('.no-combo-fallback');
+                  if (fallback) (fallback as HTMLElement).style.display = 'block';
+                }}
               />
-            ) : (
-              <div className="text-center p-1 text-slate-400">
-                <Package className="w-5 h-5 mx-auto mb-0.5 stroke-1" />
-                <span className="text-[9px] font-medium block">Combo</span>
-              </div>
-            )}
+            ) : null}
+            <div className={`no-combo-fallback text-center p-1 text-slate-400 ${combo.image_url ? 'hidden' : 'block'}`}>
+              <Package className="w-5 h-5 mx-auto mb-0.5 stroke-1" />
+              <span className="text-[9px] font-medium block">Combo</span>
+            </div>
           </div>
 
           <div className="flex-1 min-w-0">

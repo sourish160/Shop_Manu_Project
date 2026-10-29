@@ -66,20 +66,24 @@ export const FoodCard: React.FC<FoodCardProps> = ({
         {/* Food Body: Image & Info */}
         <div className="flex items-start gap-3">
           {/* Food Thumbnail */}
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 relative">
             {food.image_url ? (
               <img
                 src={food.image_url}
                 alt={food.name}
                 loading="lazy"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fallback = e.currentTarget.parentElement?.querySelector('.no-photo-fallback');
+                  if (fallback) (fallback as HTMLElement).style.display = 'block';
+                }}
               />
-            ) : (
-              <div className="text-center p-1 text-slate-400">
-                <Tag className="w-5 h-5 mx-auto mb-0.5 stroke-1" />
-                <span className="text-[9px] font-medium block">No Photo</span>
-              </div>
-            )}
+            ) : null}
+            <div className={`no-photo-fallback text-center p-1 text-slate-400 ${food.image_url ? 'hidden' : 'block'}`}>
+              <Tag className="w-5 h-5 mx-auto mb-0.5 stroke-1" />
+              <span className="text-[9px] font-medium block">No Photo</span>
+            </div>
           </div>
 
           {/* Details */}

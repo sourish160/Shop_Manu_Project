@@ -15,7 +15,7 @@ export const Footer: React.FC = () => {
           <div className="md:col-span-2 space-y-4">
             <Link to="/" className="inline-block group" aria-label="ManuMania Home">
               <img
-                src="/images/ManuMania%20Chef%20Sticker%20Logo.png"
+                src="/images/logo.png"
                 alt="ManuMania"
                 className="h-9 sm:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
                 style={{ width: 'auto', height: 'auto', maxHeight: '2.5rem' }}

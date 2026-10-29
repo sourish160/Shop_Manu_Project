@@ -2,7 +2,8 @@ import React from 'react';
 import { Food } from '../../lib/insforge';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { DietaryBadge } from '../menu/DietaryBadge';
-import { Utensils, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
+import { resolveMenuItemImage, MENU_IMAGE_MAP } from '../cinematic/menuAssets';
 
 interface FoodItemCardProps {
   food: Food;
@@ -128,19 +129,18 @@ export const FoodItemCard: React.FC<FoodItemCardProps> = ({ food, onReportDish }
       </div>
 
       {/* Right Column: Dish Photo */}
-      <div className="w-24 h-24 sm:w-28 sm:h-28 bg-[#181310] border border-cream-200/10 overflow-hidden shrink-0 self-start sm:self-center rounded-sm">
-        {food.image_url ? (
-          <img
-            src={food.image_url}
-            alt={food.name}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-cream-300/20">
-            <Utensils className="w-6 h-6 stroke-[1.2]" />
-          </div>
-        )}
+      <div className="w-24 h-24 sm:w-28 sm:h-28 bg-[#181310] border border-cream-200/10 overflow-hidden shrink-0 self-start sm:self-center rounded-sm relative">
+        <img
+          src={resolveMenuItemImage(food)}
+          alt={food.name}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 filter brightness-[0.92] contrast-[1.05]"
+          loading="lazy"
+          decoding="async"
+          onError={(e) => {
+            e.currentTarget.src = MENU_IMAGE_MAP.default;
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807]/30 via-transparent to-transparent pointer-events-none" />
       </div>
     </article>
   );

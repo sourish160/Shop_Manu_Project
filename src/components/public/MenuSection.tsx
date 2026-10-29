@@ -4,6 +4,7 @@ import { FoodItemCard } from './FoodItemCard';
 import { DietaryBadge } from '../menu/DietaryBadge';
 import { formatCurrency } from '../../utils/formatters';
 import { Utensils, Package, Sparkles } from 'lucide-react';
+import { resolveMenuItemImage, MENU_IMAGE_MAP } from '../cinematic/menuAssets';
 
 interface MenuSectionProps {
   categories: Category[];
@@ -92,19 +93,18 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                     </div>
 
                     <div className="flex items-start gap-4">
-                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#181310] border border-cream-200/10 overflow-hidden shrink-0 rounded-sm">
-                        {combo.image_url ? (
-                          <img
-                            src={combo.image_url}
-                            alt={combo.name}
-                            className="w-full h-full object-cover"
-                            loading="lazy"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-cream-300/20">
-                            <Package className="w-6 h-6 stroke-[1.2]" />
-                          </div>
-                        )}
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[#181310] border border-cream-200/10 overflow-hidden shrink-0 rounded-sm relative">
+                        <img
+                          src={resolveMenuItemImage(combo)}
+                          alt={combo.name}
+                          className="w-full h-full object-cover filter brightness-[0.92] contrast-[1.05]"
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            e.currentTarget.src = MENU_IMAGE_MAP.thali;
+                          }}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807]/30 via-transparent to-transparent pointer-events-none" />
                       </div>
 
                       <div className="flex-1 min-w-0">

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, ArrowRight, Utensils, Navigation } from 'lucide-react';
+import { MapPin, ArrowRight, Navigation } from 'lucide-react';
 import { FoodSearchResult } from '../../services/searchService';
 import { formatRelativeTime } from '../../utils/formatters';
 import { formatDistance } from '../../utils/geolocation';
+import { resolveMenuItemImage, MENU_IMAGE_MAP } from '../cinematic/menuAssets';
 
 interface FoodResultCardProps {
   item: FoodSearchResult;
@@ -99,18 +100,19 @@ export const FoodResultCard: React.FC<FoodResultCardProps> = ({ item }) => {
             )}
           </div>
 
-          {item.image_url ? (
+          <div className="w-20 h-20 rounded-lg overflow-hidden border border-cream-200/15 flex-shrink-0 relative bg-[#181310]">
             <img
-              src={item.image_url}
+              src={resolveMenuItemImage(item)}
               alt={item.name}
-              className="w-20 h-20 rounded-lg object-cover border border-cream-200/15 flex-shrink-0"
+              className="w-full h-full object-cover filter brightness-[0.92] contrast-[1.05]"
               loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                e.currentTarget.src = MENU_IMAGE_MAP.default;
+              }}
             />
-          ) : (
-            <div className="w-18 h-18 sm:w-20 sm:h-20 bg-cream-100/[0.05] border border-cream-200/12 rounded-lg flex items-center justify-center text-amber-400/60 flex-shrink-0">
-              <Utensils className="w-5 h-5" />
-            </div>
-          )}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807]/30 via-transparent to-transparent pointer-events-none" />
+          </div>
         </div>
 
         {/* Restaurant & Location Info */}

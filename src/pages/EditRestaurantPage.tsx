@@ -444,12 +444,16 @@ export const EditRestaurantPage: React.FC = () => {
                           src={logoUrl}
                           alt="Restaurant Logo"
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.parentElement?.querySelector('.no-logo-fallback');
+                            if (fallback) (fallback as HTMLElement).style.display = 'inline';
+                          }}
                         />
-                      ) : (
-                        <span className="text-[11px] text-slate-400 text-center px-1">
-                          No Logo
-                        </span>
-                      )}
+                      ) : null}
+                      <span className={`no-logo-fallback text-[11px] text-slate-400 text-center px-1 ${logoUrl ? 'hidden' : 'inline'}`}>
+                        No Logo
+                      </span>
                     </div>
                     <div className="space-y-1">
                       <label className="inline-block cursor-pointer px-3 py-1.5 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors">
@@ -490,12 +494,16 @@ export const EditRestaurantPage: React.FC = () => {
                           src={coverUrl}
                           alt="Cover Banner"
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const fallback = e.currentTarget.parentElement?.querySelector('.no-cover-fallback');
+                            if (fallback) (fallback as HTMLElement).style.display = 'inline';
+                          }}
                         />
-                      ) : (
-                        <span className="text-[11px] text-slate-400">
-                          No Cover Image
-                        </span>
-                      )}
+                      ) : null}
+                      <span className={`no-cover-fallback text-[11px] text-slate-400 ${coverUrl ? 'hidden' : 'inline'}`}>
+                        No Cover Image
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <label className="inline-block cursor-pointer px-3 py-1.5 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors">

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Restaurant, RestaurantHours } from '../../lib/insforge';
 import { getRestaurantOpeningStatus } from '../../utils/operatingHours';
-import { CheckCircle2, Phone, Navigation, AlertTriangle, Store } from 'lucide-react';
+import { CheckCircle2, Phone, Navigation, AlertTriangle } from 'lucide-react';
+import { resolveShopImage, STOREFRONT_IMAGES } from '../cinematic/shopAssets';
 
 interface RestaurantHeaderProps {
   restaurant: Restaurant;
@@ -17,25 +18,28 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
   onOpenReport,
 }) => {
   const openingStatus = getRestaurantOpeningStatus(hours);
+  const shopCover = resolveShopImage(restaurant);
 
   return (
     <header className="bg-[#120E0C] border-b border-cream-200/10 text-cream-100">
       {/* Cover Banner */}
       <div className="w-full h-48 sm:h-64 md:h-80 bg-[#0A0807] relative overflow-hidden">
-        {restaurant.cover_url ? (
-          <>
-            <img
-              src={restaurant.cover_url}
-              alt={`${restaurant.name} cover`}
-              className="w-full h-full object-cover filter brightness-[0.85] contrast-[1.05]"
-              loading="eager"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#120E0C] via-[#0A0807]/30 to-transparent" />
-          </>
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-[#0F0C0A] text-cream-200/30">
-            <Store className="w-12 h-12 stroke-[1] text-amber-400/40" />
-            <span className="font-mono text-[10px] uppercase tracking-widest mt-2">Verified Kitchen Threshold</span>
+        <img
+          src={shopCover.url}
+          alt={`${restaurant.name} storefront`}
+          className="w-full h-full object-cover filter brightness-[0.82] contrast-[1.08] saturate-[1.05]"
+          loading="eager"
+          decoding="async"
+          onError={(e) => {
+            e.currentTarget.src = STOREFRONT_IMAGES[0];
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#120E0C] via-[#0A0807]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0807]/50 via-transparent to-transparent pointer-events-none" />
+
+        {shopCover.isFallback && (
+          <div className="absolute top-4 right-4 z-10 px-2.5 py-1 rounded bg-[#0A0807]/75 backdrop-blur-md border border-cream-200/15 text-[10px] font-mono uppercase tracking-widest text-amber-300/80">
+            Atmosphere Preview
           </div>
         )}
       </div>
@@ -44,19 +48,27 @@ export const RestaurantHeader: React.FC<RestaurantHeaderProps> = ({
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-16 sm:-mt-24 mb-4 relative z-10">
           {/* Logo */}
-          <div className="w-24 h-24 sm:w-32 sm:h-32 bg-[#1A1410] p-1.5 border border-cream-200/15 rounded-2xl shadow-2xl shrink-0 overflow-hidden">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 bg-[#1A1410] p-1.5 border border-cream-200/15 rounded-2xl shadow-2xl shrink-0 overflow-hidden relative">
             {restaurant.logo_url ? (
               <img
                 src={restaurant.logo_url}
                 alt={`${restaurant.name} logo`}
                 className="w-full h-full object-cover rounded-xl"
                 loading="eager"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const fallback = e.currentTarget.parentElement?.querySelector('.logo-fallback');
+                  if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                }}
               />
-            ) : (
-              <div className="w-full h-full bg-[#14100D] text-amber-300 font-serif flex items-center justify-center font-normal text-3xl sm:text-4xl border border-cream-200/10 rounded-xl">
-                {restaurant.name.charAt(0)}
-              </div>
-            )}
+            ) : null}
+            <div
+              className={`logo-fallback w-full h-full bg-[#14100D] text-amber-300 font-serif flex items-center justify-center font-normal text-3xl sm:text-4xl border border-cream-200/10 rounded-xl ${
+                restaurant.logo_url ? 'hidden' : 'flex'
+              }`}
+            >
+              {restaurant.name.charAt(0)}
+            </div>
           </div>
 
           {/* Title & Primary Info */}

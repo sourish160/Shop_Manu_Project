@@ -1,15 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, MapPin, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'motion/react';
-import { insforge } from '../../lib/insforge';
-import { getRestaurantOpeningStatus } from '../../utils/operatingHours';
+
+
 import { useSEO } from '../../hooks/useSEO';
 
-import { ChapterSection } from './ChapterSection';
-import { EditorialHeading } from './EditorialHeading';
+
+
 import { TypographyMarquee } from './TypographyMarquee';
 import { ScrollReveal } from './ScrollReveal';
+import { ChapterCravingSection } from './ChapterCravingSection';
+import { ChapterMenuSection } from './ChapterMenuSection';
+import { ChapterShopsSection } from './ChapterShopsSection';
+import { ChapterLocationSection } from './ChapterLocationSection';
+import { ChapterNextStopSection } from './ChapterNextStopSection';
 import { TOTAL_FRAMES, getFrameUrl } from './CinematicScrollSequence';
 
 export const FoodDiscoveryPage: React.FC = () => {
@@ -81,57 +86,7 @@ export const FoodDiscoveryPage: React.FC = () => {
     ogType: 'website',
   });
 
-  const [selectedLocation] = useState('Kolkata');
-  const [approvedRestaurants, setApprovedRestaurants] = useState<any[]>([]);
-  const [signatureFoods, setSignatureFoods] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch real approved restaurants and signature foods from InsForge
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        const [restRes, foodRes] = await Promise.all([
-          insforge.database
-            .from('restaurants')
-            .select(
-              `id, name, slug, description, address, area, city, status, verified, logo_url, cover_url,
-               hours:restaurant_hours(day_of_week, open_time, close_time, is_closed)`
-            )
-            .eq('status', 'approved')
-            .limit(6),
-
-          insforge.database
-            .from('foods')
-            .select(
-              `id, name, slug, description, veg_type, status,
-               restaurant:restaurants(id, name, slug, area),
-               variants:food_variants(id, name, price, available)`
-            )
-            .eq('status', 'active')
-            .limit(6),
-        ]);
-
-        if (restRes.data) {
-          const transformed = restRes.data.map((r: any) => ({
-            ...r,
-            openingStatus: getRestaurantOpeningStatus(r.hours || []),
-          }));
-          setApprovedRestaurants(transformed);
-        }
-
-        if (foodRes.data) {
-          setSignatureFoods(foodRes.data);
-        }
-      } catch (err) {
-        console.error('Error fetching discovery data:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadData();
-  }, []);
 
   /**
    * Cover-fit rendering helper preserving 1280x720 aspect ratio without stretching
@@ -423,7 +378,7 @@ export const FoodDiscoveryPage: React.FC = () => {
           { id: 'chapter-menu', num: 'III', label: 'The Menu' },
           { id: 'chapter-gallery', num: 'IV', label: 'The Food Gallery' },
           { id: 'chapter-around-you', num: 'V', label: 'Around You' },
-          { id: 'chapter-next-bite', num: 'VI', label: 'Your Next Bite' },
+          { id: 'chapter-next-bite', num: 'VI', label: 'Your Next Food Stop' },
         ].map((ch) => {
           const isActive = activeChapter === ch.id;
           return (
@@ -561,326 +516,13 @@ export const FoodDiscoveryPage: React.FC = () => {
       />
 
       {/* =========================================================================
-          CHAPTER II — THE CRAVING
+          CHAPTER II — FOLLOW YOUR CRAVINGS
           ========================================================================= */}
-      <ChapterSection
-        id="chapter-craving"
-        chapterNumber="II"
-        chapterLabel="The Craving"
-        scrimIntensity="deep"
-        layout="full"
-        className="py-24 sm:py-32"
-      >
-        <ScrollReveal direction="up" delay={0.06}>
-          <EditorialHeading
-            chapterNumber="II"
-            eyebrow="The Craving"
-            title="What the city hungers for, *seasoned by hand.*"
-            subtitle="Every neighborhood has its iconic specialty. Explore the distinct culinary disciplines crafted across authentic kitchens."
-            size="lg"
-            className="mb-16 max-w-2xl"
-          />
-        </ScrollReveal>
-
-        {/* Alternating editorial food-category storytelling layouts */}
-        <div className="space-y-24 sm:space-y-36">
-          {/* Segment 1: Kathi Rolls & Tawa Craft (Text Left, Image Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-            <div className="lg:col-span-6">
-              <ScrollReveal direction="up" delay={0.1}>
-                <span className="font-mono text-[10px] text-amber-400 uppercase tracking-widest block mb-3">
-                  Category 01 · Tawa Gastronomy
-                </span>
-                <h3 className="font-serif text-3xl sm:text-4xl text-cream-100 font-light leading-tight mb-5">
-                  Hand-Rolled Parathas, <span className="italic text-amber-300">seared on cast iron.</span>
-                </h3>
-                <p className="text-xs sm:text-sm text-cream-200/75 leading-relaxed font-sans mb-6 max-w-lg">
-                  Whipped flaky on massive round tawas seasoned over decades. Wrapped around marinated cottage cheese, slow-charred chicken boti, sliced red onions, and house roasted cumin. This is street food elevated to an exacting craft.
-                </p>
-                <div className="flex items-center space-x-6 text-xs text-cream-200/50 font-sans border-t border-cream-200/10 pt-4">
-                  <span>Paneer Kathi Roll</span>
-                  <span>·</span>
-                  <span>Chicken Egg Roll</span>
-                  <span>·</span>
-                  <span>Double Mutton Roll</span>
-                </div>
-              </ScrollReveal>
-            </div>
-
-            <div className="lg:col-span-6">
-              <ScrollReveal direction="left" delay={0.15}>
-                <div className="relative rounded-2xl overflow-hidden editorial-card aspect-[4/3] group shadow-2xl">
-                  <img
-                    src="/images/craving-kathi-roll.jpg"
-                    /* fallback: /image-sequence/videp060.jpg */
-                    alt="Authentic Kolkata Kathi roll on smoking cast iron tawa"
-                    className="w-full h-full object-cover filter brightness-[0.92] contrast-[1.08] transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807]/90 via-[#0A0807]/20 to-transparent pointer-events-none" />
-                  <div className="absolute bottom-5 left-5 right-5 flex justify-between items-end">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-amber-300">
-                      Tawa Kitchen · Salt Lake
-                    </span>
-                    <span className="text-[10px] font-sans text-cream-200/60 uppercase tracking-wider">
-                      Single-Estate Spices
-                    </span>
-                  </div>
-                </div>
-              </ScrollReveal>
-            </div>
-          </div>
-
-          {/* Segment 2: Awadhi Dum Biryani (Image Left, Text Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-            <div className="lg:col-span-6 order-2 lg:order-1">
-              <ScrollReveal direction="right" delay={0.15}>
-                <div className="relative rounded-2xl overflow-hidden editorial-card aspect-[4/3] group shadow-2xl">
-                  <img
-                    src="/images/craving-dum-biryani.jpg"
-                    /* fallback: /image-sequence/videp120.jpg */
-                    alt="Simmering copper dum handi with dough crust"
-                    className="w-full h-full object-cover filter brightness-[0.92] contrast-[1.08] transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807]/90 via-[#0A0807]/20 to-transparent pointer-events-none" />
-                  <div className="absolute bottom-5 left-5 right-5 flex justify-between items-end">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-amber-300">
-                      Dum Handi Sealed in Dough
-                    </span>
-                    <span className="text-[10px] font-sans text-cream-200/60 uppercase tracking-wider">
-                      Mace, Saffron & Potatoes
-                    </span>
-                  </div>
-                </div>
-              </ScrollReveal>
-            </div>
-
-            <div className="lg:col-span-6 order-1 lg:order-2">
-              <ScrollReveal direction="up" delay={0.1}>
-                <span className="font-mono text-[10px] text-amber-400 uppercase tracking-widest block mb-3">
-                  Category 02 · Heritage Dum Craft
-                </span>
-                <h3 className="font-serif text-3xl sm:text-4xl text-cream-100 font-light leading-tight mb-5">
-                  Fourteen Minutes Under Dough, <span className="italic text-amber-300">steamed in its own juices.</span>
-                </h3>
-                <p className="text-xs sm:text-sm text-cream-200/75 leading-relaxed font-sans mb-6 max-w-lg">
-                  A legacy born in the royal kitchens of Metiabruz. Long-grain aged Basmati rice layered with melt-in-the-mouth potatoes, tender braised meats, and a drop of meetha attar. Gentle warmth, never overpowering.
-                </p>
-                <div className="flex items-center space-x-6 text-xs text-cream-200/50 font-sans border-t border-cream-200/10 pt-4">
-                  <span>Chicken Dum Biryani</span>
-                  <span>·</span>
-                  <span>Special Mutton Biryani</span>
-                  <span>·</span>
-                  <span>Shahi Tukda</span>
-                </div>
-              </ScrollReveal>
-            </div>
-          </div>
-
-          {/* Segment 3: Artisan Burgers & Smashes (Text Left, Image Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-            <div className="lg:col-span-6">
-              <ScrollReveal direction="up" delay={0.1}>
-                <span className="font-mono text-[10px] text-amber-400 uppercase tracking-widest block mb-3">
-                  Category 03 · Craft Kitchen Smashes
-                </span>
-                <h3 className="font-serif text-3xl sm:text-4xl text-cream-100 font-light leading-tight mb-5">
-                  Prime Patties, <span className="italic text-amber-300">crusted on screaming cast iron.</span>
-                </h3>
-                <p className="text-xs sm:text-sm text-cream-200/75 leading-relaxed font-sans mb-6 max-w-lg">
-                  Hand-ground prime cuts smashed ultra-thin on cast iron to create caramelized lacy edges. Toasted brioche, sharp aged cheddar, and house relish. No frozen shortcuts or pre-cooked heat lamps.
-                </p>
-                <div className="flex items-center space-x-6 text-xs text-cream-200/50 font-sans border-t border-cream-200/10 pt-4">
-                  <span>Double Smash Burger</span>
-                  <span>·</span>
-                  <span>Crispy Truffle Fries</span>
-                  <span>·</span>
-                  <span>House Aioli</span>
-                </div>
-              </ScrollReveal>
-            </div>
-
-            <div className="lg:col-span-6">
-              <ScrollReveal direction="left" delay={0.15}>
-                <div className="relative rounded-2xl overflow-hidden editorial-card aspect-[4/3] group shadow-2xl">
-                  <img
-                    src="/images/hero-burger.jpg"
-                    alt="Artisan smash burger on craft paper"
-                    className="w-full h-full object-cover filter brightness-[0.9] contrast-[1.08] transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807]/90 via-[#0A0807]/20 to-transparent pointer-events-none" />
-                  <div className="absolute bottom-5 left-5 right-5 flex justify-between items-end">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-amber-300">
-                      Craft Kitchen · Old Harbour Quarter
-                    </span>
-                    <span className="text-[10px] font-sans text-cream-200/60 uppercase tracking-wider">
-                      Cast-Iron Smashed
-                    </span>
-                  </div>
-                </div>
-              </ScrollReveal>
-            </div>
-          </div>
-        </div>
-      </ChapterSection>
-
+      <ChapterCravingSection />
       {/* =========================================================================
-          CHAPTER III — THE MENU
+          CHAPTER III — EXPLORE THE MENUS
           ========================================================================= */}
-      <ChapterSection
-        id="chapter-menu"
-        chapterNumber="III"
-        chapterLabel="The Menu"
-        scrimIntensity="deep"
-        layout="full"
-        className="py-24 sm:py-32"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-2xl mb-12 sm:mb-16">
-            <ScrollReveal direction="up" delay={0.06}>
-              <EditorialHeading
-                chapterNumber="III"
-                eyebrow="The Menu"
-                title="The menu, *verified portion by portion.*"
-                subtitle="Compare real dish prices across participating kitchens with complete transparency. What you see is what the chef enters—never marked up with commission fees."
-                size="lg"
-              />
-            </ScrollReveal>
-          </div>
-
-          {/* Three Transparency Pillars */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-16">
-            {[
-              {
-                num: '01',
-                title: 'Portion Breakdown',
-                desc: 'Half, Full, Regular, or Special. View authentic portion weights and variant pricing so you always know what is placed on your table.',
-              },
-              {
-                num: '02',
-                title: 'Chef-Direct Rates',
-                desc: 'Menus are updated in real time by restaurant owners. No surprise fees, no hidden platform markups at checkout.',
-              },
-              {
-                num: '03',
-                title: 'Live Kitchen Status',
-                desc: 'Know if the kitchen is serving right now. Operating hours indicators are computed from genuine weekly owner schedules.',
-              },
-            ].map((pillar, i) => (
-              <ScrollReveal key={pillar.num} direction="up" delay={0.1 + i * 0.08}>
-                <div className="editorial-card p-8 rounded-xl h-full border border-cream-200/10">
-                  <span className="font-mono text-xs text-amber-400 block mb-3">
-                    {pillar.num} · Clarity
-                  </span>
-                  <h4 className="font-serif text-xl text-cream-100 font-light mb-3">
-                    {pillar.title}
-                  </h4>
-                  <p className="text-xs text-cream-200/65 font-sans leading-relaxed">
-                    {pillar.desc}
-                  </p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-
-          {/* Real Live Database Dish Cards */}
-          <div className="border-t border-cream-200/10 pt-12">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
-              <div>
-                <span className="font-mono text-[10px] text-amber-400 uppercase tracking-widest block mb-1">
-                  Indexed Database Offerings
-                </span>
-                <h4 className="font-serif text-2xl text-cream-100 font-light">
-                  Sample Culinary Offerings
-                </h4>
-              </div>
-
-              <p className="text-xs text-cream-200/50 font-sans max-w-sm">
-                Real dishes pulled directly from database records managed by verified Kolkata restaurants.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {isLoading ? (
-                [1, 2, 3].map((n) => (
-                  <div
-                    key={n}
-                    className="editorial-card p-6 rounded-xl animate-pulse space-y-4"
-                  >
-                    <div className="h-4 bg-cream-100/10 w-2/3" />
-                    <div className="h-3 bg-cream-100/10 w-1/2" />
-                    <div className="h-6 bg-cream-100/10 w-1/3" />
-                  </div>
-                ))
-              ) : signatureFoods.length > 0 ? (
-                signatureFoods.slice(0, 6).map((food, index) => {
-                  const lowestPrice =
-                    food.variants && food.variants.length > 0
-                      ? Math.min(...food.variants.map((v: any) => v.price))
-                      : null;
-
-                  return (
-                    <ScrollReveal
-                      key={food.id}
-                      direction="up"
-                      delay={0.06 * index}
-                    >
-                      <div className="editorial-card p-6 rounded-xl h-full flex flex-col justify-between border border-cream-200/12">
-                        <div>
-                          <div className="flex items-center justify-between mb-3">
-                            <span
-                              className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded font-mono font-semibold ${
-                                food.veg_type === 'veg'
-                                  ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20'
-                                  : 'text-amber-400 bg-amber-500/10 border border-amber-500/20'
-                              }`}
-                            >
-                              {food.veg_type === 'veg' ? 'Pure Veg' : 'Non-Veg'}
-                            </span>
-
-                            {food.restaurant && (
-                              <span className="text-[11px] text-cream-200/50 font-sans truncate ml-2">
-                                {food.restaurant.area || 'Kolkata'}
-                              </span>
-                            )}
-                          </div>
-
-                          <h5 className="font-serif text-lg text-cream-100 mb-1.5 font-normal">
-                            {food.name}
-                          </h5>
-
-                          {food.restaurant && (
-                            <p className="text-xs text-cream-200/60 font-sans mb-4">
-                              at {food.restaurant.name}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="pt-4 border-t border-cream-200/10 flex items-center justify-between">
-                          <div>
-                            <span className="text-[10px] uppercase tracking-widest text-cream-200/40 block">
-                              Starting at
-                            </span>
-                            <span className="font-serif text-base text-amber-300 font-normal">
-                              {lowestPrice !== null ? `₹${lowestPrice}` : 'Market Rate'}
-                            </span>
-                          </div>
-
-                          <span className="text-[10px] font-sans text-cream-200/40 uppercase tracking-wider">
-                            Verified Menu
-                          </span>
-                        </div>
-                      </div>
-                    </ScrollReveal>
-                  );
-                })
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </ChapterSection>
+      <ChapterMenuSection />
 
       {/* =========================================================================
           TYPOGRAPHY INTERLUDE 2
@@ -901,226 +543,14 @@ export const FoodDiscoveryPage: React.FC = () => {
       />
 
       {/* =========================================================================
-          CHAPTER IV — THE FOOD GALLERY
+          CHAPTER IV — TOP SHOPS NEAR YOU
           ========================================================================= */}
-      <ChapterSection
-        id="chapter-gallery"
-        chapterNumber="IV"
-        chapterLabel="The Food Gallery"
-        scrimIntensity="deep"
-        layout="full"
-        className="py-24 sm:py-32"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-2xl mb-12 sm:mb-16">
-            <ScrollReveal direction="up" delay={0.06}>
-              <EditorialHeading
-                chapterNumber="IV"
-                eyebrow="The Food Gallery"
-                title="Atmosphere, *iron, and heritage.*"
-                subtitle="A visual chronicle of Kolkata dining. From twilight storefronts and flaming woks to quiet tables and hand-finished plates."
-                size="lg"
-              />
-            </ScrollReveal>
-          </div>
-
-          {/* Composed Gallery Grid with Restrained Depth and Captions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {[
-              {
-                src: '/images/chapter5-quarter.jpg',
-                title: 'The Storefront at Dusk',
-                desc: 'Warm vintage streetlamps, colonial facades, and bustling neighbourhood eateries.',
-                badge: 'Exterior',
-              },
-              {
-                src: '/images/craving-kathi-roll.jpg',
-                title: 'Cast-Iron Flame & Sear',
-                desc: 'Fourteen minutes on seasoned pans with direct flame, flaky parathas, and spiced meats.',
-                badge: 'The Fire',
-              },
-              {
-                src: '/images/hero-burger.jpg',
-                title: 'The Hand-Crafted Smash',
-                desc: 'Crusted patties layered on wax parchment with fresh brioche and aged cheddar.',
-                badge: 'Craft Patty',
-              },
-              {
-                src: '/images/gallery-momos.jpg',
-                title: 'Plating & Portion Finish',
-                desc: 'Artisanal steamed momos assembled and checked individually before service.',
-                badge: 'The Pass',
-              },
-              {
-                src: '/images/chapter6-atmosphere.jpg',
-                title: 'The Dining Room Atmosphere',
-                desc: 'Neighbourhood gathering spaces where warm amber lanterns bring people together.',
-                badge: 'Dining Space',
-              },
-              {
-                src: '/images/craving-dum-biryani.jpg',
-                title: 'The Preparation Hearth',
-                desc: 'Stone-ground spices, sealed dough handis, and continuous heritage culinary rhythm.',
-                badge: 'The Hearth',
-              },
-            ].map((item, idx) => (
-              <ScrollReveal key={idx} direction="up" delay={0.08 * idx}>
-                <div className="editorial-card rounded-2xl overflow-hidden group relative flex flex-col justify-between shadow-2xl h-full border border-cream-200/12">
-                  <div className="aspect-[16/10] overflow-hidden relative">
-                    <img
-                      src={item.src}
-                      alt={item.title}
-                      className="w-full h-full object-cover filter brightness-[0.88] contrast-[1.08] transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#120E0C] via-transparent to-transparent pointer-events-none" />
-                    <span className="absolute top-4 left-4 text-[9px] font-mono uppercase tracking-widest px-2 py-0.5 rounded bg-black/60 backdrop-blur-md text-amber-300 border border-cream-200/10">
-                      {item.badge}
-                    </span>
-                  </div>
-
-                  <div className="p-6">
-                    <h5 className="font-serif text-xl text-cream-100 font-light mb-2">
-                      {item.title}
-                    </h5>
-                    <p className="text-xs text-cream-200/60 font-sans leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </ChapterSection>
+      <ChapterShopsSection />
 
       {/* =========================================================================
-          CHAPTER V — AROUND YOU
+          CHAPTER V — FIND FOOD NEAR YOU
           ========================================================================= */}
-      <ChapterSection
-        id="chapter-around-you"
-        chapterNumber="V"
-        chapterLabel="Around You"
-        /* bgImage="/images/chapter5-quarter.jpg" */
-        scrimIntensity="deep"
-        layout="full"
-        className="py-24 sm:py-32"
-      >
-        <div className="max-w-7xl mx-auto">
-          <div className="max-w-2xl mb-12 sm:mb-16">
-            <ScrollReveal direction="up" delay={0.06}>
-              <EditorialHeading
-                chapterNumber="V"
-                eyebrow="Around You"
-                title="Discover what cooks *around your corner.*"
-                subtitle="From heritage kitchens in Park Street to buzzing street avenues in Salt Lake and New Town, verified food shops are closer than you think."
-                size="lg"
-              />
-            </ScrollReveal>
-          </div>
-
-          {/* Quarter Highlights Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-16">
-            {[
-              {
-                quarter: 'Park Street Quarter',
-                highlight: 'Heritage Dining & Awadhi Dum Biryani',
-                desc: 'Centuries of culinary history. Fragrant saffron rice, slow-braised meats, and iconic tea rooms with historic dignity.',
-              },
-              {
-                quarter: 'Salt Lake Quarter',
-                highlight: 'Artisan Kathi Rolls & Contemporary Tawas',
-                desc: 'Thriving street gastronomy, sizzling iron tawas, hand-pulled breads, and bustling evening food corridors.',
-              },
-              {
-                quarter: 'New Town Quarter',
-                highlight: 'Late-Night Kitchens & Cafe Smashes',
-                desc: 'Modern craft burger bars, fusion street food, cloud bakeries, and vibrant quick-service kitchens.',
-              },
-            ].map((q, i) => (
-              <ScrollReveal key={q.quarter} direction="up" delay={0.1 + i * 0.08}>
-                <div className="editorial-card p-8 rounded-xl h-full border border-cream-200/10">
-                  <span className="font-mono text-[10px] text-amber-400 tracking-widest uppercase block mb-3">
-                    Locality Spotlight
-                  </span>
-                  <h4 className="font-serif text-2xl text-cream-100 font-light mb-2">
-                    {q.quarter}
-                  </h4>
-                  <p className="text-xs text-amber-300/90 font-sans font-medium mb-3">
-                    {q.highlight}
-                  </p>
-                  <p className="text-xs text-cream-200/65 font-sans leading-relaxed">
-                    {q.desc}
-                  </p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-
-          {/* Real Approved Shops Highlight */}
-          {approvedRestaurants.length > 0 && (
-            <div className="border-t border-cream-200/10 pt-12">
-              <div className="mb-8">
-                <span className="font-mono text-[10px] text-amber-400 uppercase tracking-widest block mb-1">
-                  Verified Local Establishments
-                </span>
-                <h4 className="font-serif text-2xl text-cream-100 font-light">
-                  Active Food Shops in {selectedLocation}
-                </h4>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {approvedRestaurants.slice(0, 3).map((restaurant, idx) => {
-                  const isOpen = restaurant.openingStatus?.isOpen;
-                  return (
-                    <ScrollReveal key={restaurant.id} direction="up" delay={0.08 * idx}>
-                      <Link
-                        to={`/restaurant/${restaurant.slug}`}
-                        className="editorial-card p-6 rounded-xl block group hover:border-amber-400/50 transition-all border border-cream-200/10"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <span
-                            className={`inline-flex items-center space-x-1.5 px-2 py-0.5 rounded text-[9px] font-mono uppercase font-semibold ${
-                              isOpen
-                                ? 'text-emerald-300 bg-emerald-500/10 border border-emerald-500/20'
-                                : 'text-cream-200/60 bg-cream-200/10 border border-cream-200/15'
-                            }`}
-                          >
-                            <span
-                              className={`w-1.5 h-1.5 rounded-full ${
-                                isOpen ? 'bg-emerald-400 animate-pulse' : 'bg-cream-200/40'
-                              }`}
-                            />
-                            <span>{isOpen ? 'Open Now' : 'Closed'}</span>
-                          </span>
-
-                          <span className="text-[10px] font-sans uppercase tracking-widest text-amber-400 font-semibold">
-                            Verified
-                          </span>
-                        </div>
-
-                        <h5 className="font-serif text-xl text-cream-100 group-hover:text-amber-300 transition-colors mb-1 font-normal">
-                          {restaurant.name}
-                        </h5>
-
-                        <p className="text-xs text-cream-200/60 font-sans flex items-center space-x-1 mb-4">
-                          <MapPin className="w-3.5 h-3.5 shrink-0 text-amber-400" />
-                          <span className="truncate">{restaurant.area}, {restaurant.city}</span>
-                        </p>
-
-                        <div className="pt-3 border-t border-cream-200/10 flex items-center justify-between text-xs text-amber-300 group-hover:text-amber-200">
-                          <span>View Menu</span>
-                          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                        </div>
-                      </Link>
-                    </ScrollReveal>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </ChapterSection>
+      <ChapterLocationSection />
 
       {/* =========================================================================
           TYPOGRAPHY INTERLUDE 3
@@ -1138,88 +568,9 @@ export const FoodDiscoveryPage: React.FC = () => {
       />
 
       {/* =========================================================================
-          CHAPTER VI — YOUR NEXT BITE (The Grand Conversion Point)
+          CHAPTER VI — YOUR NEXT FOOD STOP
           ========================================================================= */}
-      <ChapterSection
-        id="chapter-next-bite"
-        chapterNumber="VI"
-        chapterLabel="Your Next Bite"
-        /* bgImage="/images/chapter6-atmosphere.jpg" */
-        scrimIntensity="deep"
-        layout="centered"
-        className="py-28 sm:py-40 relative"
-      >
-        <div className="max-w-3xl mx-auto text-center">
-          <ScrollReveal direction="up" delay={0.06}>
-            {/* Small uppercase chapter label */}
-            <div className="inline-flex items-center space-x-2.5 mb-5 sm:mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              <span className="chapter-label text-[10px] sm:text-[11px] text-amber-400 font-semibold tracking-[0.25em] uppercase">
-                Chapter VI — Your Next Bite
-              </span>
-            </div>
-
-            {/* Exactly formatted headline */}
-            <h2
-              className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight leading-[1.1] text-cream-100 mb-6 drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)]"
-            >
-              Your next favourite bite is{' '}
-              <span
-                className="italic font-normal bg-gradient-to-r from-[#FDE68A] via-[#FBBF24] to-[#F59E0B] bg-clip-text text-transparent inline-block"
-                style={{
-                  filter: 'drop-shadow(0 0 24px rgba(251, 191, 36, 0.38))',
-                }}
-              >
-                closer than you think.
-              </span>
-            </h2>
-
-            {/* Exactly formatted supporting paragraph */}
-            <p className="text-sm sm:text-base text-cream-200/80 font-sans leading-relaxed max-w-xl mx-auto mb-10">
-              Discover food menus, compare prices, and find local shops in one place. Search for what you're craving and explore the options around you.
-            </p>
-
-            {/* Large, visually prominent, refined rectangular button labelled exactly "Search" */}
-            <div className="flex justify-center mb-16">
-              <button
-                type="button"
-                onClick={() => navigate('/search')}
-                className="group inline-flex items-center justify-center bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-[#0A0807] font-sans font-semibold text-sm uppercase tracking-widest px-10 sm:px-12 py-4 sm:py-5 rounded-sm transition-all shadow-2xl hover:shadow-amber-500/30 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-amber-300 focus-visible:outline-none cursor-pointer"
-              >
-                <span>Search</span>
-                <ArrowRight className="w-4 h-4 ml-3 transition-transform group-hover:translate-x-1.5 text-[#0A0807]" />
-              </button>
-            </div>
-          </ScrollReveal>
-
-          {/* Business Owner Quiet Invitation */}
-          <ScrollReveal direction="up" delay={0.14}>
-            <div className="glass-panel p-6 sm:p-8 rounded-2xl max-w-xl mx-auto border border-cream-200/10 text-left sm:text-center">
-              <span className="font-mono text-[10px] text-amber-400 uppercase tracking-widest block mb-2">
-                For Food Businesses & Kitchen Owners
-              </span>
-              <p className="text-xs text-cream-200/70 font-sans leading-relaxed mb-4">
-                Own a restaurant or food shop? Register your establishment, manage digital menus, update live portion prices, and configure operating schedules.
-              </p>
-              <div className="flex items-center justify-start sm:justify-center space-x-4">
-                <Link
-                  to="/owner/register"
-                  className="text-xs font-semibold uppercase tracking-wider text-amber-300 hover:text-amber-200 transition-colors"
-                >
-                  Register Kitchen →
-                </Link>
-                <span className="text-cream-200/20">·</span>
-                <Link
-                  to="/owner/login"
-                  className="text-xs font-semibold uppercase tracking-wider text-cream-200/60 hover:text-cream-100 transition-colors"
-                >
-                  Owner Sign In
-                </Link>
-              </div>
-            </div>
-          </ScrollReveal>
-        </div>
-      </ChapterSection>
+      <ChapterNextStopSection />
     </div>
   );
 };

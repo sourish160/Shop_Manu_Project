@@ -71,6 +71,9 @@ export const ChapterSection: React.FC<ChapterSectionProps> = ({
               className="w-full h-full object-cover object-center filter brightness-[0.85] contrast-[1.1] saturate-[1.05]"
               loading="lazy"
               decoding="async"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
             />
           </motion.div>
 
