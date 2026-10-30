@@ -387,18 +387,11 @@ export const ChapterLocationSection: React.FC = () => {
             />
           </ScrollReveal>
 
-          {/* Quick status badge */}
+          {/* Location radius metadata */}
           <ScrollReveal direction="up" delay={0.08} className="lg:mb-2 shrink-0">
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#120E0C]/90 border border-cream-200/10 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true" />
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-cream-200/80">
-                {locationState.name}
-              </span>
-              <span className="text-cream-200/30" aria-hidden="true">|</span>
-              <span className="font-mono text-[10px] tracking-wider text-amber-300">
-                {locationState.radiusKm} km Radius
-              </span>
-            </div>
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-cream-200/50">
+              {locationState.name} · {locationState.radiusKm} km Radius
+            </span>
           </ScrollReveal>
         </div>
 
@@ -413,7 +406,7 @@ export const ChapterLocationSection: React.FC = () => {
                 type="button"
                 onClick={handleNearMe}
                 disabled={isLocating}
-                className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-[#0A0807] font-sans font-bold text-xs uppercase tracking-widest transition-all shadow-lg hover:shadow-amber-400/20 disabled:opacity-60 cursor-pointer shrink-0"
+                className="inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-[#0A0807] font-sans font-bold text-xs uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5 shadow-lg hover:shadow-amber-400/20 disabled:opacity-60 cursor-pointer shrink-0"
               >
                 {isLocating ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -594,7 +587,7 @@ export const ChapterLocationSection: React.FC = () => {
                             >
                               <span
                                 className={`w-1.5 h-1.5 rounded-full ${
-                                  isOpen ? 'bg-emerald-400 animate-pulse' : 'bg-cream-200/40'
+                                  isOpen ? 'bg-emerald-400' : 'bg-cream-200/40'
                                 }`}
                               />
                               {statusText || (isOpen ? 'Open' : 'Closed')}

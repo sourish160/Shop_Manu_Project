@@ -283,44 +283,50 @@ export async function searchPublicFoods(
     }
 
     const variants = (item.variants || []) as FoodVariant[];
-    if (variants.length === 0) {
-      continue;
-    }
-
-    let eligibleVariants = [...variants];
-
-    if (filters.availableOnly) {
-      eligibleVariants = eligibleVariants.filter((v) => v.available);
-      if (eligibleVariants.length === 0) {
-        continue;
-      }
-    }
-
     const hasMinPrice = filters.minPrice !== null && filters.minPrice !== undefined && filters.minPrice > 0;
     const hasMaxPrice = filters.maxPrice !== null && filters.maxPrice !== undefined && filters.maxPrice > 0;
 
-    if (hasMinPrice) {
-      eligibleVariants = eligibleVariants.filter((v) => v.price >= (filters.minPrice as number));
-    }
+    let matchingVariant: FoodVariant | undefined;
+    let displayPrice = 0;
+    let displayPriceText = 'Price not listed';
 
-    if (hasMaxPrice) {
-      eligibleVariants = eligibleVariants.filter((v) => v.price <= (filters.maxPrice as number));
-    }
+    if (variants.length > 0) {
+      let eligibleVariants = [...variants];
 
-    if ((hasMinPrice || hasMaxPrice) && eligibleVariants.length === 0) {
-      continue;
-    }
+      if (filters.availableOnly) {
+        eligibleVariants = eligibleVariants.filter((v) => v.available);
+        if (eligibleVariants.length === 0) {
+          continue;
+        }
+      }
 
-    eligibleVariants.sort((a, b) => a.price - b.price);
-    const matchingVariant = eligibleVariants[0];
+      if (hasMinPrice) {
+        eligibleVariants = eligibleVariants.filter((v) => v.price >= (filters.minPrice as number));
+      }
 
-    let displayPriceText = '';
-    if (variants.length === 1) {
-      displayPriceText = `${variants[0].name} ${formatCurrency(variants[0].price)}`;
-    } else if (hasMinPrice || hasMaxPrice) {
-      displayPriceText = `${matchingVariant.name} ${formatCurrency(matchingVariant.price)}`;
+      if (hasMaxPrice) {
+        eligibleVariants = eligibleVariants.filter((v) => v.price <= (filters.maxPrice as number));
+      }
+
+      if ((hasMinPrice || hasMaxPrice) && eligibleVariants.length === 0) {
+        continue;
+      }
+
+      eligibleVariants.sort((a, b) => a.price - b.price);
+      matchingVariant = eligibleVariants[0];
+      displayPrice = matchingVariant ? matchingVariant.price : 0;
+
+      if (variants.length === 1) {
+        displayPriceText = `${variants[0].name} ${formatCurrency(variants[0].price)}`;
+      } else if (hasMinPrice || hasMaxPrice) {
+        displayPriceText = `${matchingVariant.name} ${formatCurrency(matchingVariant.price)}`;
+      } else {
+        displayPriceText = `From ${formatCurrency(matchingVariant.price)} (${matchingVariant.name})`;
+      }
     } else {
-      displayPriceText = `From ${formatCurrency(matchingVariant.price)} (${matchingVariant.name})`;
+      if (hasMinPrice || hasMaxPrice) {
+        continue;
+      }
     }
 
     const relevanceScore = query ? calculateRelevance(item.name, query) : 50;
@@ -351,7 +357,7 @@ export async function searchPublicFoods(
       },
       variants,
       matchingVariant,
-      displayPrice: matchingVariant.price,
+      displayPrice,
       displayPriceText,
       relevanceScore,
     });

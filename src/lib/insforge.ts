@@ -29,11 +29,11 @@ export interface UserProfile {
 
 export interface Restaurant {
   id: string;
-  owner_id: string;
+  owner_id?: string | null;
   name: string;
   slug: string;
   description: string | null;
-  phone: string;
+  phone?: string | null;
   address: string;
   area: string;
   city: string;
@@ -44,6 +44,11 @@ export interface Restaurant {
   admin_notes?: string | null;
   logo_url: string | null;
   cover_url: string | null;
+  category?: string | null;
+  website?: string | null;
+  source_url?: string | null;
+  last_verified_at?: string | null;
+  verification_status?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -94,6 +99,10 @@ export interface Food {
   prep_time_minutes?: number | null;
   base_price?: number | null;
   discount_price?: number | null;
+  currency?: string | null;
+  price_verification_status?: string | null;
+  source_url?: string | null;
+  last_verified_at?: string | null;
   created_at: string;
   updated_at: string;
   variants?: FoodVariant[];

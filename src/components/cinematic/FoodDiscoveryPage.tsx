@@ -9,13 +9,13 @@ import { useSEO } from '../../hooks/useSEO';
 
 
 import { TypographyMarquee } from './TypographyMarquee';
-import { ScrollReveal } from './ScrollReveal';
 import { ChapterCravingSection } from './ChapterCravingSection';
 import { ChapterMenuSection } from './ChapterMenuSection';
 import { ChapterShopsSection } from './ChapterShopsSection';
 import { ChapterLocationSection } from './ChapterLocationSection';
 import { ChapterNextStopSection } from './ChapterNextStopSection';
 import { TOTAL_FRAMES, getFrameUrl } from './CinematicScrollSequence';
+import { MagneticButton } from "@/components/ui/magnetic-button";
 
 export const FoodDiscoveryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -408,15 +408,6 @@ export const FoodDiscoveryPage: React.FC = () => {
         /* chapterNumber="I" chapterLabel="The Discovery" bgImage="/image-sequence/videp000.jpg" prefersReducedMotion ? 'min-h-screen' : 'h-[400vh]' sticky top-0 sticky */
         className="relative z-10 w-full min-h-screen flex flex-col justify-between pt-28 pb-8 overflow-hidden"
       >
-        {/* Chapter Watermark Numeral */}
-        <div
-          aria-hidden="true"
-          className="absolute right-6 sm:right-12 lg:right-20 top-20 pointer-events-none select-none z-[2]"
-        >
-          <span className="font-serif text-stroke-cream text-7xl sm:text-9xl lg:text-[10rem] font-light opacity-25 tracking-tight">
-            I
-          </span>
-        </div>
 
         {/* Foreground Hero Content Layer (Spacious, Aligned, Perfectly Read) */}
         <motion.div
@@ -428,69 +419,92 @@ export const FoodDiscoveryPage: React.FC = () => {
           className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-between pt-6"
         >
           <div className="flex-1 flex flex-col justify-center max-w-3xl">
-            <ScrollReveal direction="up" delay={0.04}>
-              {/* Chapter Label */}
-              {/* Chapter I — The Discovery */}
-              <div className="inline-flex items-center space-x-2.5 mb-5 sm:mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" aria-hidden="true" />
-                <span className="chapter-label text-xs sm:text-sm text-amber-300 font-medium tracking-[0.25em] uppercase font-mono">
-                  CHAPTER I — THE DISCOVERY
-                </span>
-              </div>
+            {/* 1. Small chapter label fades in */}
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-flex items-center space-x-2.5 mb-5 sm:mb-6"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" aria-hidden="true" />
+              <span className="chapter-label text-xs sm:text-sm text-amber-300 font-medium tracking-[0.25em] uppercase font-mono">
+                CHAPTER I — THE DISCOVERY
+              </span>
+            </motion.div>
 
-              {/* Main Headline: FIND FOOD THAT FEELS Right */}
-              {/* previous headline reference: Slow grilled, stacked like velvet. */}
-              <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6.75rem] xl:text-[7.5rem] font-normal tracking-tight leading-[0.92] mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
-                <span className="block text-[#FAF8F5]">
-                  FIND FOOD
+            {/* 2. Main headline appears with a subtle upward reveal */}
+            <motion.h1
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6.75rem] xl:text-[7.5rem] font-normal tracking-tight leading-[0.92] mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]"
+            >
+              <span className="block text-[#FAF8F5]">
+                FIND FOOD
+              </span>
+              <span className="block text-[#FAF8F5]">
+                THAT
+              </span>
+              <span className="flex items-baseline flex-wrap">
+                <span className="text-[#FAF8F5] mr-3 sm:mr-4">
+                  FEELS
                 </span>
-                <span className="block text-[#FAF8F5]">
-                  THAT
+                <span className="italic font-normal text-[#E8A856] tracking-normal font-serif drop-shadow-[0_0_24px_rgba(232,168,86,0.35)]">
+                  Right
                 </span>
-                <span className="flex items-baseline flex-wrap">
-                  <span className="text-[#FAF8F5] mr-3 sm:mr-4">
-                    FEELS
-                  </span>
-                  <span className="italic font-normal text-[#E8A856] tracking-normal font-serif drop-shadow-[0_0_24px_rgba(232,168,86,0.35)]">
-                    Right
-                  </span>
-                </span>
-              </h1>
+              </span>
+            </motion.h1>
 
-              {/* Supporting Paragraph: Clean modern sans-serif, ivory-white text directly over dark gradient */}
-              <div className="max-w-md sm:max-w-lg mb-8">
-                <p className="text-sm sm:text-base text-cream-100/90 font-sans font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
-                  Discover local food spots, explore real menus, compare prices, and find your next favourite bite.
-                </p>
-              </div>
+            {/* 3. Description fades in */}
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="max-w-md sm:max-w-lg mb-8"
+            >
+              <p className="text-sm sm:text-base text-cream-100/90 font-sans font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
+                Discover local food spots, explore real menus, compare prices, and find your next favourite bite.
+              </p>
+            </motion.div>
 
-              {/* Primary CTA: MANU SEARCH -> in warm golden-amber */}
-              <div className="flex items-center mb-8 sm:mb-10">
+            {/* 4. MANU SEARCH button enters with a gentle slide and fade */}
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-center mb-8 sm:mb-10"
+            >
+              <MagneticButton>
                 <button
                   type="button"
                   onClick={() => navigate('/search')}
-                  className="group inline-flex items-center justify-center bg-[#D98A48] hover:bg-[#E59755] active:bg-[#C87D3E] text-[#1A1817] font-sans font-bold text-xs sm:text-sm uppercase tracking-widest px-8 sm:px-10 py-3.5 sm:py-4 rounded-md transition-all shadow-xl hover:shadow-[#D98A48]/35 active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none cursor-pointer"
+                  className="group inline-flex items-center justify-center bg-[#D98A48] hover:bg-[#E59755] active:bg-[#C87D3E] text-[#1A1817] font-sans font-bold text-xs sm:text-sm uppercase tracking-widest px-8 sm:px-10 py-3.5 sm:py-4 rounded-md transition-all duration-200 shadow-xl hover:shadow-[#D98A48]/35 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none cursor-pointer"
                 >
                   <span>MANU SEARCH</span>
-                  <ArrowRight className="w-4 h-4 ml-3 transition-transform group-hover:translate-x-1.5 text-[#1A1817] stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 ml-3 transition-transform duration-200 group-hover:translate-x-1.5 text-[#1A1817] stroke-[2.5]" />
                 </button>
-              </div>
+              </MagneticButton>
+            </motion.div>
 
-              {/* Bottom text: SCROLL TO EXPLORE  ⌄  |  SIX CHAPTERS · ONE CITY */}
-              <div className="flex items-center text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-cream-200/60">
-                <a
-                  href="#chapter-craving"
-                  className="group inline-flex items-center space-x-2 text-cream-200/80 hover:text-amber-300 transition-colors py-1 cursor-pointer"
-                >
-                  <span>SCROLL TO EXPLORE</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-amber-400 group-hover:translate-y-0.5 transition-transform" />
-                </a>
-                <span className="mx-3.5 text-cream-200/30" aria-hidden="true">|</span>
-                <span className="text-cream-200/50 tracking-[0.2em]">
-                  SIX CHAPTERS · ONE CITY
-                </span>
-              </div>
-            </ScrollReveal>
+            {/* 5. Scroll indicator appears last */}
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.85, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-center text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-cream-200/60"
+            >
+              <a
+                href="#chapter-craving"
+                className="group inline-flex items-center space-x-2 text-cream-200/80 hover:text-amber-300 transition-colors py-1 cursor-pointer"
+              >
+                <span>SCROLL TO EXPLORE</span>
+                <ChevronDown className="w-3.5 h-3.5 text-amber-400 group-hover:translate-y-0.5 transition-transform duration-200" />
+              </a>
+              <span className="mx-3.5 text-cream-200/30" aria-hidden="true">|</span>
+              <span className="text-cream-200/50 tracking-[0.2em]">
+                SIX CHAPTERS · ONE CITY
+              </span>
+            </motion.div>
             </div>
 
             {/* Removed oversized ManuMania bottom wordmark branding: clamp(3.5rem, 13vw, 13rem) */}
@@ -524,23 +538,6 @@ export const FoodDiscoveryPage: React.FC = () => {
           ========================================================================= */}
       <ChapterMenuSection />
 
-      {/* =========================================================================
-          TYPOGRAPHY INTERLUDE 2
-          ========================================================================= */}
-      <TypographyMarquee
-        direction="right"
-        items={[
-          { text: 'MENUS AND PRICES', variant: 'gold' },
-          { text: 'LOCAL FAVOURITES', variant: 'outlined' },
-          { text: 'FOOD AROUND YOU', variant: 'solid' },
-          { text: 'DIRECT PORTION PRICES', variant: 'solid' },
-          { text: 'DISCOVER FOOD', variant: 'gold' },
-          { text: 'HONEST KITCHENS', variant: 'solid' },
-          { text: 'YOUR NEXT BITE', variant: 'outlined' },
-          { text: 'LIVE DIGITAL MENUS', variant: 'solid' },
-          { text: 'ZERO MARKUPS', variant: 'outlined' },
-        ]}
-      />
 
       {/* =========================================================================
           CHAPTER IV — TOP SHOPS NEAR YOU
@@ -552,20 +549,6 @@ export const FoodDiscoveryPage: React.FC = () => {
           ========================================================================= */}
       <ChapterLocationSection />
 
-      {/* =========================================================================
-          TYPOGRAPHY INTERLUDE 3
-          ========================================================================= */}
-      <TypographyMarquee
-        direction="left"
-        items={[
-          { text: 'YOUR NEXT BITE', variant: 'gold' },
-          { text: 'DISCOVER FOOD', variant: 'outlined' },
-          { text: 'LOCAL FAVOURITES', variant: 'solid' },
-          { text: 'MENUS AND PRICES', variant: 'gold' },
-          { text: 'VERIFIED KITCHENS', variant: 'solid' },
-          { text: 'EXPLORE SHOPS', variant: 'outlined' },
-        ]}
-      />
 
       {/* =========================================================================
           CHAPTER VI — YOUR NEXT FOOD STOP

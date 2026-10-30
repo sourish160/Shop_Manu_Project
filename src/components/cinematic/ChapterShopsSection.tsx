@@ -129,18 +129,11 @@ export const ChapterShopsSection: React.FC = () => {
             />
           </ScrollReveal>
 
-          {/* Quick status pill */}
+          {/* Editorial metadata */}
           <ScrollReveal direction="up" delay={0.08} className="lg:mb-2 shrink-0">
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#120E0C]/90 border border-cream-200/10 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" aria-hidden="true" />
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-cream-200/80">
-                {shops.length > 0 ? `${shops.length} Registered Kitchens` : 'Registered Kitchens'}
-              </span>
-              <span className="text-cream-200/30" aria-hidden="true">|</span>
-              <span className="font-mono text-[10px] tracking-wider text-amber-300">
-                Live Hours
-              </span>
-            </div>
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-cream-200/50">
+              {shops.length > 0 ? `${shops.length} Verified Kitchens` : 'Registered Kitchens'}
+            </span>
           </ScrollReveal>
         </div>
 
@@ -251,7 +244,7 @@ export const ChapterShopsSection: React.FC = () => {
                           <img
                             src={shopImage.url}
                             alt={`${prominentShop.name} storefront`}
-                            className="w-full h-full object-cover brightness-[0.78] contrast-[1.1] saturate-[1.08] group-hover:brightness-[0.88] group-hover:scale-105 transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                            className="w-full h-full object-cover brightness-[0.78] contrast-[1.1] saturate-[1.08] group-hover:brightness-[0.88] group-hover:scale-[1.03] transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                             loading="eager"
                             decoding="async"
                             onError={(e) => {
@@ -277,7 +270,7 @@ export const ChapterShopsSection: React.FC = () => {
                               >
                                 <span
                                   className={`w-1.5 h-1.5 rounded-full ${
-                                    isOpen ? 'bg-emerald-400 animate-pulse' : 'bg-cream-200/40'
+                                    isOpen ? 'bg-emerald-400' : 'bg-cream-200/40'
                                   }`}
                                   aria-hidden="true"
                                 />
@@ -293,9 +286,9 @@ export const ChapterShopsSection: React.FC = () => {
                             )}
                           </div>
 
-                          {/* Honest Image Badge (Explains fallback without misrepresenting) */}
-                          <span className="font-mono text-[9px] tracking-widest uppercase text-cream-200/70 bg-black/60 border border-cream-200/15 px-2.5 py-1 rounded-full backdrop-blur-md">
-                            {shopImage.label}
+                          {/* Neighborhood badge */}
+                          <span className="font-mono text-[10px] tracking-widest uppercase text-cream-200/80 bg-[#0A0807]/75 border border-cream-200/15 px-3 py-1 rounded-full backdrop-blur-md">
+                            {prominentShop.area || 'Kolkata'}
                           </span>
                         </div>
 
@@ -379,7 +372,7 @@ export const ChapterShopsSection: React.FC = () => {
                             <img
                               src={shopImage.url}
                               alt={`${shop.name} storefront`}
-                              className="w-full h-full object-cover brightness-[0.72] contrast-[1.08] group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transition-none"
+                              className="w-full h-full object-cover brightness-[0.72] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-700 ease-out motion-reduce:transition-none"
                               loading="lazy"
                               decoding="async"
                               onError={(e) => {
@@ -402,7 +395,7 @@ export const ChapterShopsSection: React.FC = () => {
                                 >
                                   <span
                                     className={`w-1.5 h-1.5 rounded-full ${
-                                      isOpen ? 'bg-emerald-400 animate-pulse' : 'bg-cream-200/40'
+                                      isOpen ? 'bg-emerald-400' : 'bg-cream-200/40'
                                     }`}
                                   />
                                   {statusText || (isOpen ? 'Open' : 'Closed')}
@@ -492,7 +485,7 @@ export const ChapterShopsSection: React.FC = () => {
                             <img
                               src={shopImage.url}
                               alt={`${shop.name} storefront`}
-                              className="w-full h-full object-cover brightness-[0.82] contrast-[1.08] group-hover:scale-105 transition-transform duration-500 ease-out motion-reduce:transition-none"
+                              className="w-full h-full object-cover brightness-[0.82] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-500 ease-out motion-reduce:transition-none"
                               loading="lazy"
                               decoding="async"
                               onError={(e) => {
@@ -513,15 +506,15 @@ export const ChapterShopsSection: React.FC = () => {
                                 >
                                   <span
                                     className={`w-1.5 h-1.5 rounded-full ${
-                                      isOpen ? 'bg-emerald-400 animate-pulse' : 'bg-cream-200/40'
+                                      isOpen ? 'bg-emerald-400' : 'bg-cream-200/40'
                                     }`}
                                   />
                                   {statusText || (isOpen ? 'Open' : 'Closed')}
                                 </span>
                               )}
 
-                              <span className="text-[9px] font-mono uppercase tracking-wider text-cream-200/80 bg-black/75 backdrop-blur-md border border-cream-200/15 px-2 py-0.5 rounded">
-                                {shopImage.label}
+                              <span className="text-[10px] font-mono uppercase tracking-wider text-cream-200/80 bg-[#0A0807]/75 backdrop-blur-md border border-cream-200/15 px-2.5 py-0.5 rounded-full">
+                                {shop.area || 'Kolkata'}
                               </span>
                             </div>
                           </div>

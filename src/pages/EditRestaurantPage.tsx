@@ -102,7 +102,7 @@ export const EditRestaurantPage: React.FC = () => {
       setRestaurant(active);
       setName(active.name);
       setDescription(active.description || '');
-      setPhone(active.phone);
+      setPhone(active.phone || '');
       setAddress(active.address);
       setArea(active.area);
       setCity(active.city);

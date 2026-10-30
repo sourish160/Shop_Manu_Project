@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Utensils, Store, MapPin, Sparkles, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Utensils, Store, MapPin, ShieldCheck } from 'lucide-react';
 import { insforge, RestaurantHours } from '../../lib/insforge';
 import { getRestaurantOpeningStatus, OpeningStatusResult } from '../../utils/operatingHours';
 import { ChapterSection } from './ChapterSection';
@@ -94,7 +94,7 @@ export const ChapterNextStopSection: React.FC = () => {
             <img
               src={NEXT_STOP_ASSETS.mainAnchor}
               alt="Warm atmospheric restaurant dining room with amber pendant lamps"
-              className="w-full h-full object-cover brightness-[0.78] contrast-[1.08] saturate-[1.08] group-hover:scale-105 group-hover:brightness-[0.85] transition-all duration-700 ease-out motion-reduce:transition-none"
+              className="w-full h-full object-cover brightness-[0.78] contrast-[1.08] saturate-[1.08] group-hover:scale-[1.03] group-hover:brightness-[0.85] transition-all duration-700 ease-out motion-reduce:transition-none"
               loading="lazy"
               decoding="async"
               onError={(e) => {
@@ -109,18 +109,6 @@ export const ChapterNextStopSection: React.FC = () => {
             {/* Ambient Warm Golden Aura */}
             <div className="absolute -inset-1 bg-gradient-to-t from-amber-500/10 via-transparent to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
 
-            {/* Floating Top Pill Badge */}
-            <div className="absolute top-5 inset-x-5 flex items-center justify-between pointer-events-none">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0A0807]/80 backdrop-blur-md border border-cream-200/15 font-mono text-[10px] tracking-widest text-amber-300 uppercase shadow-md pointer-events-auto">
-                <Sparkles className="w-3 h-3 text-amber-400" />
-                The Final Curtain
-              </span>
-
-              <span className="font-mono text-[10px] tracking-[0.2em] text-cream-200/70 bg-[#0A0807]/80 backdrop-blur-md border border-cream-200/15 px-3 py-1 rounded-full uppercase hidden sm:inline pointer-events-auto">
-                Six Chapters · One City
-              </span>
-            </div>
-
             {/* Centered In-Image Invocation & Dual Primary CTAs */}
             <div className="absolute inset-0 flex flex-col items-center justify-end p-6 sm:p-10 pb-8 sm:pb-12 text-center z-10">
               <p className="font-serif italic text-base sm:text-lg text-cream-100/90 max-w-xl mx-auto mb-6 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
@@ -133,22 +121,22 @@ export const ChapterNextStopSection: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigate('/search?tab=foods')}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-[#0A0807] font-sans font-bold text-xs uppercase tracking-widest transition-all shadow-xl hover:shadow-amber-400/25 active:scale-[0.98] cursor-pointer"
+                  className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl bg-amber-400 hover:bg-amber-300 active:bg-amber-500 text-[#0A0807] font-sans font-bold text-xs uppercase tracking-widest transition-all duration-200 hover:-translate-y-0.5 shadow-xl hover:shadow-amber-400/25 active:scale-[0.98] cursor-pointer"
                 >
                   <Utensils className="w-4 h-4 text-[#0A0807]" />
                   <span>EXPLORE MENUS</span>
-                  <ArrowRight className="w-4 h-4 text-[#0A0807]" />
+                  <ArrowRight className="w-4 h-4 text-[#0A0807] transition-transform duration-200 group-hover:translate-x-1" />
                 </button>
 
                 {/* Action 2: FIND A SHOP */}
                 <button
                   type="button"
                   onClick={() => navigate('/search?tab=restaurants')}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl bg-[#0A0807]/85 hover:bg-[#120E0C] text-cream-100 font-sans font-semibold text-xs uppercase tracking-widest border border-cream-200/20 hover:border-amber-400/50 transition-all shadow-xl backdrop-blur-md active:scale-[0.98] cursor-pointer"
+                  className="group w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl bg-[#0A0807]/85 hover:bg-[#120E0C] text-cream-100 font-sans font-semibold text-xs uppercase tracking-widest border border-cream-200/20 hover:border-amber-400/50 transition-all duration-200 hover:-translate-y-0.5 shadow-xl backdrop-blur-md active:scale-[0.98] cursor-pointer"
                 >
                   <Store className="w-4 h-4 text-amber-400" />
                   <span>FIND A SHOP</span>
-                  <ArrowRight className="w-4 h-4 text-amber-300" />
+                  <ArrowRight className="w-4 h-4 text-amber-300 transition-transform duration-200 group-hover:translate-x-1" />
                 </button>
               </div>
             </div>
@@ -210,7 +198,7 @@ export const ChapterNextStopSection: React.FC = () => {
             QUIET INVITATION FOR KITCHEN OWNERS
             ===================================================================== */}
         <ScrollReveal direction="up" delay={0.18}>
-          <div className="editorial-card p-6 sm:p-8 rounded-2xl max-w-xl mx-auto border border-cream-200/10 text-center">
+          <div className="pt-10 mt-6 border-t border-cream-200/10 max-w-xl mx-auto text-center">
             <span className="font-mono text-[10px] text-amber-400 uppercase tracking-widest block mb-2">
               For Food Businesses &amp; Kitchen Owners
             </span>

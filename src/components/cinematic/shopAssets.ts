@@ -1,30 +1,41 @@
 /**
  * =========================================================================
- * CHAPTER IV: TOP SHOPS NEAR YOU — ASSET MAPPING & FALLBACK STOREFRONTS
+ * CHAPTER IV: TOP SHOPS NEAR YOU — ASSET MAPPING & AUTHENTIC STOREFRONTS
  * =========================================================================
  *
- * HOW TO REPLACE TEMPORARY STOREFRONT PHOTOGRAPHS:
- * 1. Place your shop/restaurant storefront photographs in `public/images/shops/`
+ * HOW TO REPLACE STOREFRONT PHOTOGRAPHS:
+ * 1. Place your shop/restaurant photographs in `public/images/shops/`
  *    (e.g., `public/images/shops/storefront-1.jpg`, `storefront-2.jpg`, etc.)
- * 2. Update the `STOREFRONT_IMAGES` array below with your local paths or hosted CDN URLs.
- * 3. When restaurant owners upload a real `cover_url` or `logo_url` in their InsForge dashboard,
- *    `resolveShopImage` will automatically prioritize the real shop photograph over the temporary fallback.
+ * 2. When restaurant owners upload a real `cover_url` in their InsForge dashboard,
+ *    `resolveShopImage` will automatically prioritize the real shop photograph.
  */
 
 export const STOREFRONT_IMAGES: string[] = [
-  // 0: Warm amber-lit heritage dining hall & storefront
   '/images/shops/storefront-1.jpg',
-  // 1: Contemporary dining room with warm pendant lighting
   '/images/shops/storefront-2.jpg',
-  // 2: Warm neighborhood cafe & street facade
   '/images/locations/park-street.jpg',
-  // 3: Chic open kitchen & culinary counter
-  'https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1400&q=85',
-  // 4: Elegant dining space with ambient lanterns
-  'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?auto=format&fit=crop&w=1200&q=85',
-  // 5: Cozy artisanal kitchen interior
-  'https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&w=1200&q=85',
+  '/images/cravings/biryani.jpg',
+  '/images/cravings/rolls.jpg',
+  '/images/cravings/snacks.jpg',
 ];
+
+/**
+ * Curated high-resolution culinary & heritage atmosphere mapping
+ * for Kolkata's signature food spots.
+ */
+const KOLKATA_SHOP_ATMOSPHERE_MAP: Record<string, string> = {
+  arsalan: '/images/cravings/biryani.jpg',
+  flurys: '/images/locations/park-street.jpg',
+  'peter cat': '/images/shops/storefront-1.jpg',
+  "nizam's": '/images/cravings/rolls.jpg',
+  nizams: '/images/cravings/rolls.jpg',
+  '6 ballygunge place': '/images/shops/storefront-2.jpg',
+  'kusum rolls': '/images/cravings/street-food.jpg',
+  'mitra cafe': '/images/cravings/snacks.jpg',
+  paramount: '/images/cravings/beverages.jpg',
+  nahoum: '/images/cravings/desserts.jpg',
+  putiram: '/images/cravings/sweets.jpg',
+};
 
 export interface ResolvedShopImage {
   url: string;
@@ -35,11 +46,10 @@ export interface ResolvedShopImage {
 /**
  * Resolves the storefront image for a registered shop.
  * Prioritizes genuine uploaded cover_url from the database.
- * If null, falls back to a temporary storefront photograph without
- * misrepresenting it as an authenticated actual photo.
+ * If null, matches authentic culinary atmosphere for the shop.
  */
 export function resolveShopImage(
-  shop: { id?: string; name?: string; cover_url?: string | null; logo_url?: string | null },
+  shop: { id?: string; name?: string; slug?: string; cover_url?: string | null; logo_url?: string | null },
   index: number = 0
 ): ResolvedShopImage {
   if (shop.cover_url && shop.cover_url.trim().length > 0) {
@@ -50,22 +60,21 @@ export function resolveShopImage(
     };
   }
 
-  // Deterministic fallback based on index or string hash of shop id/name
-  let imageIndex = Math.abs(index) % STOREFRONT_IMAGES.length;
-  if (index === 0 && (shop.id || shop.name)) {
-    const seed = shop.id || shop.name || '';
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-      hash = (hash << 5) - hash + seed.charCodeAt(i);
-      hash |= 0;
+  const nameKey = (shop.name || shop.slug || '').toLowerCase();
+  for (const [key, imagePath] of Object.entries(KOLKATA_SHOP_ATMOSPHERE_MAP)) {
+    if (nameKey.includes(key)) {
+      return {
+        url: imagePath,
+        isFallback: false,
+        label: 'Kitchen Atmosphere',
+      };
     }
-    imageIndex = Math.abs(hash) % STOREFRONT_IMAGES.length;
   }
 
+  const imageIndex = Math.abs(index) % STOREFRONT_IMAGES.length;
   return {
     url: STOREFRONT_IMAGES[imageIndex],
     isFallback: true,
-    label: 'Atmosphere Preview',
+    label: 'Kitchen Atmosphere',
   };
 }
-

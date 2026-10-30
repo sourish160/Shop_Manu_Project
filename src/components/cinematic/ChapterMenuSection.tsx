@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Utensils, Store, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Utensils, Store } from 'lucide-react';
 import { insforge } from '../../lib/insforge';
 import { ChapterSection } from './ChapterSection';
 import { EditorialHeading } from './EditorialHeading';
@@ -174,57 +174,10 @@ export const ChapterMenuSection: React.FC = () => {
 
           {/* Quick status counter badge */}
           <ScrollReveal direction="up" delay={0.08} className="lg:mb-2 shrink-0">
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-[#120E0C]/90 border border-cream-200/10 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true" />
-              <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-cream-200/80">
-                {foods.length > 0 ? `${foods.length} Dishes Indexed` : 'Live Menu Catalog'}
-              </span>
-              <span className="text-cream-200/30" aria-hidden="true">|</span>
-              <span className="font-mono text-[10px] tracking-wider text-amber-300">
-                Zero Markups
-              </span>
-            </div>
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-cream-200/50">
+              {foods.length > 0 ? `${foods.length} Live Dishes Indexed` : 'Live Menu Catalog'}
+            </span>
           </ScrollReveal>
-        </div>
-
-        {/* =====================================================================
-            THREE TRANSPARENCY PILLARS (Restrained Editorial Band)
-            ===================================================================== */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 mb-12 sm:mb-16">
-          {[
-            {
-              num: '01',
-              title: 'Portion Breakdown',
-              desc: 'Half, Full, Regular, or Special. View authentic portion weights and variant pricing so you always know what is placed on your table.',
-            },
-            {
-              num: '02',
-              title: 'Chef-Direct Rates',
-              desc: 'Menus are updated in real time by restaurant owners. No surprise fees, no hidden platform markups at checkout.',
-            },
-            {
-              num: '03',
-              title: 'Live Kitchen Status',
-              desc: 'Know if the kitchen is serving right now. Operating hours indicators are computed from genuine weekly owner schedules.',
-            },
-          ].map((pillar, i) => (
-            <ScrollReveal key={pillar.num} direction="up" delay={0.06 + i * 0.05}>
-              <div className="editorial-card p-6 sm:p-7 rounded-2xl h-full border border-cream-200/10 hover:border-amber-400/30 transition-all duration-300">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-mono text-xs text-amber-400 font-semibold tracking-wider">
-                    {pillar.num} · Clarity
-                  </span>
-                  <CheckCircle2 className="w-4 h-4 text-amber-400/60" aria-hidden="true" />
-                </div>
-                <h4 className="font-serif text-lg sm:text-xl text-cream-100 font-light mb-2">
-                  {pillar.title}
-                </h4>
-                <p className="text-xs text-cream-200/65 font-sans leading-relaxed">
-                  {pillar.desc}
-                </p>
-              </div>
-            </ScrollReveal>
-          ))}
         </div>
 
         {/* =====================================================================
@@ -303,7 +256,7 @@ export const ChapterMenuSection: React.FC = () => {
                       <img
                         src={resolveMenuItemImage(featuredItem)}
                         alt={featuredItem.name}
-                        className="w-full h-full object-cover brightness-[0.8] contrast-[1.1] saturate-[1.08] group-hover:brightness-[0.9] group-hover:scale-105 transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                        className="w-full h-full object-cover brightness-[0.8] contrast-[1.1] saturate-[1.08] group-hover:brightness-[0.9] group-hover:scale-[1.03] transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                         loading="eager"
                         decoding="async"
                         onError={(e) => {
@@ -334,9 +287,9 @@ export const ChapterMenuSection: React.FC = () => {
                         )}
                       </div>
 
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-400/30 font-mono text-[9px] tracking-widest text-amber-300 uppercase shadow-sm backdrop-blur-md">
-                        <Sparkles className="w-3 h-3 text-amber-300" aria-hidden="true" />
-                        Signature Showcase
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0A0807]/80 border border-cream-200/15 font-mono text-[10px] tracking-widest text-amber-300 uppercase shadow-sm backdrop-blur-md">
+                        <Utensils className="w-3 h-3 text-amber-400" aria-hidden="true" />
+                        Featured Kitchen Special
                       </span>
                     </div>
 
@@ -397,7 +350,7 @@ export const ChapterMenuSection: React.FC = () => {
                             Starting from
                           </span>
                           <span className="font-serif text-2xl text-amber-300 font-normal">
-                            ₹{getLowestPrice(featuredItem) ?? '—'}
+                            {getLowestPrice(featuredItem) !== null ? `₹${getLowestPrice(featuredItem)}` : 'Price not listed'}
                           </span>
                         </div>
 
@@ -434,7 +387,7 @@ export const ChapterMenuSection: React.FC = () => {
                           <img
                             src={resolveMenuItemImage(item)}
                             alt={item.name}
-                            className="w-full h-full object-cover brightness-[0.85] contrast-[1.08] group-hover:scale-105 transition-transform duration-500 ease-out motion-reduce:transition-none"
+                            className="w-full h-full object-cover brightness-[0.85] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-500 ease-out motion-reduce:transition-none"
                             loading="lazy"
                             decoding="async"
                             onError={(e) => {
@@ -473,7 +426,7 @@ export const ChapterMenuSection: React.FC = () => {
                                 Price
                               </span>
                               <span className="font-serif text-base text-amber-300 font-medium">
-                                ₹{getLowestPrice(item) ?? '—'}
+                                {getLowestPrice(item) !== null ? `₹${getLowestPrice(item)}` : 'Price not listed'}
                               </span>
                             </div>
 
@@ -522,7 +475,7 @@ export const ChapterMenuSection: React.FC = () => {
                             <img
                               src={resolveMenuItemImage(item)}
                               alt={item.name}
-                              className="w-full h-full object-cover brightness-[0.85] contrast-[1.08] group-hover:scale-105 transition-transform duration-500 ease-out motion-reduce:transition-none"
+                              className="w-full h-full object-cover brightness-[0.85] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-500 ease-out motion-reduce:transition-none"
                               loading="lazy"
                               decoding="async"
                               onError={(e) => {

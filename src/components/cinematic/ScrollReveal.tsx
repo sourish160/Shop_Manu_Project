@@ -14,8 +14,8 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   children,
   direction = 'up',
   delay = 0,
-  duration = 0.65,
-  distance = 24,
+  duration = 0.55,
+  distance = 18,
   className = '',
 }) => {
   const prefersReducedMotion = useReducedMotion();
@@ -44,7 +44,7 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
     <motion.div
       initial={getInitialPosition()}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, margin: '-50px' }}
+      viewport={{ once: true, margin: '-40px' }}
       transition={{
         duration,
         delay,

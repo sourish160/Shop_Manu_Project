@@ -50,7 +50,7 @@ export const TypographyMarquee: React.FC<TypographyMarqueeProps> = ({
 
           let typographyClass = 'text-cream-100/90 font-light';
           if (isGold) {
-            typographyClass = 'text-amber-400 font-medium drop-shadow-[0_0_16px_rgba(200,138,88,0.3)]';
+            typographyClass = 'text-amber-300 font-normal';
           } else if (isOutlined) {
             typographyClass = 'text-stroke-cream hover:text-cream-100 transition-colors duration-300';
           }
