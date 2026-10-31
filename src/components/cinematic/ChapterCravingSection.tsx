@@ -9,6 +9,14 @@ import { FoodCategoryCard } from './FoodCategoryCard';
 
 export const ChapterCravingSection: React.FC = () => {
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Divide into curated artistic tiers
   const heroStreetFood = CRAVING_CATEGORIES.find((c) => c.id === 'street-food')!;
@@ -67,42 +75,40 @@ export const ChapterCravingSection: React.FC = () => {
             ===================================================================== */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mb-8 sm:mb-10">
           {/* Card 01: Street Food — Tall Portrait Framing (5 cols) */}
-          <ScrollReveal direction="up" delay={0.1} className="lg:col-span-5 h-full">
-            <FoodCategoryCard
-              category={heroStreetFood}
-              onCategoryClick={handleCategoryClick}
-              onDishClick={handleDishClick}
-              minHeightClass="min-h-[460px] sm:min-h-[520px] lg:min-h-[580px]"
-              headlineSizeClass="text-3xl sm:text-4xl"
-              taglineClampClass="line-clamp-2"
-              badgeIcon={<Sparkles className="w-3 h-3 text-amber-400" aria-hidden="true" />}
-              ctaText="Explore Street Menus"
-            />
-          </ScrollReveal>
+          <FoodCategoryCard
+            category={heroStreetFood}
+            onCategoryClick={handleCategoryClick}
+            onDishClick={handleDishClick}
+            minHeightClass="min-h-[460px] sm:min-h-[520px] lg:min-h-[580px]"
+            headlineSizeClass="text-3xl sm:text-4xl lg:text-[2.75rem]"
+            badgeIcon={<Sparkles className="w-3 h-3 text-amber-400" aria-hidden="true" />}
+            ctaText="Explore Street Menus"
+            entranceDelay={0.04}
+            className="lg:col-span-5 h-full"
+          />
 
           {/* Card 02: Biryani — Expansive Widescreen Focal Hero (7 cols) */}
-          <ScrollReveal direction="up" delay={0.16} className="lg:col-span-7 h-full">
-            <FoodCategoryCard
-              category={heroBiryani}
-              onCategoryClick={handleCategoryClick}
-              onDishClick={handleDishClick}
-              minHeightClass="min-h-[460px] sm:min-h-[520px] lg:min-h-[580px]"
-              headlineSizeClass="text-3xl sm:text-4xl lg:text-5xl"
-              taglineClampClass="line-clamp-2"
-              badgeIcon={<UtensilsCrossed className="w-3 h-3 text-amber-300" aria-hidden="true" />}
-              badgeClassName="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0A0807]/80 border border-amber-400/30 font-mono text-[10px] tracking-widest text-amber-300 uppercase shadow-md backdrop-blur-md"
-              extraOverlay={
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(200,138,88,0.18)_0%,transparent_60%)] group-hover:opacity-100 opacity-60 transition-opacity duration-700 pointer-events-none" />
-              }
-              ctaText="Browse Dum Kitchens"
-              customCtaButton={
-                <div className="inline-flex items-center gap-2 text-xs font-sans font-semibold uppercase tracking-wider text-[#0A0807] bg-amber-400 group-hover:bg-amber-300 px-4 py-2 rounded-lg transition-all shadow-lg group-hover:shadow-amber-400/30">
-                  <span>Inspect Menus</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                </div>
-              }
-            />
-          </ScrollReveal>
+          <FoodCategoryCard
+            category={heroBiryani}
+            onCategoryClick={handleCategoryClick}
+            onDishClick={handleDishClick}
+            minHeightClass="min-h-[460px] sm:min-h-[520px] lg:min-h-[580px]"
+            headlineSizeClass="text-3xl sm:text-4xl lg:text-[3.25rem]"
+            badgeIcon={<UtensilsCrossed className="w-3 h-3 text-amber-300" aria-hidden="true" />}
+            badgeClassName="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#0A0807]/80 border border-amber-400/30 font-mono text-[10px] tracking-widest text-amber-300 uppercase shadow-md backdrop-blur-md"
+            extraOverlay={
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(200,138,88,0.18)_0%,transparent_60%)] group-hover:opacity-100 opacity-60 transition-opacity duration-700 pointer-events-none" />
+            }
+            ctaText="Browse Dum Kitchens"
+            customCtaButton={
+              <div className="inline-flex items-center gap-2 text-xs font-sans font-semibold uppercase tracking-wider text-[#0A0807] bg-amber-400 group-hover:bg-amber-300 px-4 py-2 rounded-lg transition-all shadow-lg group-hover:shadow-amber-400/30">
+                <span>Inspect Menus</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+              </div>
+            }
+            entranceDelay={isMobile ? 0.06 : 0.16}
+            className="lg:col-span-7 h-full"
+          />
         </div>
 
         {/* =====================================================================
@@ -125,22 +131,17 @@ export const ChapterCravingSection: React.FC = () => {
             ===================================================================== */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-8 sm:mb-10">
           {triptychCategories.map((category, index) => (
-            <ScrollReveal
+            <FoodCategoryCard
               key={category.id}
-              direction="up"
-              delay={0.08 + index * 0.06}
+              category={category}
+              onCategoryClick={handleCategoryClick}
+              onDishClick={handleDishClick}
+              minHeightClass="min-h-[400px] sm:min-h-[440px]"
+              headlineSizeClass="text-2xl sm:text-[1.85rem]"
+              ctaText={`Explore ${category.title}`}
+              entranceDelay={isMobile ? 0.05 : index * 0.12}
               className="h-full"
-            >
-              <FoodCategoryCard
-                category={category}
-                onCategoryClick={handleCategoryClick}
-                onDishClick={handleDishClick}
-                minHeightClass="min-h-[400px] sm:min-h-[440px]"
-                headlineSizeClass="text-2xl sm:text-3xl"
-                taglineClampClass="line-clamp-2"
-                ctaText={`Explore ${category.title}`}
-              />
-            </ScrollReveal>
+            />
           ))}
         </div>
 
@@ -153,22 +154,17 @@ export const ChapterCravingSection: React.FC = () => {
             const colSpanClass = isWide ? 'lg:col-span-7' : 'lg:col-span-5';
 
             return (
-              <ScrollReveal
+              <FoodCategoryCard
                 key={category.id}
-                direction="up"
-                delay={0.1 + index * 0.08}
+                category={category}
+                onCategoryClick={handleCategoryClick}
+                onDishClick={handleDishClick}
+                minHeightClass="min-h-[340px] sm:min-h-[380px]"
+                headlineSizeClass={isWide ? 'text-2xl sm:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl'}
+                ctaText={`Explore ${category.title}`}
+                entranceDelay={isMobile ? 0.05 : index * 0.12}
                 className={`${colSpanClass} h-full`}
-              >
-                <FoodCategoryCard
-                  category={category}
-                  onCategoryClick={handleCategoryClick}
-                  onDishClick={handleDishClick}
-                  minHeightClass="min-h-[340px] sm:min-h-[380px]"
-                  headlineSizeClass={isWide ? 'text-2xl sm:text-3xl lg:text-4xl' : 'text-2xl sm:text-3xl'}
-                  taglineClampClass="line-clamp-1"
-                  ctaText={`Explore ${category.title}`}
-                />
-              </ScrollReveal>
+              />
             );
           })}
         </div>

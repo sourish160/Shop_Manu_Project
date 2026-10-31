@@ -48,7 +48,10 @@ export const FoodDiscoveryPage: React.FC = () => {
 
   // Active chapter state for discreet side navigation rail
   const [activeChapter, setActiveChapter] = useState('chapter-discovery');
+  const isClickNavigatingRef = useRef(false);
+  const clickNavTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
+  // Synchronized active chapter tracking for all chapters (including tall pinned Chapter III)
   useEffect(() => {
     const chapterIds = [
       'chapter-discovery',
@@ -59,24 +62,105 @@ export const FoodDiscoveryPage: React.FC = () => {
       'chapter-next-bite',
     ];
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveChapter(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
+    const updateActiveChapter = () => {
+      if (isClickNavigatingRef.current) return;
 
-    chapterIds.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
+      const scrollY = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
 
-    return () => observer.disconnect();
+      // 1. Edge case: At or near the very top of the page
+      if (scrollY < 120) {
+        setActiveChapter('chapter-discovery');
+        return;
+      }
+
+      // 2. Edge case: At or near the bottom of the page
+      if (scrollY + viewportHeight >= docHeight - 80) {
+        setActiveChapter('chapter-next-bite');
+        return;
+      }
+
+      // 3. Focal point for active chapter detection (35% down the viewport)
+      const focalY = viewportHeight * 0.35;
+
+      // 4. Dedicated Chapter III pinned range check:
+      // Chapter III is a tall pinned section (~400vh) encompassing both Stage 1 (headline)
+      // and Stage 2 (3D carousel). It must remain active as long as its top has reached
+      // the focal area and its bottom has not scrolled past.
+      const menuEl = document.getElementById('chapter-menu');
+      if (menuEl) {
+        const menuRect = menuEl.getBoundingClientRect();
+        if (menuRect.top <= focalY && menuRect.bottom > focalY) {
+          setActiveChapter('chapter-menu');
+          return;
+        }
+      }
+
+      // 5. General check: Find the section currently spanning the focal point
+      for (let i = 0; i < chapterIds.length; i++) {
+        const id = chapterIds[i];
+        const el = document.getElementById(id);
+        if (!el) continue;
+
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= focalY && rect.bottom > focalY) {
+          setActiveChapter(id);
+          return;
+        }
+      }
+
+      // 6. Fallback: Last section whose top has crossed the focal point
+      let latestPassed = 'chapter-discovery';
+      for (let i = 0; i < chapterIds.length; i++) {
+        const id = chapterIds[i];
+        const el = document.getElementById(id);
+        if (!el) continue;
+
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= focalY) {
+          latestPassed = id;
+        }
+      }
+      setActiveChapter(latestPassed);
+    };
+
+    let rafId: number | null = null;
+    const handleScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        updateActiveChapter();
+        rafId = null;
+      });
+    };
+
+    updateActiveChapter();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      clearTimeout(clickNavTimeoutRef.current);
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
+
+  const handleChapterNavClick = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    setActiveChapter(id);
+    isClickNavigatingRef.current = true;
+    clearTimeout(clickNavTimeoutRef.current);
+    clickNavTimeoutRef.current = setTimeout(() => {
+      isClickNavigatingRef.current = false;
+    }, 1000);
+
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.history.pushState(null, '', `#${id}`);
+  };
 
   useSEO({
     title: 'Find Food, Menus & Prices Near You',
@@ -288,7 +372,7 @@ export const FoodDiscoveryPage: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#0A0807] text-cream-100 flex flex-col relative selection:bg-amber-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-[#0A0807] text-cream-100 flex flex-col relative selection:bg-amber-500/30 overflow-x-clip">
       {/* =========================================================================
           SHARED FULL-WEBSITE BACKGROUND SCROLL ANIMATION (Chapters I through VI)
           ========================================================================= */}
@@ -385,10 +469,11 @@ export const FoodDiscoveryPage: React.FC = () => {
             <a
               key={ch.id}
               href={`#${ch.id}`}
+              onClick={(e) => handleChapterNavClick(e, ch.id)}
               title={`Chapter ${ch.num}: ${ch.label}`}
-              className={`flex items-center justify-center w-6 h-6 rounded-full font-mono text-[10px] transition-all ${
+              className={`flex items-center justify-center w-6 h-6 rounded-full font-mono text-[10px] transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-amber-400 text-[#0A0807] font-bold scale-110 shadow-md'
+                  ? 'bg-amber-400 text-[#0A0807] font-bold scale-110 shadow-md shadow-amber-400/30'
                   : 'text-cream-200/50 hover:text-cream-100 hover:bg-cream-200/10'
               }`}
             >
@@ -432,34 +517,97 @@ export const FoodDiscoveryPage: React.FC = () => {
               </span>
             </motion.div>
 
-            {/* 2. Main headline appears with a subtle upward reveal */}
-            <motion.h1
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.65, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            {/* 2. Main headline appears with cinematic word-by-word reveal */}
+            <h1
+              aria-label="FIND FOOD THAT FEELS Right"
               className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6.75rem] xl:text-[7.5rem] font-normal tracking-tight leading-[0.92] mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]"
             >
-              <span className="block text-[#FAF8F5]">
-                FIND FOOD
+              {/* Line 1: FIND FOOD */}
+              <span className="block overflow-hidden py-1 -my-1">
+                <motion.span
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+                  transition={{
+                    duration: prefersReducedMotion ? 0 : 0.75,
+                    delay: prefersReducedMotion ? 0 : 0.35,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block text-[#FAF8F5] mr-[0.28em] will-change-[transform,opacity,filter]"
+                >
+                  FIND
+                </motion.span>
+                <motion.span
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+                  transition={{
+                    duration: prefersReducedMotion ? 0 : 0.75,
+                    delay: prefersReducedMotion ? 0 : 0.49,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block text-[#FAF8F5] will-change-[transform,opacity,filter]"
+                >
+                  FOOD
+                </motion.span>
               </span>
-              <span className="block text-[#FAF8F5]">
-                THAT
+
+              {/* Line 2: THAT */}
+              <span className="block overflow-hidden py-1 -my-1">
+                <motion.span
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+                  transition={{
+                    duration: prefersReducedMotion ? 0 : 0.75,
+                    delay: prefersReducedMotion ? 0 : 0.63,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block text-[#FAF8F5] will-change-[transform,opacity,filter]"
+                >
+                  THAT
+                </motion.span>
               </span>
-              <span className="flex items-baseline flex-wrap">
-                <span className="text-[#FAF8F5] mr-3 sm:mr-4">
-                  FEELS
+
+              {/* Line 3: FEELS Right */}
+              <span className="block overflow-hidden pt-1 pb-3 -mt-1 -mb-3 pr-6 -mr-6">
+                <span className="flex items-baseline flex-wrap">
+                  <motion.span
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+                    transition={{
+                      duration: prefersReducedMotion ? 0 : 0.75,
+                      delay: prefersReducedMotion ? 0 : 0.77,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="inline-block text-[#FAF8F5] mr-3 sm:mr-4 will-change-[transform,opacity,filter]"
+                  >
+                    FEELS
+                  </motion.span>
+                  <motion.span
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 48, filter: 'blur(4px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+                    transition={{
+                      duration: prefersReducedMotion ? 0 : 0.82,
+                      delay: prefersReducedMotion ? 0 : 0.92,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    className="inline-block will-change-[transform,opacity,filter]"
+                  >
+                    <span className="inline-block italic font-normal text-[#E8A856] tracking-normal font-serif drop-shadow-[0_0_24px_rgba(232,168,86,0.35)]">
+                      Right
+                    </span>
+                  </motion.span>
                 </span>
-                <span className="italic font-normal text-[#E8A856] tracking-normal font-serif drop-shadow-[0_0_24px_rgba(232,168,86,0.35)]">
-                  Right
-                </span>
               </span>
-            </motion.h1>
+            </h1>
 
             {/* 3. Description fades in */}
             <motion.div
               initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.65,
+                delay: prefersReducedMotion ? 0 : 1.25,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="max-w-md sm:max-w-lg mb-8"
             >
               <p className="text-sm sm:text-base text-cream-100/90 font-sans font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
@@ -471,7 +619,11 @@ export const FoodDiscoveryPage: React.FC = () => {
             <motion.div
               initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.65,
+                delay: prefersReducedMotion ? 0 : 1.48,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="flex items-center mb-8 sm:mb-10"
             >
               <MagneticButton>
@@ -490,7 +642,11 @@ export const FoodDiscoveryPage: React.FC = () => {
             <motion.div
               initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.85, ease: [0.16, 1, 0.3, 1] }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.65,
+                delay: prefersReducedMotion ? 0 : 1.72,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="flex items-center text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-cream-200/60"
             >
               <a

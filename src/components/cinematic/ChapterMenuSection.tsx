@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Utensils, Store } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'motion/react';
 import { insforge } from '../../lib/insforge';
-import { ChapterSection } from './ChapterSection';
-import { EditorialHeading } from './EditorialHeading';
-import { ScrollReveal } from './ScrollReveal';
-import { resolveMenuItemImage, MENU_IMAGE_MAP } from './menuAssets';
+import { ChapterMenuCard } from './ChapterMenuCard';
 
 export interface FoodWithRelations {
   id: string;
@@ -33,11 +31,33 @@ export interface FoodWithRelations {
   }>;
 }
 
+// =========================================================================
+// CHAPTER III: TWO-STAGE SCROLL EXPERIENCE
+// Stage 1: Oversized headline reveal ("EXPLORE SOME BEAUTIFUL MENUS")
+// Stage 2: Siglitos-style 3D fan card carousel
+// =========================================================================
+
 export const ChapterMenuSection: React.FC = () => {
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
   const [foods, setFoods] = useState<FoodWithRelations[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState<string>('all');
+  const [isMobile, setIsMobile] = useState(false);
+
+  const sectionRef = useRef<HTMLElement>(null);
+  // Manual active index for nav controls, synced with scroll
+  const [activeIndex, setActiveIndex] = useState(0);
+  // Whether the user is currently using nav buttons (temporarily override scroll)
+  const navOverrideRef = useRef(false);
+  const navTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  // Responsive mobile detection
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Fetch real menu items from InsForge backend
   useEffect(() => {
@@ -54,7 +74,7 @@ export const ChapterMenuSection: React.FC = () => {
             variants:food_variants(id, name, price, available)
           `)
           .eq('status', 'active')
-          .limit(24);
+          .limit(20);
 
         if (error) {
           console.error('Error fetching Chapter III menu items:', error);
@@ -74,72 +94,9 @@ export const ChapterMenuSection: React.FC = () => {
     };
   }, []);
 
-  // Filter tabs definition
-  const filterTabs = [
-    { id: 'all', label: 'All Offerings' },
-    { id: 'biryani', label: 'Biryani & Rice' },
-    { id: 'thalis', label: 'Thalis & Curries' },
-    { id: 'rolls', label: 'Rolls & Street Bites' },
-    { id: 'kebabs', label: 'Tandoor & Kebabs' },
-    { id: 'sweets', label: 'Desserts & Sips' },
-  ];
-
-  // Client-side filtering for fast, responsive browsing
-  const filteredFoods = useMemo(() => {
-    if (activeFilter === 'all') return foods;
-
-    return foods.filter((item) => {
-      const text = `${item.name} ${item.category?.name || ''} ${item.description || ''}`.toLowerCase();
-      switch (activeFilter) {
-        case 'biryani':
-          return text.includes('biryani') || text.includes('rice') || text.includes('dum');
-        case 'thalis':
-          return (
-            text.includes('thali') ||
-            text.includes('curry') ||
-            text.includes('gravy') ||
-            text.includes('masala') ||
-            text.includes('dal') ||
-            text.includes('dosa') ||
-            text.includes('meal')
-          );
-        case 'rolls':
-          return (
-            text.includes('roll') ||
-            text.includes('kathi') ||
-            text.includes('snack') ||
-            text.includes('puchka') ||
-            text.includes('fry') ||
-            text.includes('cutlet')
-          );
-        case 'kebabs':
-          return (
-            text.includes('kebab') ||
-            text.includes('reshmi') ||
-            text.includes('tandoor') ||
-            text.includes('chaap') ||
-            text.includes('boti')
-          );
-        case 'sweets':
-          return (
-            text.includes('sweet') ||
-            text.includes('firni') ||
-            text.includes('dessert') ||
-            text.includes('pak') ||
-            text.includes('coffee') ||
-            text.includes('chai') ||
-            text.includes('tea')
-          );
-        default:
-          return true;
-      }
-    });
-  }, [foods, activeFilter]);
-
-  // Featured hero item and subsequent tasting items
-  const featuredItem = filteredFoods[0] || null;
-  const tastingFlight = filteredFoods.slice(1, 4);
-  const secondaryItems = filteredFoods.slice(4, 10);
+  // Exactly 5 curated dishes for Chapter III
+  const displayedFoods = useMemo(() => foods.slice(0, 5), [foods]);
+  const totalCards = displayedFoods.length;
 
   // Helper to format lowest price
   const getLowestPrice = (item: FoodWithRelations) => {
@@ -147,457 +104,467 @@ export const ChapterMenuSection: React.FC = () => {
     return Math.min(...item.variants.map((v) => v.price));
   };
 
-  return (
-    <ChapterSection
-      id="chapter-menu"
-      chapterNumber="III"
-      chapterLabel="Explore The Menus"
-      scrimIntensity="deep"
-      layout="full"
-      className="py-24 sm:py-32"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* =====================================================================
-            CHAPTER III HEADER
-            ===================================================================== */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 sm:mb-16 gap-6">
-          <ScrollReveal direction="up" delay={0.04}>
-            <EditorialHeading
-              chapterNumber="III"
-              eyebrow="Explore The Menus"
-              title="EXPLORE THE *MENUS*"
-              subtitle="Real dishes pulled live from registered kitchens across Kolkata. Transparent portion breakdowns, chef-direct pricing, and zero platform markups."
-              size="lg"
-              className="max-w-3xl"
-            />
-          </ScrollReveal>
+  // =========================================================================
+  // SCROLL TRACKING
+  // =========================================================================
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end end'],
+  });
 
-          {/* Quick status counter badge */}
-          <ScrollReveal direction="up" delay={0.08} className="lg:mb-2 shrink-0">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-cream-200/50">
-              {foods.length > 0 ? `${foods.length} Live Dishes Indexed` : 'Live Menu Catalog'}
-            </span>
-          </ScrollReveal>
+  // =========================================================================
+  // STAGE PROGRESS MAPPING
+  // Total scroll height: ~500vh
+  // 0.00 – 0.18: Stage 1 – Headline reveal
+  // 0.18 – 0.28: Transition – headline fades, carousel appears
+  // 0.28 – 0.92: Stage 2 – Carousel cycling through cards
+  // 0.92 – 1.00: Release / fade out
+  // =========================================================================
+
+  // --- STAGE 1: Headline animations ---
+  const headlineWords = ['EXPLORE', 'SOME', 'BEAUTIFUL', 'MENUS'];
+
+  // Each word reveals in sequence during 0.0 – 0.16
+  const wordAnimations = headlineWords.map((_, i) => {
+    const wordStart = 0.02 + i * 0.035;
+    const wordEnd = wordStart + 0.06;
+    return { start: wordStart, end: wordEnd };
+  });
+
+  // Word transforms
+  const word0Opacity = useTransform(scrollYProgress, [wordAnimations[0].start, wordAnimations[0].end], [0, 1]);
+  const word0Y = useTransform(scrollYProgress, [wordAnimations[0].start, wordAnimations[0].end], [50, 0]);
+  const word1Opacity = useTransform(scrollYProgress, [wordAnimations[1].start, wordAnimations[1].end], [0, 1]);
+  const word1Y = useTransform(scrollYProgress, [wordAnimations[1].start, wordAnimations[1].end], [50, 0]);
+  const word2Opacity = useTransform(scrollYProgress, [wordAnimations[2].start, wordAnimations[2].end], [0, 1]);
+  const word2Y = useTransform(scrollYProgress, [wordAnimations[2].start, wordAnimations[2].end], [50, 0]);
+  const word3Opacity = useTransform(scrollYProgress, [wordAnimations[3].start, wordAnimations[3].end], [0, 1]);
+  const word3Y = useTransform(scrollYProgress, [wordAnimations[3].start, wordAnimations[3].end], [50, 0]);
+
+  const wordOpacities = [word0Opacity, word1Opacity, word2Opacity, word3Opacity];
+  const wordYs = [word0Y, word1Y, word2Y, word3Y];
+
+  // Headline overall fade out (during transition)
+  const headlineOpacity = useTransform(scrollYProgress, [0.16, 0.26], [1, 0]);
+  const headlineScale = useTransform(scrollYProgress, [0.16, 0.26], [1, 0.92]);
+
+  // --- STAGE 2: Carousel animations ---
+  const carouselOpacity = useTransform(scrollYProgress, [0.22, 0.30], [0, 1]);
+  const carouselScale = useTransform(scrollYProgress, [0.22, 0.30], [0.9, 1]);
+
+  // Active index derived from scroll position (0.28 – 0.92 maps to card indices)
+  const scrollActiveIndex = useTransform(scrollYProgress, (p) => {
+    if (totalCards === 0) return 0;
+    const carouselStart = 0.28;
+    const carouselEnd = 0.92;
+    const normalized = Math.max(0, Math.min(1, (p - carouselStart) / (carouselEnd - carouselStart)));
+    return Math.round(normalized * (totalCards - 1));
+  });
+
+  // Keep activeIndex in sync with scroll unless nav buttons are being used
+  useMotionValueEvent(scrollActiveIndex, 'change', (latest) => {
+    if (!navOverrideRef.current) {
+      setActiveIndex(Math.max(0, Math.min(totalCards - 1, latest)));
+    }
+  });
+
+  // Section chapter label opacity
+  const chapterLabelOpacity = useTransform(scrollYProgress, [0.0, 0.03, 0.90, 0.96], [0, 1, 1, 0]);
+
+  // Overall section progress for the scrollbar indicator
+  const progressWidth = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+
+  // =========================================================================
+  // NAVIGATION CONTROLS
+  // =========================================================================
+  const goToCard = useCallback(
+    (index: number) => {
+      const clamped = Math.max(0, Math.min(totalCards - 1, index));
+      setActiveIndex(clamped);
+      navOverrideRef.current = true;
+      clearTimeout(navTimeoutRef.current);
+      navTimeoutRef.current = setTimeout(() => {
+        navOverrideRef.current = false;
+      }, 1200);
+    },
+    [totalCards],
+  );
+
+  const goNext = useCallback(() => goToCard(activeIndex + 1), [activeIndex, goToCard]);
+  const goPrev = useCallback(() => goToCard(activeIndex - 1), [activeIndex, goToCard]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const inView = rect.top < window.innerHeight && rect.bottom > 0;
+      if (!inView) return;
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goNext();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goPrev();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goNext, goPrev]);
+
+  // Touch swipe detection
+  const touchStartRef = useRef<number>(0);
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      const diff = touchStartRef.current - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) goNext();
+        else goPrev();
+      }
+    },
+    [goNext, goPrev],
+  );
+
+  // =========================================================================
+  // 3D FAN CAROUSEL CARD POSITIONING
+  // =========================================================================
+  const getCardTransform = (index: number, active: number) => {
+    const offset = index - active;
+    const absOffset = Math.abs(offset);
+
+    if (absOffset > 3) {
+      return {
+        x: offset > 0 ? 140 : -140,
+        rotateY: offset > 0 ? 65 : -65,
+        z: -700,
+        scale: 0.4,
+        opacity: 0,
+        zIndex: 0,
+        filter: 'blur(4px)',
+      };
+    }
+
+    // Center card
+    if (offset === 0) {
+      return {
+        x: 0,
+        rotateY: 0,
+        z: 0,
+        scale: 1,
+        opacity: 1,
+        zIndex: 10,
+        filter: 'blur(0px)',
+      };
+    }
+
+    // Side cards
+    const configs: Record<number, { xBase: number; rotateBase: number; zBase: number; scaleBase: number; opacityBase: number }> = {
+      1: { xBase: isMobile ? 62 : 52, rotateBase: isMobile ? 38 : 42, zBase: -220, scaleBase: 0.78, opacityBase: 0.85 },
+      2: { xBase: isMobile ? 88 : 82, rotateBase: isMobile ? 52 : 56, zBase: -420, scaleBase: 0.62, opacityBase: 0.5 },
+      3: { xBase: isMobile ? 105 : 100, rotateBase: isMobile ? 60 : 64, zBase: -580, scaleBase: 0.48, opacityBase: 0.25 },
+    };
+
+    const cfg = configs[absOffset]!;
+    const sign = offset > 0 ? 1 : -1;
+
+    return {
+      x: sign * cfg.xBase,
+      rotateY: sign * cfg.rotateBase,
+      z: cfg.zBase,
+      scale: cfg.scaleBase,
+      opacity: cfg.opacityBase,
+      zIndex: 10 - absOffset * 2,
+      filter: absOffset >= 2 ? `blur(${absOffset}px)` : 'blur(0px)',
+    };
+  };
+
+  // =========================================================================
+  // REDUCED MOTION STATIC LAYOUT
+  // =========================================================================
+  if (prefersReducedMotion) {
+    return (
+      <section
+        id="chapter-menu"
+        aria-label="Chapter III: Explore The Menus"
+        className="relative w-full py-20 sm:py-28 bg-[#0A0807] overflow-hidden"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-10 sm:mb-14">
+            <div className="inline-flex items-center space-x-2.5 mb-2.5">
+              <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" aria-hidden="true" />
+              <span className="text-xs sm:text-sm text-amber-300 font-semibold tracking-[0.28em] uppercase font-mono">
+                CHAPTER III — EXPLORE THE MENUS
+              </span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-cream-100 tracking-tight leading-tight">
+              EXPLORE SOME BEAUTIFUL <span className="italic font-normal text-[#E8A856] font-serif">MENUS</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-cream-200/70 font-sans max-w-xl mt-2 leading-relaxed">
+              Real dishes pulled live from registered kitchens across Kolkata. Transparent portion breakdowns and chef-direct pricing.
+            </p>
+          </div>
+
+          {/* Static Scrollable Horizontal Sequence */}
+          <div className="flex gap-7 sm:gap-9 overflow-x-auto pb-10 pt-4 no-scrollbar snap-x">
+            {displayedFoods.map((item, index) => {
+              const lowest = getLowestPrice(item);
+              return (
+                <div
+                  key={item.id}
+                  className="shrink-0 w-[340px] sm:w-[390px] md:w-[440px] h-[480px] sm:h-[530px] snap-start"
+                >
+                  <ChapterMenuCard
+                    item={item}
+                    index={index}
+                    isCenter={true}
+                    lowestPrice={lowest}
+                    onCardClick={() => {
+                      if (item.restaurant) {
+                        navigate(`/restaurant/${item.restaurant.slug}`);
+                      } else {
+                        navigate(`/search?q=${encodeURIComponent(item.name)}`);
+                      }
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
+      </section>
+    );
+  }
+
+  // =========================================================================
+  // MAIN ANIMATED TWO-STAGE SCROLL EXPERIENCE
+  // =========================================================================
+  return (
+    <section
+      ref={sectionRef}
+      id="chapter-menu"
+      aria-label="Chapter III: Explore The Menus"
+      className="relative w-full h-[360vh] sm:h-[390vh] lg:h-[420vh] bg-[#0A0807]"
+    >
+      {/* Pinned Viewport Container */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col select-none z-10">
+        {/* Subtle Background Radial Atmosphere */}
+        <div
+          className="absolute inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,rgba(217,138,72,0.05)_0%,transparent_75%)]"
+          aria-hidden="true"
+        />
+
+        {/* Chapter Label (persistent, fades at edges) */}
+        <motion.div
+          style={{ opacity: chapterLabelOpacity }}
+          className="absolute top-6 sm:top-8 left-4 sm:left-8 z-30"
+        >
+          <div className="inline-flex items-center space-x-2.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.85)]" aria-hidden="true" />
+            <span className="text-xs sm:text-sm text-amber-300 font-semibold tracking-[0.28em] uppercase font-mono">
+              CHAPTER III — EXPLORE THE MENUS
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Scroll Progress Bar (persistent) */}
+        <motion.div
+          style={{ opacity: chapterLabelOpacity }}
+          className="absolute top-6 sm:top-8 right-4 sm:right-8 z-30 flex items-center gap-3"
+        >
+          <span className="hidden sm:inline font-mono text-[11px] tracking-widest text-cream-200/70 uppercase font-medium">
+            Scroll to explore
+          </span>
+          <div className="w-24 sm:w-32 h-1.5 bg-cream-200/15 rounded-full overflow-hidden p-[1px]">
+            <motion.div
+              style={{ width: progressWidth }}
+              className="h-full bg-gradient-to-r from-amber-400 via-[#E8A856] to-amber-300 rounded-full shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+            />
+          </div>
+        </motion.div>
 
         {/* =====================================================================
-            FILTER TABS FOR FAST, PRACTICAL BROWSING
+            STAGE 1: OVERSIZED HEADLINE REVEAL
             ===================================================================== */}
-        <ScrollReveal direction="up" delay={0.1} className="mb-8 sm:mb-10">
-          <div className="flex items-center justify-between pb-4 border-b border-cream-200/10 gap-4 overflow-x-auto no-scrollbar">
-            <div className="flex items-center space-x-2 sm:space-x-3 shrink-0" role="tablist" aria-label="Menu categories">
-              {filterTabs.map((tab) => {
-                const isActive = activeFilter === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => setActiveFilter(tab.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-mono tracking-wider transition-all duration-200 whitespace-nowrap cursor-pointer ${
-                      isActive
-                        ? 'bg-amber-400 text-[#0A0807] font-bold shadow-md shadow-amber-400/20'
-                        : 'bg-[#120E0C]/80 text-cream-200/70 hover:text-cream-100 hover:bg-cream-200/10 border border-cream-200/10'
+        <motion.div
+          style={{ opacity: headlineOpacity, scale: headlineScale }}
+          className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
+        >
+          <div className="text-center px-4 max-w-[95vw]">
+            {/* Word-by-word animated headline */}
+            <h2 className="font-serif font-light tracking-tight leading-[0.9] flex flex-wrap justify-center gap-x-[2.5vw] gap-y-[0.5vw]">
+              {headlineWords.map((word, i) => (
+                <span key={word} className="inline-block overflow-hidden">
+                  <motion.span
+                    style={{
+                      opacity: wordOpacities[i],
+                      y: wordYs[i],
+                    }}
+                    className={`inline-block text-[12vw] sm:text-[11vw] md:text-[10vw] lg:text-[9vw] ${
+                      word === 'MENUS'
+                        ? 'italic font-normal text-[#E8A856] font-serif'
+                        : 'text-cream-100'
                     }`}
                   >
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </div>
+                    {word}
+                  </motion.span>
+                </span>
+              ))}
+            </h2>
 
-            <span className="text-[11px] font-mono text-cream-200/50 uppercase tracking-widest hidden md:inline shrink-0">
-              Showing {filteredFoods.length} items
-            </span>
+            {/* Subtle editorial subline */}
+            <motion.p
+              style={{
+                opacity: useTransform(scrollYProgress, [0.12, 0.16, 0.20, 0.26], [0, 1, 1, 0]),
+              }}
+              className="text-sm sm:text-base text-cream-200/60 font-sans mt-6 sm:mt-8 max-w-lg mx-auto leading-relaxed tracking-wide"
+            >
+              Artisan dishes from Kolkata&apos;s finest kitchens — chef-direct pricing, live portions
+            </motion.p>
           </div>
-        </ScrollReveal>
+        </motion.div>
 
         {/* =====================================================================
-            LOADING STATE
+            STAGE 2: SIGLITOS-STYLE 3D FAN CARD CAROUSEL
             ===================================================================== */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 animate-pulse">
-            <div className="lg:col-span-7 h-[460px] rounded-2xl bg-cream-100/5 border border-cream-200/10" />
-            <div className="lg:col-span-5 space-y-4">
-              <div className="h-[140px] rounded-2xl bg-cream-100/5 border border-cream-200/10" />
-              <div className="h-[140px] rounded-2xl bg-cream-100/5 border border-cream-200/10" />
-              <div className="h-[140px] rounded-2xl bg-cream-100/5 border border-cream-200/10" />
-            </div>
-          </div>
-        ) : filteredFoods.length === 0 ? (
-          /* Empty state for filter */
-          <div className="editorial-card p-12 text-center rounded-2xl border border-cream-200/10 my-8">
-            <Utensils className="w-10 h-10 text-amber-400/50 mx-auto mb-4" />
-            <h4 className="font-serif text-2xl text-cream-100 mb-2">No dishes in this category yet</h4>
-            <p className="text-xs text-cream-200/60 font-sans max-w-md mx-auto mb-6">
-              Our registered Kolkata kitchens are constantly expanding their digital menus. Try viewing all offerings or search directly.
-            </p>
-            <button
-              type="button"
-              onClick={() => setActiveFilter('all')}
-              className="px-5 py-2 rounded-lg bg-amber-400 text-[#0A0807] font-semibold text-xs uppercase tracking-wider hover:bg-amber-300 transition-colors"
-            >
-              Reset to All Offerings
-            </button>
-          </div>
-        ) : (
-          <>
-            {/* =====================================================================
-                TIER 1: ASYMMETRIC CHEF'S SHOWCASE (Featured Lead + Tasting Flight)
-                ===================================================================== */}
-            {featuredItem && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mb-8 sm:mb-10 items-stretch">
-                {/* Hero Lead Feature Card (7 cols) */}
-                <ScrollReveal direction="up" delay={0.08} className="lg:col-span-7 flex">
-                  <div className="group relative w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-2xl transition-all duration-500 hover:-translate-y-1 flex flex-col justify-between p-6 sm:p-8 min-h-[480px]">
-                    {/* Background Photographic Atmosphere */}
-                    <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-                      <img
-                        src={resolveMenuItemImage(featuredItem)}
-                        alt={featuredItem.name}
-                        className="w-full h-full object-cover brightness-[0.8] contrast-[1.1] saturate-[1.08] group-hover:brightness-[0.9] group-hover:scale-[1.03] transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                        loading="eager"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.src = MENU_IMAGE_MAP.default;
+        <motion.div
+          style={{ opacity: carouselOpacity, scale: carouselScale }}
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* 3D Perspective Container */}
+          <div
+            className="relative w-full flex-1 flex items-center justify-center"
+            style={{ perspective: isMobile ? '900px' : '1200px' }}
+          >
+            {isLoading ? (
+              /* Loading Skeleton */
+              <div className="flex items-center justify-center gap-6 animate-pulse">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="w-[290px] sm:w-[350px] md:w-[410px] lg:w-[450px] xl:w-[480px] h-[380px] sm:h-[440px] md:h-[490px] lg:h-[540px] rounded-3xl bg-cream-100/5 border border-cream-200/10"
+                    style={{
+                      transform: i === 1 ? 'scale(1)' : `rotateY(${i === 0 ? -40 : 40}deg) scale(0.8) translateZ(-200px)`,
+                    }}
+                  />
+                ))}
+              </div>
+            ) : displayedFoods.length === 0 ? (
+              /* Empty State */
+              <div className="max-w-md mx-auto text-center p-8 rounded-2xl bg-[#120E0C]/90 border border-cream-200/10">
+                <h4 className="font-serif text-xl text-cream-100 mb-2">Menu catalog loading</h4>
+                <p className="text-xs text-cream-200/60 font-sans">
+                  Fetching authentic dishes directly from local kitchens.
+                </p>
+              </div>
+            ) : (
+              /* 3D Fan Carousel */
+              <div className="relative w-full h-full flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
+                {displayedFoods.map((item, index) => {
+                  const lowest = getLowestPrice(item);
+                  const transform = getCardTransform(index, activeIndex);
+                  const isCenter = index === activeIndex;
+
+                  return (
+                    <motion.div
+                      key={item.id}
+                      animate={{
+                        x: `${transform.x}%`,
+                        rotateY: transform.rotateY,
+                        z: transform.z,
+                        scale: transform.scale,
+                        opacity: transform.opacity,
+                        filter: transform.filter,
+                      }}
+                      transition={{
+                        duration: 0.65,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                      style={{ zIndex: transform.zIndex }}
+                      className="absolute w-[310px] sm:w-[360px] md:w-[420px] lg:w-[460px] xl:w-[490px] h-[400px] sm:h-[460px] md:h-[520px] lg:h-[560px] xl:h-[580px]"
+                    >
+                      <ChapterMenuCard
+                        item={item}
+                        index={index}
+                        isCenter={isCenter}
+                        lowestPrice={lowest}
+                        onCardClick={() => {
+                          if (isCenter) {
+                            if (item.restaurant) {
+                              navigate(`/restaurant/${item.restaurant.slug}`);
+                            } else {
+                              navigate(`/search?q=${encodeURIComponent(item.name)}`);
+                            }
+                          } else {
+                            goToCard(index);
+                          }
                         }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807] via-[#0A0807]/65 via-50% to-[#0A0807]/25 transition-opacity duration-500 group-hover:from-[#0A0807]/95" />
-                      <div className="absolute inset-0 bg-gradient-to-r from-[#0A0807]/75 via-[#0A0807]/30 to-transparent" />
-                      <div className="absolute -inset-1 bg-gradient-to-t from-amber-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                    </div>
-
-                    {/* Top Badges */}
-                    <div className="relative z-10 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded font-mono font-semibold ${
-                            featuredItem.veg_type === 'veg'
-                              ? 'text-emerald-400 bg-emerald-500/15 border border-emerald-500/30'
-                              : 'text-amber-400 bg-amber-500/15 border border-amber-500/30'
-                          }`}
-                        >
-                          {featuredItem.veg_type === 'veg' ? 'Pure Veg' : 'Non-Veg'}
-                        </span>
-                        {featuredItem.category && (
-                          <span className="font-mono text-[10px] tracking-widest text-cream-200/80 uppercase px-2 py-0.5 rounded bg-[#0A0807]/60 backdrop-blur-md border border-cream-200/10">
-                            {featuredItem.category.name}
-                          </span>
-                        )}
-                      </div>
-
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0A0807]/80 border border-cream-200/15 font-mono text-[10px] tracking-widest text-amber-300 uppercase shadow-sm backdrop-blur-md">
-                        <Utensils className="w-3 h-3 text-amber-400" aria-hidden="true" />
-                        Featured Kitchen Special
-                      </span>
-                    </div>
-
-                    {/* Content & Portion Rates */}
-                    <div className="relative z-10 flex flex-col space-y-4 pt-20">
-                      <div>
-                        {featuredItem.restaurant && (
-                          <div className="flex items-center gap-2 text-xs text-cream-200/70 font-sans mb-1.5">
-                            <Store className="w-3.5 h-3.5 text-amber-400 shrink-0" aria-hidden="true" />
-                            <span>Crafted by</span>
-                            <Link
-                              to={`/restaurant/${featuredItem.restaurant.slug}`}
-                              className="font-medium text-cream-100 hover:text-amber-300 transition-colors underline decoration-cream-200/30 underline-offset-4"
-                            >
-                              {featuredItem.restaurant.name}
-                            </Link>
-                            {featuredItem.restaurant.area && (
-                              <span className="text-cream-200/40">· {featuredItem.restaurant.area}</span>
-                            )}
-                          </div>
-                        )}
-
-                        <h3 className="font-serif text-3xl sm:text-4xl text-cream-100 font-normal tracking-tight group-hover:text-amber-200 transition-colors">
-                          {featuredItem.name}
-                        </h3>
-
-                        {featuredItem.description && (
-                          <p className="text-xs sm:text-sm text-cream-200/80 font-sans line-clamp-2 mt-1 leading-relaxed max-w-xl">
-                            {featuredItem.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Portion Breakdown Table / Tags */}
-                      {featuredItem.variants && featuredItem.variants.length > 0 && (
-                        <div className="pt-2">
-                          <span className="text-[10px] uppercase font-mono tracking-widest text-cream-200/50 block mb-1.5">
-                            Available Portions &amp; Direct Prices
-                          </span>
-                          <div className="flex flex-wrap items-center gap-2">
-                            {featuredItem.variants.map((v) => (
-                              <div
-                                key={v.id}
-                                className="px-3 py-1 rounded-md bg-[#0A0807]/80 border border-cream-200/15 backdrop-blur-md flex items-center gap-2"
-                              >
-                                <span className="font-sans text-xs text-cream-200/80">{v.name}:</span>
-                                <span className="font-serif text-sm text-amber-300 font-medium">₹{v.price}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Action Bar */}
-                      <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-cream-200/15">
-                        <div>
-                          <span className="text-[10px] uppercase tracking-widest text-cream-200/45 block">
-                            Starting from
-                          </span>
-                          <span className="font-serif text-2xl text-amber-300 font-normal">
-                            {getLowestPrice(featuredItem) !== null ? `₹${getLowestPrice(featuredItem)}` : 'Price not listed'}
-                          </span>
-                        </div>
-
-                        {featuredItem.restaurant ? (
-                          <Link
-                            to={`/restaurant/${featuredItem.restaurant.slug}`}
-                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-[#0A0807] font-sans font-semibold text-xs uppercase tracking-wider transition-all duration-300 shadow-lg hover:shadow-amber-400/25 active:scale-[0.98]"
-                          >
-                            <span>Explore Shop Menu</span>
-                            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                          </Link>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/search?q=${encodeURIComponent(featuredItem.name)}`)}
-                            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-[#0A0807] font-sans font-semibold text-xs uppercase tracking-wider transition-all duration-300"
-                          >
-                            <span>Find in Search</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </ScrollReveal>
-
-                {/* Right Stack: Tasting Flight (5 cols) */}
-                <div className="lg:col-span-5 flex flex-col space-y-4">
-                  {tastingFlight.map((item, idx) => (
-                    <ScrollReveal key={item.id} direction="up" delay={0.12 + idx * 0.06}>
-                      <div className="group relative rounded-2xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-xl transition-all duration-300 hover:-translate-y-1 p-4 sm:p-5 flex gap-4 items-center">
-                        {/* Compact thumbnail image */}
-                        <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden">
-                          <img
-                            src={resolveMenuItemImage(item)}
-                            alt={item.name}
-                            className="w-full h-full object-cover brightness-[0.85] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-500 ease-out motion-reduce:transition-none"
-                            loading="lazy"
-                            decoding="async"
-                            onError={(e) => {
-                              e.currentTarget.src = MENU_IMAGE_MAP.default;
-                            }}
-                          />
-                          <span
-                            className={`absolute top-2 left-2 text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded font-mono font-semibold ${
-                              item.veg_type === 'veg'
-                                ? 'text-emerald-400 bg-black/75 border border-emerald-500/30'
-                                : 'text-amber-400 bg-black/75 border border-amber-500/30'
-                            }`}
-                          >
-                            {item.veg_type === 'veg' ? 'Veg' : 'Non-Veg'}
-                          </span>
-                        </div>
-
-                        {/* Text and price content */}
-                        <div className="flex-1 min-w-0">
-                          {item.restaurant && (
-                            <Link
-                              to={`/restaurant/${item.restaurant.slug}`}
-                              className="text-[11px] font-sans text-cream-200/60 hover:text-amber-300 transition-colors truncate block mb-1"
-                            >
-                              {item.restaurant.name} {item.restaurant.area ? `· ${item.restaurant.area}` : ''}
-                            </Link>
-                          )}
-
-                          <h4 className="font-serif text-lg text-cream-100 font-normal leading-snug group-hover:text-amber-200 transition-colors truncate mb-1">
-                            {item.name}
-                          </h4>
-
-                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-cream-200/10">
-                            <div>
-                              <span className="text-[9px] uppercase tracking-wider text-cream-200/40 block">
-                                Price
-                              </span>
-                              <span className="font-serif text-base text-amber-300 font-medium">
-                                {getLowestPrice(item) !== null ? `₹${getLowestPrice(item)}` : 'Price not listed'}
-                              </span>
-                            </div>
-
-                            {item.restaurant && (
-                              <Link
-                                to={`/restaurant/${item.restaurant.slug}`}
-                                className="inline-flex items-center gap-1 font-mono text-[11px] text-cream-200/70 hover:text-amber-300 transition-colors group-hover:translate-x-0.5 duration-200"
-                              >
-                                <span>Menu</span>
-                                <ArrowRight className="w-3 h-3" />
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </ScrollReveal>
-                  ))}
-                </div>
+                    </motion.div>
+                  );
+                })}
               </div>
             )}
-
-            {/* =====================================================================
-                TIER 2: ALTERNATING ASYMMETRIC GRID (Curated Dishes)
-                ===================================================================== */}
-            {secondaryItems.length > 0 && (
-              <div className="pt-6">
-                <div className="flex items-center justify-between mb-6">
-                  <span className="font-mono text-xs uppercase tracking-[0.2em] text-cream-200/60">
-                    Additional Indexed Kitchen Dishes
-                  </span>
-                  <div className="h-px bg-cream-200/10 flex-1 max-w-xs ml-4 hidden sm:block" />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {secondaryItems.map((item, index) => {
-                    const lowest = getLowestPrice(item);
-                    return (
-                      <ScrollReveal
-                        key={item.id}
-                        direction="up"
-                        delay={0.06 * (index % 3)}
-                      >
-                        <div className="group relative rounded-2xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between h-full">
-                          {/* Image Banner */}
-                          <div className="relative h-44 overflow-hidden">
-                            <img
-                              src={resolveMenuItemImage(item)}
-                              alt={item.name}
-                              className="w-full h-full object-cover brightness-[0.85] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-500 ease-out motion-reduce:transition-none"
-                              loading="lazy"
-                              decoding="async"
-                              onError={(e) => {
-                                e.currentTarget.src = MENU_IMAGE_MAP.default;
-                              }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#120E0C] via-transparent to-transparent" />
-
-                            {/* Veg / Non-veg indicator */}
-                            <span
-                              className={`absolute top-3 left-3 text-[9px] uppercase tracking-wider px-2 py-0.5 rounded font-mono font-semibold backdrop-blur-md ${
-                                item.veg_type === 'veg'
-                                  ? 'text-emerald-400 bg-black/75 border border-emerald-500/30'
-                                  : 'text-amber-400 bg-black/75 border border-amber-500/30'
-                              }`}
-                            >
-                              {item.veg_type === 'veg' ? 'Pure Veg' : 'Non-Veg'}
-                            </span>
-
-                            {item.category && (
-                              <span className="absolute top-3 right-3 text-[9px] font-mono uppercase tracking-wider text-cream-200/80 bg-black/75 backdrop-blur-md border border-cream-200/15 px-2 py-0.5 rounded">
-                                {item.category.name}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Body Details */}
-                          <div className="p-5 flex-1 flex flex-col justify-between">
-                            <div>
-                              <h4 className="font-serif text-xl text-cream-100 font-normal group-hover:text-amber-200 transition-colors mb-1">
-                                {item.name}
-                              </h4>
-
-                              {item.restaurant && (
-                                <Link
-                                  to={`/restaurant/${item.restaurant.slug}`}
-                                  className="text-xs text-cream-200/60 hover:text-amber-300 transition-colors block mb-2 font-sans truncate"
-                                >
-                                  at {item.restaurant.name} {item.restaurant.area ? `(${item.restaurant.area})` : ''}
-                                </Link>
-                              )}
-
-                              {item.description && (
-                                <p className="text-xs text-cream-200/65 font-sans line-clamp-2 leading-relaxed mb-3">
-                                  {item.description}
-                                </p>
-                              )}
-                            </div>
-
-                            {/* Variants & Action */}
-                            <div>
-                              {item.variants && item.variants.length > 1 && (
-                                <div className="flex flex-wrap gap-1.5 mb-3 pt-2 border-t border-cream-200/10">
-                                  {item.variants.map((v) => (
-                                    <span
-                                      key={v.id}
-                                      className="text-[10px] font-mono text-cream-200/70 bg-cream-100/5 px-2 py-0.5 rounded border border-cream-200/10"
-                                    >
-                                      {v.name}: ₹{v.price}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-
-                              <div className="flex items-center justify-between pt-3 border-t border-cream-200/10">
-                                <div>
-                                  <span className="text-[9px] uppercase tracking-wider text-cream-200/40 block">
-                                    Starting at
-                                  </span>
-                                  <span className="font-serif text-lg text-amber-300 font-medium">
-                                    {lowest !== null ? `₹${lowest}` : 'Market Price'}
-                                  </span>
-                                </div>
-
-                                {item.restaurant && (
-                                  <Link
-                                    to={`/restaurant/${item.restaurant.slug}`}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cream-100/10 hover:bg-amber-400 hover:text-[#0A0807] text-cream-200/90 text-xs font-sans font-medium uppercase tracking-wider transition-colors duration-200"
-                                  >
-                                    <span>View Shop</span>
-                                    <ArrowRight className="w-3.5 h-3.5" />
-                                  </Link>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </ScrollReveal>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* =====================================================================
-            CHAPTER III FOOTER / EXPLORATION CALL-TO-ACTION
-            ===================================================================== */}
-        <ScrollReveal direction="up" delay={0.1} className="mt-14 sm:mt-16 text-center">
-          <div className="inline-flex flex-col sm:flex-row items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-[#120E0C]/90 border border-cream-200/10 max-w-2xl mx-auto w-full backdrop-blur-md">
-            <div className="text-left">
-              <span className="font-mono text-[10px] text-amber-400 uppercase tracking-widest block mb-0.5">
-                Looking for a specific dish or neighborhood?
-              </span>
-              <p className="text-xs text-cream-200/80 font-sans">
-                Search all verified menu items, portion comparisons &amp; live hours.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => navigate('/search')}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-[#0A0807] font-sans font-semibold text-xs uppercase tracking-wider transition-all duration-200 shrink-0 shadow-lg hover:shadow-amber-400/25 cursor-pointer"
-            >
-              <Utensils className="w-3.5 h-3.5" />
-              <span>Full Search</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
           </div>
-        </ScrollReveal>
+
+          {/* Navigation Controls */}
+          {!isLoading && displayedFoods.length > 0 && (
+            <div className="relative z-30 flex items-center justify-center gap-6 pb-6 sm:pb-8 pt-3">
+              {/* Previous Button */}
+              <button
+                onClick={goPrev}
+                disabled={activeIndex === 0}
+                aria-label="Previous dish"
+                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-cream-200/20 bg-[#0A0807]/80 backdrop-blur-md flex items-center justify-center text-cream-200/80 hover:text-amber-300 hover:border-amber-400/50 hover:bg-amber-400/10 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-cream-200/80 disabled:hover:border-cream-200/20 disabled:hover:bg-[#0A0807]/80"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* Card Indicators */}
+              <div className="flex items-center gap-2">
+                {displayedFoods.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => goToCard(i)}
+                    aria-label={`Go to dish ${i + 1}`}
+                    className={`transition-all duration-400 rounded-full ${
+                      i === activeIndex
+                        ? 'w-7 h-2 bg-gradient-to-r from-amber-400 to-[#E8A856] shadow-[0_0_12px_rgba(245,158,11,0.5)]'
+                        : 'w-2 h-2 bg-cream-200/25 hover:bg-cream-200/50'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Next Button */}
+              <button
+                onClick={goNext}
+                disabled={activeIndex === totalCards - 1}
+                aria-label="Next dish"
+                className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-cream-200/20 bg-[#0A0807]/80 backdrop-blur-md flex items-center justify-center text-cream-200/80 hover:text-amber-300 hover:border-amber-400/50 hover:bg-amber-400/10 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-cream-200/80 disabled:hover:border-cream-200/20 disabled:hover:bg-[#0A0807]/80"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
+
+          {/* Active Card Info (below carousel) */}
+          {!isLoading && displayedFoods.length > 0 && (
+            <div className="relative z-20 text-center pb-4 sm:pb-6">
+              <span className="font-mono text-[11px] tracking-[0.2em] text-cream-200/50 uppercase">
+                {String(activeIndex + 1).padStart(2, '0')} / {String(totalCards).padStart(2, '0')}
+              </span>
+            </div>
+          )}
+        </motion.div>
       </div>
-    </ChapterSection>
+    </section>
   );
 };

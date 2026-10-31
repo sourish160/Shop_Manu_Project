@@ -27,7 +27,6 @@ import {
 import { ChapterSection } from './ChapterSection';
 import { EditorialHeading } from './EditorialHeading';
 import { ScrollReveal } from './ScrollReveal';
-import { resolveLocalityImage, LOCATION_IMAGE_MAP } from './locationAssets';
 
 interface LocationShopRecord {
   id: string;
@@ -627,106 +626,6 @@ export const ChapterLocationSection: React.FC = () => {
               </div>
             )}
           </ScrollReveal>
-        </div>
-
-        {/* =====================================================================
-            ATMOSPHERIC NEIGHBORHOOD STORYTELLING CARDS
-            ===================================================================== */}
-        <div className="pt-8 border-t border-cream-200/10">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
-            <div>
-              <span className="font-mono text-[10px] text-amber-400 uppercase tracking-widest block mb-1">
-                Kolkata Dining Quarters
-              </span>
-              <h4 className="font-serif text-2xl text-cream-100 font-light">
-                Explore Signature Locality Profiles
-              </h4>
-            </div>
-
-            <p className="text-xs text-cream-200/60 font-sans max-w-sm">
-              Each neighborhood represents a unique culinary era—from historic Awadhi handis to late-night street tawas.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {[
-              {
-                quarter: 'Park Street Quarter',
-                highlight: 'Heritage Dining & Awadhi Dum Biryani',
-                desc: 'Centuries of culinary history. Fragrant saffron rice, slow-braised meats, and iconic tea rooms with historic dignity.',
-                area: 'Park Street',
-                image: resolveLocalityImage('Park Street'),
-              },
-              {
-                quarter: 'Salt Lake Quarter',
-                highlight: 'Artisan Kathi Rolls & Contemporary Tawas',
-                desc: 'Thriving street gastronomy, sizzling iron tawas, hand-pulled parathas, and bustling evening food corridors.',
-                area: 'Salt Lake',
-                image: resolveLocalityImage('Salt Lake'),
-              },
-              {
-                quarter: 'New Town Quarter',
-                highlight: 'Late-Night Kitchens & Cafe Smashes',
-                desc: 'Modern craft burger bars, fusion street food, cloud bakeries, and vibrant quick-service kitchens.',
-                area: 'New Town',
-                image: resolveLocalityImage('New Town'),
-              },
-            ].map((q, i) => (
-              <ScrollReveal key={q.quarter} direction="up" delay={0.08 * i}>
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => {
-                    setActiveAreaTab(q.area);
-                    const matching = KNOWN_LOCALITIES.find((l) => l.area.toLowerCase() === q.area.toLowerCase());
-                    if (matching) handleSelectLocality(matching);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      setActiveAreaTab(q.area);
-                      const matching = KNOWN_LOCALITIES.find((l) => l.area.toLowerCase() === q.area.toLowerCase());
-                      if (matching) handleSelectLocality(matching);
-                    }
-                  }}
-                  className="editorial-card rounded-2xl overflow-hidden group relative flex flex-col justify-between shadow-2xl h-full border border-cream-200/12 cursor-pointer hover:border-amber-400/40 transition-all duration-300"
-                >
-                  <div className="aspect-[16/10] overflow-hidden relative">
-                    <img
-                      src={q.image}
-                      alt={q.quarter}
-                      className="w-full h-full object-cover filter brightness-[0.85] contrast-[1.08] transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none"
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.src = LOCATION_IMAGE_MAP.default;
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#120E0C] via-transparent to-transparent pointer-events-none" />
-                    <span className="absolute top-4 left-4 text-[9px] font-mono uppercase tracking-widest px-2.5 py-1 rounded bg-black/75 backdrop-blur-md text-amber-300 border border-cream-200/15">
-                      Locality Spotlight
-                    </span>
-                  </div>
-
-                  <div className="p-6">
-                    <h5 className="font-serif text-2xl text-cream-100 font-light mb-1.5 group-hover:text-amber-200 transition-colors">
-                      {q.quarter}
-                    </h5>
-                    <p className="text-xs text-amber-300/90 font-sans font-medium mb-3">
-                      {q.highlight}
-                    </p>
-                    <p className="text-xs text-cream-200/65 font-sans leading-relaxed mb-4">
-                      {q.desc}
-                    </p>
-
-                    <div className="pt-3 border-t border-cream-200/10 flex items-center justify-between text-xs font-mono text-amber-400 group-hover:text-amber-300">
-                      <span>View {q.area} Kitchens</span>
-                      <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                    </div>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
         </div>
       </div>
     </ChapterSection>

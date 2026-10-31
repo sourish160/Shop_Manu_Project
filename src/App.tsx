@@ -22,12 +22,14 @@ import { AdminAuditLogsPage } from './pages/AdminAuditLogsPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 import { Footer } from './components/Footer';
+import { CustomCursor } from './components/cinematic/CustomCursor';
 
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
         <div className="min-h-screen bg-[#0A0807] text-cream-100 flex flex-col font-sans">
+          <CustomCursor />
           <Navbar />
           <main className="flex-1">
             <Routes>

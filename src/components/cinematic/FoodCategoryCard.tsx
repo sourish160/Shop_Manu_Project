@@ -1,6 +1,16 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { CravingCategory, CRAVING_IMAGE_MAP } from './cravingAssets';
+import {
+  cardEntranceVariants,
+  cardImageVariants,
+  cardBadgeVariants,
+  cardTextVariants,
+  cardTagsContainerVariants,
+  cardTagItemVariants,
+  cardButtonVariants,
+} from './cardAnimations';
 
 interface FoodCategoryCardProps {
   category: CravingCategory;
@@ -8,13 +18,53 @@ interface FoodCategoryCardProps {
   onDishClick: (e: React.MouseEvent, dishName: string) => void;
   minHeightClass?: string;
   headlineSizeClass?: string;
-  taglineClampClass?: string;
   badgeIcon?: React.ReactNode;
   badgeClassName?: string;
   ctaText?: string;
   customCtaButton?: React.ReactNode;
   extraOverlay?: React.ReactNode;
   className?: string;
+  entranceDelay?: number;
+}
+
+/**
+ * Renders category headline with signature ManuMania editorial styling
+ * (e.g., "Dum Biryani" -> "Dum" in white serif + "Biryani" in italic warm gold serif)
+ */
+function renderEditorialHeadline(headline: string) {
+  const parts = headline.trim().split(' ');
+  if (parts.length <= 1) {
+    return <span className="font-serif font-light text-cream-100">{headline}</span>;
+  }
+
+  // If there's an ampersand: e.g. "Snacks & Savouries" -> "Snacks" + " & " + "Savouries"
+  if (parts.includes('&')) {
+    const ampersandIdx = parts.indexOf('&');
+    const firstPart = parts.slice(0, ampersandIdx).join(' ');
+    const lastPart = parts.slice(ampersandIdx + 1).join(' ');
+    return (
+      <>
+        <span className="font-serif font-light text-cream-100">{firstPart}</span>{' '}
+        <span className="font-serif italic font-light text-amber-300/80 mx-0.5">&amp;</span>{' '}
+        <span className="font-serif italic font-normal text-[#E8A856] group-hover:text-amber-200 transition-colors">
+          {lastPart}
+        </span>
+      </>
+    );
+  }
+
+  // Standard multi-word: e.g. "Street Food", "Dum Biryani", "Heritage Sweets", "Decadent Desserts"
+  const prefix = parts.slice(0, -1).join(' ');
+  const accent = parts[parts.length - 1];
+
+  return (
+    <>
+      <span className="font-serif font-light text-cream-100">{prefix}</span>{' '}
+      <span className="font-serif italic font-normal text-[#E8A856] group-hover:text-amber-200 transition-colors">
+        {accent}
+      </span>
+    </>
+  );
 }
 
 /**
@@ -32,14 +82,15 @@ export const FoodCategoryCard: React.FC<FoodCategoryCardProps> = ({
   onDishClick,
   minHeightClass = 'min-h-[400px] sm:min-h-[440px]',
   headlineSizeClass = 'text-2xl sm:text-3xl',
-  taglineClampClass = 'line-clamp-2',
   badgeIcon,
   badgeClassName,
   ctaText,
   customCtaButton,
   extraOverlay,
   className = '',
+  entranceDelay = 0,
 }) => {
+  const prefersReducedMotion = useReducedMotion();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const glareRef = useRef<HTMLDivElement>(null);
@@ -216,163 +267,194 @@ export const FoodCategoryCard: React.FC<FoodCategoryCardProps> = ({
   };
 
   return (
-    <div
-      ref={containerRef}
+    <motion.div
+      initial={prefersReducedMotion ? false : 'hidden'}
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.15 }}
+      variants={cardEntranceVariants}
+      custom={entranceDelay}
       className={`relative w-full h-full select-none ${className}`}
-      style={{ perspective: '1000px' }}
     >
       <div
-        ref={cardRef}
-        role="button"
-        tabIndex={0}
-        onClick={() => onCategoryClick(category)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onCategoryClick(category);
-          }
-        }}
-        onPointerEnter={handlePointerEnter}
-        onPointerMove={handlePointerMove}
-        onPointerLeave={handlePointerLeave}
-        aria-label={`Explore ${category.title} category`}
-        className={`group relative block w-full h-full ${minHeightClass} rounded-2xl sm:rounded-3xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/50 shadow-2xl cursor-pointer text-left flex flex-col justify-between p-6 sm:p-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 will-change-transform`}
-        style={{
-          transformStyle: 'preserve-3d',
-          transition: 'border-color 0.4s ease',
-        }}
+        ref={containerRef}
+        className="relative w-full h-full"
+        style={{ perspective: '1000px' }}
       >
-        {/* =====================================================================
-            1. BACKGROUND PHOTOGRAPHY & SCRIM GRADIENTS (Subtle Depth Base)
-            ===================================================================== */}
         <div
-          className="absolute inset-0 z-0 overflow-hidden rounded-2xl sm:rounded-3xl"
-          aria-hidden="true"
-          style={{ transform: 'translateZ(0px)' }}
+          ref={cardRef}
+          role="button"
+          tabIndex={0}
+          onClick={() => onCategoryClick(category)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onCategoryClick(category);
+            }
+          }}
+          onPointerEnter={handlePointerEnter}
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+          aria-label={`Explore ${category.title} category`}
+          className={`group relative block w-full h-full ${minHeightClass} rounded-2xl sm:rounded-3xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 shadow-2xl cursor-pointer text-left flex flex-col justify-between p-6 sm:p-8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 will-change-transform`}
+          style={{
+            transformStyle: 'preserve-3d',
+            transition: 'border-color 0.4s ease',
+          }}
         >
-          <img
-            src={category.image}
-            alt={category.alt}
-            className={`w-full h-full object-cover ${category.position} brightness-[0.82] contrast-[1.08] saturate-[1.08] group-hover:brightness-[0.92] group-hover:scale-[1.03] transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100`}
-            loading={category.role === 'hero-portrait' || category.role === 'hero-landscape' ? 'eager' : 'lazy'}
-            decoding="async"
-            onError={(e) => {
-              const fallbackMap: Record<string, string> = {
-                'street-food': CRAVING_IMAGE_MAP.streetFood,
-                biryani: CRAVING_IMAGE_MAP.biryani,
-                snacks: CRAVING_IMAGE_MAP.snacks,
-                meals: CRAVING_IMAGE_MAP.meals,
-                sweets: CRAVING_IMAGE_MAP.sweets,
-                beverages: CRAVING_IMAGE_MAP.beverages,
-                desserts: CRAVING_IMAGE_MAP.desserts,
-              };
-              const fallback = fallbackMap[category.id] || CRAVING_IMAGE_MAP.streetFood;
-              if (e.currentTarget.src !== fallback) {
-                e.currentTarget.src = fallback;
-              }
+          {/* =====================================================================
+              0. WHITE STROKE WIPE ON HOVER (Covers Card from Left to Right)
+              ===================================================================== */}
+          <div
+            aria-hidden="true"
+            className="card-stroke-wipe"
+            style={{ transform: 'translateZ(4px)' }}
+          />
+
+          {/* =====================================================================
+              1. BACKGROUND PHOTOGRAPHY & SCRIM GRADIENTS (Subtle Depth Base)
+              ===================================================================== */}
+          <div
+            className="absolute inset-0 z-0 overflow-hidden rounded-2xl sm:rounded-3xl"
+            aria-hidden="true"
+            style={{ transform: 'translateZ(0px)' }}
+          >
+            {/* Image entrance wrapper: subtle scale 1.06 -> 1 and soft opacity reveal */}
+            <motion.div
+              variants={cardImageVariants}
+              className="w-full h-full overflow-hidden"
+            >
+              <img
+                src={category.image}
+                alt={category.alt}
+                className={`w-full h-full object-cover ${category.position} brightness-[0.82] contrast-[1.08] saturate-[1.08] group-hover:brightness-[0.92] group-hover:scale-[1.03] transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100`}
+                loading={category.role === 'hero-portrait' || category.role === 'hero-landscape' ? 'eager' : 'lazy'}
+                decoding="async"
+                onError={(e) => {
+                  const fallbackMap: Record<string, string> = {
+                    'street-food': CRAVING_IMAGE_MAP.streetFood,
+                    biryani: CRAVING_IMAGE_MAP.biryani,
+                    snacks: CRAVING_IMAGE_MAP.snacks,
+                    meals: CRAVING_IMAGE_MAP.meals,
+                    sweets: CRAVING_IMAGE_MAP.sweets,
+                    beverages: CRAVING_IMAGE_MAP.beverages,
+                    desserts: CRAVING_IMAGE_MAP.desserts,
+                  };
+                  const fallback = fallbackMap[category.id] || CRAVING_IMAGE_MAP.streetFood;
+                  if (e.currentTarget.src !== fallback) {
+                    e.currentTarget.src = fallback;
+                  }
+                }}
+              />
+            </motion.div>
+
+            {/* Layered Scrim Gradients for Absolute Text Legibility */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807] via-[#0A0807]/55 via-50% to-[#0A0807]/20 transition-opacity duration-500 group-hover:from-[#0A0807]/95" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0A0807]/60 via-transparent to-transparent" />
+
+            {/* Optional Specialty Overlay (e.g., Warm Radial Radiance on Biryani) */}
+            {extraOverlay}
+
+            {/* Ambient Amber Glow Border Sheen on Hover */}
+            <div className="absolute -inset-1 bg-gradient-to-t from-amber-500/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+          </div>
+
+          {/* =====================================================================
+              2. DYNAMIC 3D SPECULAR HIGHLIGHT (Pointer Following Golden Sheen)
+              ===================================================================== */}
+          <div
+            ref={glareRef}
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none rounded-2xl sm:rounded-3xl transition-opacity duration-300 z-20 mix-blend-screen"
+            style={{
+              opacity: 0,
+              transform: 'translateZ(2px)',
             }}
           />
 
-          {/* Layered Scrim Gradients for Absolute Text Legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807] via-[#0A0807]/55 via-50% to-[#0A0807]/20 transition-opacity duration-500 group-hover:from-[#0A0807]/95" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0A0807]/60 via-transparent to-transparent" />
+          {/* Dynamic Angled Sheen Overlay */}
+          <div
+            ref={sheenRef}
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none rounded-2xl sm:rounded-3xl transition-opacity duration-300 z-20 mix-blend-overlay"
+            style={{
+              opacity: 0,
+              transform: 'translateZ(3px)',
+            }}
+          />
 
-          {/* Optional Specialty Overlay (e.g., Warm Radial Radiance on Biryani) */}
-          {extraOverlay}
-
-          {/* Ambient Amber Glow Border Sheen on Hover */}
-          <div className="absolute -inset-1 bg-gradient-to-t from-amber-500/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-        </div>
-
-        {/* =====================================================================
-            2. DYNAMIC 3D SPECULAR HIGHLIGHT (Pointer Following Golden Sheen)
-            ===================================================================== */}
-        <div
-          ref={glareRef}
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none rounded-2xl sm:rounded-3xl transition-opacity duration-300 z-20 mix-blend-screen"
-          style={{
-            opacity: 0,
-            transform: 'translateZ(2px)',
-          }}
-        />
-
-        {/* Dynamic Angled Sheen Overlay */}
-        <div
-          ref={sheenRef}
-          aria-hidden="true"
-          className="absolute inset-0 pointer-events-none rounded-2xl sm:rounded-3xl transition-opacity duration-300 z-20 mix-blend-overlay"
-          style={{
-            opacity: 0,
-            transform: 'translateZ(3px)',
-          }}
-        />
-
-        {/* =====================================================================
-            3. CARD HEADER METADATA (Floats with subtle translateZ in 3D space)
-            ===================================================================== */}
-        <div
-          className="relative z-10 flex items-center justify-end"
-          style={{ transform: 'translateZ(18px)' }}
-        >
-          <span
-            className={
-              badgeClassName ||
-              'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0A0807]/75 backdrop-blur-md border border-cream-200/15 font-mono text-[10px] tracking-widest text-amber-300 uppercase shadow-sm'
-            }
+          {/* =====================================================================
+              3. CARD HEADER METADATA (Floats with subtle translateZ in 3D space)
+              ===================================================================== */}
+          <div
+            className="relative z-10 flex items-center justify-end"
+            style={{ transform: 'translateZ(18px)' }}
           >
-            {badgeIcon}
-            <span>{category.curatorBadge}</span>
-          </span>
-        </div>
-
-        {/* =====================================================================
-            4. CARD FOOTER CONTENT & INTERACTIVE DISH PILLS (translateZ 22px)
-            ===================================================================== */}
-        <div
-          className="relative z-10 flex flex-col space-y-4 pt-14 sm:pt-16"
-          style={{ transform: 'translateZ(22px)' }}
-        >
-          <div>
-            <p className={`text-xs sm:text-sm text-cream-200/80 font-sans mb-1.5 ${taglineClampClass} leading-relaxed`}>
-              {category.tagline}
-            </p>
-            <h3 className={`font-serif ${headlineSizeClass} text-cream-100 font-normal tracking-tight group-hover:text-amber-200 transition-colors`}>
-              {category.headline}
-            </h3>
+            <motion.span
+              variants={cardBadgeVariants}
+              className={
+                badgeClassName ||
+                'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0A0807]/75 backdrop-blur-md border border-cream-200/15 font-mono text-[10px] tracking-widest text-amber-300 uppercase shadow-sm'
+              }
+            >
+              {badgeIcon}
+              <span>{category.curatorBadge}</span>
+            </motion.span>
           </div>
 
-          {/* Interactive Dish Pills */}
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1" aria-label={`Popular dishes in ${category.title}`}>
-            {category.highlightDishes.map((dish) => (
-              <button
-                key={dish}
-                type="button"
-                onClick={(e) => onDishClick(e, dish)}
-                title={`Search menus for ${dish}`}
-                className="px-2.5 py-1 rounded-md bg-cream-100/10 hover:bg-amber-400 hover:text-[#0A0807] border border-cream-100/15 text-cream-200/90 text-[10px] sm:text-[11px] font-mono tracking-wider transition-colors backdrop-blur-sm cursor-pointer focus-visible:ring-1 focus-visible:ring-amber-300 relative z-30"
-              >
-                {dish}
-              </button>
-            ))}
-          </div>
+          {/* =====================================================================
+              4. CARD FOOTER CONTENT & INTERACTIVE DISH PILLS (translateZ 22px)
+              ===================================================================== */}
+          <div
+            className="relative z-10 flex flex-col space-y-4 pt-14 sm:pt-16"
+            style={{ transform: 'translateZ(22px)' }}
+          >
+            {/* Editorial Title with subtle upward entrance */}
+            <motion.div variants={cardTextVariants} className="mb-0.5">
+              <h3 className={`font-serif ${headlineSizeClass} tracking-tight leading-[1.12] drop-shadow-[0_4px_24px_rgba(0,0,0,0.92)]`}>
+                {renderEditorialHeadline(category.headline)}
+              </h3>
+            </motion.div>
 
-          {/* Call-to-action link */}
-          <div className="pt-2 flex items-center justify-between border-t border-cream-200/15">
-            <span className="font-sans text-xs uppercase tracking-wider sm:tracking-widest text-cream-100/90 group-hover:text-amber-300 transition-colors font-semibold">
-              {ctaText || `Explore ${category.title} Menus`}
-            </span>
+            {/* Interactive Dish Pills with rippling stagger */}
+            <motion.div
+              variants={cardTagsContainerVariants}
+              className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1"
+              aria-label={`Popular dishes in ${category.title}`}
+            >
+              {category.highlightDishes.map((dish) => (
+                <motion.button
+                  key={dish}
+                  variants={cardTagItemVariants}
+                  type="button"
+                  onClick={(e) => onDishClick(e, dish)}
+                  title={`Search menus for ${dish}`}
+                  className="px-2.5 py-1 rounded-md bg-cream-100/10 hover:bg-amber-400 hover:text-[#0A0807] border border-cream-100/15 text-cream-200/90 text-[10px] sm:text-[11px] font-mono tracking-wider transition-colors backdrop-blur-sm cursor-pointer focus-visible:ring-1 focus-visible:ring-amber-300 relative z-30"
+                >
+                  {dish}
+                </motion.button>
+              ))}
+            </motion.div>
 
-            {customCtaButton ? (
-              customCtaButton
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-cream-100/10 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-[#0A0807] text-amber-300 transition-all duration-300 shadow-md">
-                <ArrowRight className="w-4 h-4 transition-transform duration-250 ease-out group-hover:translate-x-1" />
-              </div>
-            )}
+            {/* Call-to-action link reveals last */}
+            <motion.div
+              variants={cardButtonVariants}
+              className="pt-2 flex items-center justify-between border-t border-cream-200/15"
+            >
+              <span className="font-sans text-xs uppercase tracking-wider sm:tracking-widest text-cream-100/90 group-hover:text-amber-300 transition-colors font-semibold">
+                {ctaText || `Explore ${category.title} Menus`}
+              </span>
+
+              {customCtaButton ? (
+                customCtaButton
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-cream-100/10 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-[#0A0807] text-amber-300 transition-all duration-300 shadow-md">
+                  <ArrowRight className="w-4 h-4 transition-transform duration-250 ease-out group-hover:translate-x-1" />
+                </div>
+              )}
+            </motion.div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

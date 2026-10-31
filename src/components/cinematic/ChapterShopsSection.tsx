@@ -1,12 +1,22 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Store, MapPin, ArrowRight, ShieldCheck, Utensils } from 'lucide-react';
+import { motion, useReducedMotion } from 'motion/react';
 import { insforge, RestaurantHours } from '../../lib/insforge';
 import { getRestaurantOpeningStatus, OpeningStatusResult } from '../../utils/operatingHours';
 import { ChapterSection } from './ChapterSection';
 import { EditorialHeading } from './EditorialHeading';
 import { ScrollReveal } from './ScrollReveal';
 import { resolveShopImage, STOREFRONT_IMAGES } from './shopAssets';
+import {
+  cardEntranceVariants,
+  cardImageVariants,
+  cardBadgeVariants,
+  cardTextVariants,
+  cardTagsContainerVariants,
+  cardTagItemVariants,
+  cardButtonVariants,
+} from './cardAnimations';
 
 export interface ShopRecord {
   id: string;
@@ -38,9 +48,17 @@ export interface ShopRecord {
 
 export const ChapterShopsSection: React.FC = () => {
   const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
   const [shops, setShops] = useState<ShopRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedArea, setSelectedArea] = useState<string>('all');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Fetch approved registered shops from InsForge backend
   useEffect(() => {
@@ -82,27 +100,10 @@ export const ChapterShopsSection: React.FC = () => {
     };
   }, []);
 
-  // Dynamically extract real unique areas from the fetched shops
-  const availableAreas = useMemo(() => {
-    const areas = new Set<string>();
-    shops.forEach((s) => {
-      if (s.area && s.area.trim()) {
-        areas.add(s.area.trim());
-      }
-    });
-    return Array.from(areas);
-  }, [shops]);
-
-  // Client-side filtering by real neighborhood
-  const filteredShops = useMemo(() => {
-    if (selectedArea === 'all') return shops;
-    return shops.filter((s) => s.area?.trim().toLowerCase() === selectedArea.toLowerCase());
-  }, [shops, selectedArea]);
-
   // Prominent shop feature split: First prominent shop alongside companion shops
-  const prominentShop = filteredShops[0] || null;
-  const companionShops = filteredShops.slice(1, 3);
-  const secondaryShops = filteredShops.slice(3, 9);
+  const prominentShop = shops[0] || null;
+  const companionShops = shops.slice(1, 3);
+  const secondaryShops = shops.slice(3, 9);
 
   return (
     <ChapterSection
@@ -117,7 +118,7 @@ export const ChapterShopsSection: React.FC = () => {
         {/* =====================================================================
             CHAPTER IV HEADER
             ===================================================================== */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 sm:mb-16 gap-6">
+        <div className="mb-12 sm:mb-16">
           <ScrollReveal direction="up" delay={0.04}>
             <EditorialHeading
               chapterNumber="IV"
@@ -128,54 +129,7 @@ export const ChapterShopsSection: React.FC = () => {
               className="max-w-3xl"
             />
           </ScrollReveal>
-
-          {/* Editorial metadata */}
-          <ScrollReveal direction="up" delay={0.08} className="lg:mb-2 shrink-0">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-cream-200/50">
-              {shops.length > 0 ? `${shops.length} Verified Kitchens` : 'Registered Kitchens'}
-            </span>
-          </ScrollReveal>
         </div>
-
-        {/* =====================================================================
-            AREA FILTER TABS (Only shown if multiple areas exist)
-            ===================================================================== */}
-        {availableAreas.length > 1 && (
-          <ScrollReveal direction="up" delay={0.08} className="mb-8 sm:mb-10">
-            <div className="flex items-center space-x-2 sm:space-x-3 overflow-x-auto pb-2 no-scrollbar">
-              <button
-                type="button"
-                onClick={() => setSelectedArea('all')}
-                className={`px-4 py-1.5 rounded-full text-xs font-mono tracking-wider transition-all duration-200 whitespace-nowrap cursor-pointer ${
-                  selectedArea === 'all'
-                    ? 'bg-amber-400 text-[#0A0807] font-bold shadow-md shadow-amber-400/20'
-                    : 'bg-[#120E0C]/80 text-cream-200/70 hover:text-cream-100 hover:bg-cream-200/10 border border-cream-200/10'
-                }`}
-              >
-                All Neighborhoods ({shops.length})
-              </button>
-
-              {availableAreas.map((area) => {
-                const count = shops.filter((s) => s.area?.trim().toLowerCase() === area.toLowerCase()).length;
-                const isActive = selectedArea.toLowerCase() === area.toLowerCase();
-                return (
-                  <button
-                    key={area}
-                    type="button"
-                    onClick={() => setSelectedArea(area)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-mono tracking-wider transition-all duration-200 whitespace-nowrap cursor-pointer ${
-                      isActive
-                        ? 'bg-amber-400 text-[#0A0807] font-bold shadow-md shadow-amber-400/20'
-                        : 'bg-[#120E0C]/80 text-cream-200/70 hover:text-cream-100 hover:bg-cream-200/10 border border-cream-200/10'
-                    }`}
-                  >
-                    {area} ({count})
-                  </button>
-                );
-              })}
-            </div>
-          </ScrollReveal>
-        )}
 
         {/* =====================================================================
             LOADING STATE
@@ -188,7 +142,7 @@ export const ChapterShopsSection: React.FC = () => {
               <div className="h-[220px] rounded-2xl bg-cream-100/5 border border-cream-200/10" />
             </div>
           </div>
-        ) : filteredShops.length === 0 ? (
+        ) : shops.length === 0 ? (
           /* =====================================================================
               BEAUTIFUL EMPTY STATE (When no shops are registered/approved)
               ===================================================================== */
@@ -197,22 +151,15 @@ export const ChapterShopsSection: React.FC = () => {
               <Store className="w-8 h-8 text-amber-400" />
             </div>
             <h4 className="font-serif text-2xl sm:text-3xl text-cream-100 font-light mb-3">
-              No Registered Kitchens in this Area Yet
+              No Registered Kitchens Yet
             </h4>
             <p className="text-xs sm:text-sm text-cream-200/70 font-sans leading-relaxed max-w-md mx-auto mb-8">
               We are constantly onboarding authentic local food spots across Kolkata. Do you operate a food kitchen or stall? Register your menu today with complete price control and zero platform commission.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button
-                type="button"
-                onClick={() => setSelectedArea('all')}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-amber-400 text-[#0A0807] font-sans font-semibold text-xs uppercase tracking-wider hover:bg-amber-300 transition-colors"
-              >
-                View All Neighborhoods
-              </button>
               <Link
                 to="/register"
-                className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-cream-100/10 hover:bg-cream-100/15 text-cream-100 border border-cream-200/15 font-sans font-medium text-xs uppercase tracking-wider transition-colors text-center"
+                className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-amber-400 text-[#0A0807] font-sans font-semibold text-xs uppercase tracking-wider hover:bg-amber-300 transition-colors text-center"
               >
                 Register Your Shop
               </Link>
@@ -226,9 +173,12 @@ export const ChapterShopsSection: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 mb-8 sm:mb-10 items-stretch">
               {/* Prominent Showcase Card (7 cols when companions exist, 12 cols if solo) */}
               {prominentShop && (
-                <ScrollReveal
-                  direction="up"
-                  delay={0.08}
+                <motion.div
+                  initial={prefersReducedMotion ? false : 'hidden'}
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.15 }}
+                  variants={cardEntranceVariants}
+                  custom={0.04}
                   className={companionShops.length > 0 ? 'lg:col-span-7 flex' : 'lg:col-span-12 flex'}
                 >
                   {(() => {
@@ -239,25 +189,27 @@ export const ChapterShopsSection: React.FC = () => {
 
                     return (
                       <div className="group relative w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-2xl transition-all duration-500 hover:-translate-y-1 flex flex-col justify-between p-6 sm:p-8 min-h-[480px]">
-                        {/* Storefront Photography Background */}
+                        {/* Storefront Photography Background with scale 1.06 -> 1 entrance */}
                         <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-                          <img
-                            src={shopImage.url}
-                            alt={`${prominentShop.name} storefront`}
-                            className="w-full h-full object-cover brightness-[0.78] contrast-[1.1] saturate-[1.08] group-hover:brightness-[0.88] group-hover:scale-[1.03] transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-                            loading="eager"
-                            decoding="async"
-                            onError={(e) => {
-                              e.currentTarget.src = STOREFRONT_IMAGES[0];
-                            }}
-                          />
+                          <motion.div variants={cardImageVariants} className="w-full h-full overflow-hidden">
+                            <img
+                              src={shopImage.url}
+                              alt={`${prominentShop.name} storefront`}
+                              className="w-full h-full object-cover brightness-[0.78] contrast-[1.1] saturate-[1.08] group-hover:brightness-[0.88] group-hover:scale-[1.03] transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                              loading="eager"
+                              decoding="async"
+                              onError={(e) => {
+                                e.currentTarget.src = STOREFRONT_IMAGES[0];
+                              }}
+                            />
+                          </motion.div>
                           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807] via-[#0A0807]/65 via-50% to-[#0A0807]/25 transition-opacity duration-500 group-hover:from-[#0A0807]/95" />
                           <div className="absolute inset-0 bg-gradient-to-r from-[#0A0807]/75 via-[#0A0807]/30 to-transparent" />
                           <div className="absolute -inset-1 bg-gradient-to-t from-amber-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
                         </div>
 
                         {/* Top Metadata Badges */}
-                        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
+                        <motion.div variants={cardBadgeVariants} className="relative z-10 flex flex-wrap items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
                             {/* Live Operating Status */}
                             {isOpen !== null && (
@@ -290,11 +242,11 @@ export const ChapterShopsSection: React.FC = () => {
                           <span className="font-mono text-[10px] tracking-widest uppercase text-cream-200/80 bg-[#0A0807]/75 border border-cream-200/15 px-3 py-1 rounded-full backdrop-blur-md">
                             {prominentShop.area || 'Kolkata'}
                           </span>
-                        </div>
+                        </motion.div>
 
                         {/* Bottom Information & CTA */}
                         <div className="relative z-10 flex flex-col space-y-4 pt-20">
-                          <div>
+                          <motion.div variants={cardTextVariants}>
                             {/* Area & Location */}
                             <div className="flex items-center gap-1.5 text-xs text-amber-300 font-mono tracking-wider uppercase mb-1.5">
                               <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" aria-hidden="true" />
@@ -315,27 +267,28 @@ export const ChapterShopsSection: React.FC = () => {
                                 {prominentShop.description}
                               </p>
                             )}
-                          </div>
+                          </motion.div>
 
                           {/* Menu Highlights Strip (Real categories & active dishes) */}
-                          <div className="pt-2 flex flex-wrap items-center gap-2">
-                            <span className="inline-flex items-center gap-1 text-[11px] font-mono text-cream-200/75 bg-cream-100/10 px-2.5 py-1 rounded-md border border-cream-200/15 backdrop-blur-md">
+                          <motion.div variants={cardTagsContainerVariants} className="pt-2 flex flex-wrap items-center gap-2">
+                            <motion.span variants={cardTagItemVariants} className="inline-flex items-center gap-1 text-[11px] font-mono text-cream-200/75 bg-cream-100/10 px-2.5 py-1 rounded-md border border-cream-200/15 backdrop-blur-md">
                               <Utensils className="w-3 h-3 text-amber-400" aria-hidden="true" />
                               <span>{activeFoodsCount} Dishes on Menu</span>
-                            </span>
+                            </motion.span>
 
                             {prominentShop.categories?.slice(0, 3).map((cat) => (
-                              <span
+                              <motion.span
                                 key={cat.id}
+                                variants={cardTagItemVariants}
                                 className="text-[10px] font-mono tracking-wider text-cream-200/70 bg-black/50 px-2 py-1 rounded-md border border-cream-200/10 backdrop-blur-md"
                               >
                                 {cat.name}
-                              </span>
+                              </motion.span>
                             ))}
-                          </div>
+                          </motion.div>
 
                           {/* Action Footer */}
-                          <div className="pt-4 flex items-center justify-between border-t border-cream-200/15">
+                          <motion.div variants={cardButtonVariants} className="pt-4 flex items-center justify-between border-t border-cream-200/15">
                             <span className="text-xs font-sans text-cream-200/60 uppercase tracking-widest hidden sm:inline">
                               Direct Digital Menu
                             </span>
@@ -347,12 +300,12 @@ export const ChapterShopsSection: React.FC = () => {
                               <span>Explore Shop &amp; Menu</span>
                               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </Link>
-                          </div>
+                          </motion.div>
                         </div>
                       </div>
                     );
                   })()}
-                </ScrollReveal>
+                </motion.div>
               )}
 
               {/* Companion Shop Cards (Stacked on Right, 5 cols) */}
@@ -365,25 +318,35 @@ export const ChapterShopsSection: React.FC = () => {
                     const activeFoodsCount = shop.foods?.filter((f) => f.status === 'active').length ?? 0;
 
                     return (
-                      <ScrollReveal key={shop.id} direction="up" delay={0.12 + idx * 0.08}>
-                        <div className="group relative rounded-2xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-xl transition-all duration-300 hover:-translate-y-1 p-5 sm:p-6 flex flex-col justify-between min-h-[230px]">
+                      <motion.div
+                        key={shop.id}
+                        initial={prefersReducedMotion ? false : 'hidden'}
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.15 }}
+                        variants={cardEntranceVariants}
+                        custom={isMobile ? 0.05 : 0.14 + idx * 0.12}
+                        className="w-full flex-1"
+                      >
+                        <div className="group relative rounded-2xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-xl transition-all duration-300 hover:-translate-y-1 p-5 sm:p-6 flex flex-col justify-between min-h-[230px] h-full">
                           {/* Storefront Image Background */}
                           <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
-                            <img
-                              src={shopImage.url}
-                              alt={`${shop.name} storefront`}
-                              className="w-full h-full object-cover brightness-[0.72] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-700 ease-out motion-reduce:transition-none"
-                              loading="lazy"
-                              decoding="async"
-                              onError={(e) => {
-                                e.currentTarget.src = STOREFRONT_IMAGES[0];
-                              }}
-                            />
+                            <motion.div variants={cardImageVariants} className="w-full h-full overflow-hidden">
+                              <img
+                                src={shopImage.url}
+                                alt={`${shop.name} storefront`}
+                                className="w-full h-full object-cover brightness-[0.72] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-700 ease-out motion-reduce:transition-none"
+                                loading="lazy"
+                                decoding="async"
+                                onError={(e) => {
+                                  e.currentTarget.src = STOREFRONT_IMAGES[0];
+                                }}
+                              />
+                            </motion.div>
                             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807] via-[#0A0807]/75 via-45% to-[#0A0807]/30" />
                           </div>
 
                           {/* Top Badges */}
-                          <div className="relative z-10 flex items-center justify-between mb-3">
+                          <motion.div variants={cardBadgeVariants} className="relative z-10 flex items-center justify-between mb-3">
                             <div className="flex items-center gap-1.5">
                               {isOpen !== null && (
                                 <span
@@ -413,26 +376,28 @@ export const ChapterShopsSection: React.FC = () => {
                             <span className="text-[10px] font-mono text-cream-200/50 uppercase">
                               {shop.area || 'Kolkata'}
                             </span>
-                          </div>
+                          </motion.div>
 
                           {/* Content */}
                           <div className="relative z-10">
-                            <h4 className="font-serif text-2xl text-cream-100 font-normal leading-snug group-hover:text-amber-200 transition-colors mb-1.5">
-                              {shop.name}
-                            </h4>
+                            <motion.div variants={cardTextVariants}>
+                              <h4 className="font-serif text-2xl text-cream-100 font-normal leading-snug group-hover:text-amber-200 transition-colors mb-1.5">
+                                {shop.name}
+                              </h4>
 
-                            <div className="flex items-center gap-3 text-xs text-cream-200/70 font-sans mb-3">
-                              <span>{activeFoodsCount} Dishes Indexed</span>
-                              {shop.categories && shop.categories.length > 0 && (
-                                <>
-                                  <span>·</span>
-                                  <span className="truncate max-w-[180px]">{shop.categories[0].name}</span>
-                                </>
-                              )}
-                            </div>
+                              <div className="flex items-center gap-3 text-xs text-cream-200/70 font-sans mb-3">
+                                <span>{activeFoodsCount} Dishes Indexed</span>
+                                {shop.categories && shop.categories.length > 0 && (
+                                  <>
+                                    <span>·</span>
+                                    <span className="truncate max-w-[180px]">{shop.categories[0].name}</span>
+                                  </>
+                                )}
+                              </div>
+                            </motion.div>
 
                             {/* Action Link */}
-                            <div className="pt-2 border-t border-cream-200/10 flex items-center justify-between">
+                            <motion.div variants={cardButtonVariants} className="pt-2 border-t border-cream-200/10 flex items-center justify-between">
                               <span className="text-[11px] font-sans uppercase tracking-wider text-cream-200/60">
                                 Digital Menu Available
                               </span>
@@ -444,10 +409,10 @@ export const ChapterShopsSection: React.FC = () => {
                                 <span>View Menu</span>
                                 <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                               </Link>
-                            </div>
+                            </motion.div>
                           </div>
                         </div>
-                      </ScrollReveal>
+                      </motion.div>
                     );
                   })}
                 </div>
@@ -474,28 +439,34 @@ export const ChapterShopsSection: React.FC = () => {
                     const activeFoodsCount = shop.foods?.filter((f) => f.status === 'active').length ?? 0;
 
                     return (
-                      <ScrollReveal
+                      <motion.div
                         key={shop.id}
-                        direction="up"
-                        delay={0.06 * (index % 3)}
+                        initial={prefersReducedMotion ? false : 'hidden'}
+                        whileInView="visible"
+                        viewport={{ once: true, amount: 0.15 }}
+                        variants={cardEntranceVariants}
+                        custom={isMobile ? 0.05 : (index % 3) * 0.12}
+                        className="h-full"
                       >
                         <div className="group relative rounded-2xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between h-full">
                           {/* Storefront Image Banner */}
                           <div className="relative h-44 overflow-hidden">
-                            <img
-                              src={shopImage.url}
-                              alt={`${shop.name} storefront`}
-                              className="w-full h-full object-cover brightness-[0.82] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-500 ease-out motion-reduce:transition-none"
-                              loading="lazy"
-                              decoding="async"
-                              onError={(e) => {
-                                e.currentTarget.src = STOREFRONT_IMAGES[0];
-                              }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#120E0C] via-transparent to-transparent" />
+                            <motion.div variants={cardImageVariants} className="w-full h-full overflow-hidden">
+                              <img
+                                src={shopImage.url}
+                                alt={`${shop.name} storefront`}
+                                className="w-full h-full object-cover brightness-[0.82] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-500 ease-out motion-reduce:transition-none"
+                                loading="lazy"
+                                decoding="async"
+                                onError={(e) => {
+                                  e.currentTarget.src = STOREFRONT_IMAGES[0];
+                                }}
+                              />
+                            </motion.div>
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#120E0C] via-transparent to-transparent pointer-events-none" />
 
                             {/* Top Badges */}
-                            <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                            <motion.div variants={cardBadgeVariants} className="absolute top-3 left-3 right-3 flex items-center justify-between">
                               {isOpen !== null && (
                                 <span
                                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded font-mono text-[9px] uppercase tracking-wider backdrop-blur-md ${
@@ -516,12 +487,12 @@ export const ChapterShopsSection: React.FC = () => {
                               <span className="text-[10px] font-mono uppercase tracking-wider text-cream-200/80 bg-[#0A0807]/75 backdrop-blur-md border border-cream-200/15 px-2.5 py-0.5 rounded-full">
                                 {shop.area || 'Kolkata'}
                               </span>
-                            </div>
+                            </motion.div>
                           </div>
 
                           {/* Body Information */}
                           <div className="p-5 flex-1 flex flex-col justify-between">
-                            <div>
+                            <motion.div variants={cardTextVariants}>
                               <div className="flex items-center gap-1.5 text-xs text-amber-400 font-mono mb-1">
                                 <MapPin className="w-3 h-3 shrink-0" />
                                 <span>{shop.area || shop.city || 'Kolkata'}</span>
@@ -536,10 +507,10 @@ export const ChapterShopsSection: React.FC = () => {
                                   {shop.description}
                                 </p>
                               )}
-                            </div>
+                            </motion.div>
 
                             {/* Card Footer */}
-                            <div className="pt-3 border-t border-cream-200/10 flex items-center justify-between">
+                            <motion.div variants={cardButtonVariants} className="pt-3 border-t border-cream-200/10 flex items-center justify-between">
                               <span className="text-xs font-mono text-cream-200/60">
                                 {activeFoodsCount} Dishes
                               </span>
@@ -551,10 +522,10 @@ export const ChapterShopsSection: React.FC = () => {
                                 <span>Explore Shop</span>
                                 <ArrowRight className="w-3.5 h-3.5" />
                               </Link>
-                            </div>
+                            </motion.div>
                           </div>
                         </div>
-                      </ScrollReveal>
+                      </motion.div>
                     );
                   })}
                 </div>
