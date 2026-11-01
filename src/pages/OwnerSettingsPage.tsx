@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { insforge, Restaurant } from '../lib/insforge';
-import { OwnerNav } from '../components/OwnerNav';
+import { OwnerLayout } from '../components/owner/OwnerLayout';
 import { formatDate } from '../utils/formatters';
 import { useSEO } from '../hooks/useSEO';
-import { Store, ExternalLink } from 'lucide-react';
+import { Store, ExternalLink, User, ShieldCheck, Mail, Calendar, Plus } from 'lucide-react';
 
 export const OwnerSettingsPage: React.FC = () => {
   const { user, profile } = useAuth();
 
   useSEO({
-    title: 'Owner Settings',
+    title: 'Partner Settings — ManuMania Restaurant Platform',
     noIndex: true,
   });
 
@@ -49,165 +49,222 @@ export const OwnerSettingsPage: React.FC = () => {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-16">
-      <OwnerNav />
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="border-b border-slate-200 pb-4 mb-6">
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Owner Settings</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Manage your account profile and all food shops registered under your ownership.
-          </p>
-        </div>
-
-      {error && (
-        <div className="mb-6 p-4 rounded bg-red-50 border border-red-200 text-red-700 text-sm">
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div className="p-8 text-center text-slate-500 text-sm bg-white border border-slate-200 rounded">
-          Loading settings...
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Account Profile Details */}
-          <div className="bg-white border border-slate-200 rounded-md p-6">
-            <h2 className="text-base font-semibold text-slate-900 border-b border-slate-200 pb-3 mb-4">
-              Owner Profile
-            </h2>
-            <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Full Name</dt>
-                <dd className="mt-1 text-slate-900">{profile?.name || 'Not provided'}</dd>
+    <OwnerLayout>
+      <div className="space-y-6">
+        {/* Header Banner */}
+        <div className="bg-white border border-[#EBE6DF] rounded-3xl p-6 sm:p-7 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/60">
+                  Account &amp; Establishments
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
+                  <ShieldCheck className="w-3 h-3" />
+                  Verified Partner Account
+                </span>
               </div>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Email Address</dt>
-                <dd className="mt-1 text-slate-900">{user?.email || 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">System Role</dt>
-                <dd className="mt-1">
-                  <span className="inline-block px-2.5 py-0.5 rounded text-xs font-semibold uppercase tracking-wider bg-slate-100 text-slate-800">
-                    {profile?.role || 'owner'}
-                  </span>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-xs font-semibold uppercase tracking-wider text-slate-500">Member Since</dt>
-                <dd className="mt-1 text-slate-700">
-                  {profile?.created_at ? formatDate(profile.created_at) : 'Unknown'}
-                </dd>
-              </div>
-            </dl>
-          </div>
-
-          {/* Registered Food Shops Section */}
-          <div className="bg-white border border-slate-200 rounded-md p-6">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
-              <div>
-                <h2 className="text-base font-semibold text-slate-900">
-                  Registered Food Shops ({restaurants.length})
-                </h2>
-                <p className="text-xs text-slate-500">
-                  Establishments registered under your ownership account. You have exclusive management access to these shops.
-                </p>
-              </div>
-              <Link
-                to="/owner/restaurant/new"
-                className="px-3 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 transition-colors shadow-sm"
-              >
-                + Register Another Shop
-              </Link>
+              <h1 className="font-serif text-2xl sm:text-3xl text-slate-900 font-normal">
+                Owner Settings
+              </h1>
+              <p className="font-sans text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                Manage your credentials, partner verification status, and all restaurants registered under your account.
+              </p>
             </div>
 
-            {restaurants.length > 0 ? (
-              <div className="space-y-4">
-                {restaurants.map((res) => (
-                  <div
-                    key={res.id}
-                    className="p-4 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors bg-slate-50/50"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
-                      <div className="flex items-center space-x-2.5">
-                        <div className="w-8 h-8 rounded-lg bg-orange-100 text-brand-600 flex items-center justify-center font-bold text-sm shrink-0">
-                          <Store className="w-4 h-4" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-bold text-slate-900">{res.name}</h3>
-                          <p className="text-xs text-slate-500">{res.address}, {res.area}, {res.city}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <span
-                          className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded border ${
-                            res.status === 'approved'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : res.status === 'pending'
-                              ? 'bg-amber-50 text-amber-700 border-amber-200'
-                              : 'bg-rose-50 text-rose-700 border-rose-200'
-                          }`}
-                        >
-                          {res.status}
-                        </span>
-                        {res.verified && (
-                          <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                            Verified
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200/80 text-xs">
-                      <span className="text-slate-400 text-[11px]">
-                        Registered on {formatDate(res.created_at)}
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <Link
-                          to={`/owner/menu?restaurantId=${res.id}`}
-                          className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-50 rounded text-slate-800 font-medium transition-colors"
-                        >
-                          Manage Menu
-                        </Link>
-                        <Link
-                          to={`/owner/restaurant?id=${res.id}`}
-                          className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-50 rounded text-slate-800 font-medium transition-colors"
-                        >
-                          Edit Profile
-                        </Link>
-                        {res.slug && res.status === 'approved' && (
-                          <Link
-                            to={`/restaurant/${res.slug}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-2 py-1 text-slate-600 hover:text-slate-900 inline-flex items-center space-x-1"
-                          >
-                            <span>Public Page</span>
-                            <ExternalLink className="w-3 h-3 text-slate-400" />
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="p-8 text-center text-slate-500 border border-dashed border-slate-200 rounded-lg">
-                <p className="text-sm font-medium text-slate-700 mb-1">No food shop registered yet</p>
-                <p className="text-xs text-slate-400 mb-4">Register your restaurant to start adding menus and managing portion prices.</p>
-                <Link
-                  to="/owner/restaurant/new"
-                  className="inline-block px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded text-xs font-semibold shadow-sm transition-colors"
-                >
-                  Register First Shop
-                </Link>
-              </div>
-            )}
+            <Link
+              to="/owner/restaurant/new"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-sans text-xs font-semibold shadow-sm transition-all shrink-0 self-start sm:self-auto"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Register New Kitchen</span>
+            </Link>
           </div>
         </div>
-      )}
+
+        {error && (
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-sans">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="p-12 text-center text-slate-400 font-sans text-sm bg-white border border-[#EBE6DF] rounded-3xl">
+            Loading settings...
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Account Profile Details */}
+            <div className="bg-white border border-[#EBE6DF] rounded-3xl p-6 sm:p-8 shadow-sm">
+              <h2 className="font-serif text-xl text-slate-900 border-b border-slate-100 pb-3 mb-6 flex items-center gap-2">
+                <User className="w-5 h-5 text-amber-600" />
+                <span>Kitchen Partner Profile</span>
+              </h2>
+
+              <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60">
+                  <dt className="text-[11px] font-mono uppercase font-bold text-slate-400">Owner Name</dt>
+                  <dd className="mt-1 font-sans font-bold text-slate-900 text-sm">
+                    {profile?.name || 'Partner'}
+                  </dd>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60">
+                  <dt className="text-[11px] font-mono uppercase font-bold text-slate-400 flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Email Address</span>
+                  </dt>
+                  <dd className="mt-1 font-sans font-medium text-slate-900 text-sm truncate">
+                    {user?.email || 'Not provided'}
+                  </dd>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60">
+                  <dt className="text-[11px] font-mono uppercase font-bold text-slate-400 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+                    <span>System Role</span>
+                  </dt>
+                  <dd className="mt-1">
+                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200">
+                      {profile?.role || 'Kitchen Partner'}
+                    </span>
+                  </dd>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/60">
+                  <dt className="text-[11px] font-mono uppercase font-bold text-slate-400 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Member Since</span>
+                  </dt>
+                  <dd className="mt-1 font-sans text-slate-700 text-sm">
+                    {profile?.created_at ? formatDate(profile.created_at) : 'Active Partner'}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            {/* Registered Food Shops Section */}
+            <div className="bg-white border border-[#EBE6DF] rounded-3xl p-6 sm:p-8 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4 mb-6">
+                <div>
+                  <h2 className="font-serif text-xl text-slate-900 flex items-center gap-2">
+                    <Store className="w-5 h-5 text-amber-600" />
+                    <span>Registered Establishments ({restaurants.length})</span>
+                  </h2>
+                  <p className="text-xs text-slate-500 font-sans mt-0.5">
+                    Restaurants managed under your owner account with real-time menu and pricing control.
+                  </p>
+                </div>
+
+                <Link
+                  to="/owner/restaurant/new"
+                  className="px-3.5 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:border-amber-400 hover:text-amber-800 transition-colors shadow-sm self-start sm:self-auto"
+                >
+                  + Add Kitchen
+                </Link>
+              </div>
+
+              {restaurants.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {restaurants.map((res) => (
+                    <div
+                      key={res.id}
+                      className="p-5 border border-[#EBE6DF] rounded-2xl hover:border-amber-400/50 hover:shadow-md transition-all bg-white flex flex-col justify-between space-y-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center space-x-3 min-w-0">
+                          <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200/60 text-amber-700 flex items-center justify-center font-bold text-sm shrink-0">
+                            {res.logo_url ? (
+                              <img
+                                src={res.logo_url}
+                                alt={res.name}
+                                className="w-full h-full object-cover rounded-xl"
+                              />
+                            ) : (
+                              <Store className="w-5 h-5 text-amber-600" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-base font-serif text-slate-900 truncate">{res.name}</h3>
+                            <p className="text-xs text-slate-500 font-sans truncate">
+                              {res.address}, {res.area}, {res.city}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-1.5 shrink-0">
+                          <span
+                            className={`text-[10px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border ${
+                              res.status === 'approved'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : res.status === 'pending'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-rose-50 text-rose-700 border-rose-200'
+                            }`}
+                          >
+                            {res.status}
+                          </span>
+                          {res.verified && (
+                            <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                              Verified
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-100 text-xs">
+                        <span className="text-slate-400 text-[11px] font-sans">
+                          Registered {formatDate(res.created_at)}
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          <Link
+                            to={`/owner/menu?restaurantId=${res.id}`}
+                            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm"
+                          >
+                            Menu
+                          </Link>
+                          <Link
+                            to={`/owner/restaurant?id=${res.id}`}
+                            className="px-3 py-1.5 bg-white border border-slate-200 hover:border-amber-400 text-slate-700 rounded-xl text-xs font-semibold transition-colors shadow-sm"
+                          >
+                            Profile
+                          </Link>
+                          {res.slug && (
+                            <Link
+                              to={`/restaurant/${res.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-2 py-1.5 text-amber-700 hover:text-amber-800 inline-flex items-center space-x-1 text-xs font-semibold font-sans"
+                            >
+                              <span>Live</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-12 text-center text-slate-500 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+                  <Store className="w-8 h-8 mx-auto text-slate-300 stroke-[1.5] mb-2" />
+                  <p className="text-sm font-semibold text-slate-700 mb-1">No restaurants registered yet</p>
+                  <p className="text-xs text-slate-400 mb-4">
+                    Register your kitchen to start showcasing digital menus to foodies across Kolkata.
+                  </p>
+                  <Link
+                    to="/owner/restaurant/new"
+                    className="inline-block px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
+                  >
+                    Register First Kitchen
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </OwnerLayout>
   );
 };

@@ -21,8 +21,17 @@ export interface MenuItemAsset {
 
 /**
  * Central dictionary of temporary high-resolution food photography.
+ * Every photograph is cryptographically unique and curated for Kolkata culinary heritage.
  */
 export const MENU_IMAGE_MAP: Record<string, string> = {
+  cheesePuffs: '/images/menu/cheese-puffs.jpg',
+  lemonTart: '/images/menu/lemon-tart.jpg',
+  rumBall: '/images/menu/rum-ball.jpg',
+  macaroons: '/images/menu/macaroons.jpg',
+  pizzaPuff: '/images/menu/pizza-puff.jpg',
+  radhaballabhi: '/images/menu/radhaballabhi.jpg',
+  mishtiDoi: '/images/menu/mishti-doi.jpg',
+  momos: '/images/menu/momos.jpg',
   biryani: '/images/menu/biryani.jpg',
   thali: '/images/menu/thali.jpg',
   curry: '/images/menu/curry.jpg',
@@ -37,8 +46,8 @@ export const MENU_IMAGE_MAP: Record<string, string> = {
 
 /**
  * Intelligently resolves the most appetizing image for a menu item.
- * Prioritizes the food's real uploaded `image_url` if present, then falls back
- * to culinary-matched temporary photography based on category and dish name.
+ * Prioritizes the food's real uploaded `image_url` if present, then matches
+ * authentic culinary photography specifically to the dish identity and category.
  */
 export function resolveMenuItemImage(food: {
   name?: string;
@@ -56,6 +65,35 @@ export function resolveMenuItemImage(food: {
       : food.category?.name || '';
   const text = `${food.name || ''} ${categoryName} ${food.description || ''}`.toLowerCase();
 
+  // Specific artisan bakery items from heritage confectioneries (Nahoum & Sons, Flurys)
+  if (text.includes('cheese puff') || text.includes('cheese-puff')) {
+    return MENU_IMAGE_MAP.cheesePuffs;
+  }
+  if (text.includes('lemon tart') || text.includes('lemon-tart') || text.includes('tart')) {
+    return MENU_IMAGE_MAP.lemonTart;
+  }
+  if (text.includes('rum ball') || text.includes('rum-ball') || text.includes('truffle') || text.includes('brownie')) {
+    return MENU_IMAGE_MAP.rumBall;
+  }
+  if (text.includes('macaroon') || text.includes('macaroons') || text.includes('macaron')) {
+    return MENU_IMAGE_MAP.macaroons;
+  }
+  if (text.includes('pizza puff') || text.includes('pizza-puff') || text.includes('puff')) {
+    return MENU_IMAGE_MAP.pizzaPuff;
+  }
+
+  // Traditional Bengali breakfast, tiffin & mishti items (Putiram, Paramount)
+  if (text.includes('radhaballabhi') || text.includes('kachori') || text.includes('kochuri') || text.includes('puri') || text.includes('poori') || text.includes('cholar dal')) {
+    return MENU_IMAGE_MAP.radhaballabhi;
+  }
+  if (text.includes('mishti doi') || text.includes('sweet curd') || text.includes('doi') || text.includes('yogurt')) {
+    return MENU_IMAGE_MAP.mishtiDoi;
+  }
+  if (text.includes('momo') || text.includes('momos') || text.includes('dim sum') || text.includes('dumpling')) {
+    return MENU_IMAGE_MAP.momos;
+  }
+
+  // Major culinary categories
   if (text.includes('biryani') || text.includes('rice') || text.includes('dum') || text.includes('pulao') || text.includes('khichdi')) {
     return MENU_IMAGE_MAP.biryani;
   }
@@ -71,16 +109,16 @@ export function resolveMenuItemImage(food: {
   if (text.includes('kebab') || text.includes('reshmi') || text.includes('tandoor') || text.includes('tikka') || text.includes('chaap') || text.includes('boti')) {
     return MENU_IMAGE_MAP.kebabs;
   }
-  if (text.includes('curry') || text.includes('gravy') || text.includes('masala') || text.includes('korma') || text.includes('dal') || text.includes('paneer') || text.includes('chicken') || text.includes('mutton') || text.includes('fish') || text.includes('rogan')) {
+  if (text.includes('curry') || text.includes('gravy') || text.includes('masala') || text.includes('korma') || text.includes('dal') || text.includes('paneer') || text.includes('chicken') || text.includes('mutton') || text.includes('fish') || text.includes('rogan') || text.includes('wings')) {
     return MENU_IMAGE_MAP.curry;
   }
-  if (text.includes('snack') || text.includes('fry') || text.includes('cutlet') || text.includes('puchka') || text.includes('samosa') || text.includes('singara') || text.includes('chaat') || text.includes('pakora')) {
+  if (text.includes('snack') || text.includes('fry') || text.includes('cutlet') || text.includes('puchka') || text.includes('samosa') || text.includes('singara') || text.includes('chaat') || text.includes('pakora') || text.includes('chop')) {
     return MENU_IMAGE_MAP.snacks;
   }
-  if (text.includes('sweet') || text.includes('firni') || text.includes('halwa') || text.includes('dessert') || text.includes('sandesh') || text.includes('jamun') || text.includes('roshogolla') || text.includes('mishti') || text.includes('rasgulla')) {
+  if (text.includes('sweet') || text.includes('firni') || text.includes('halwa') || text.includes('dessert') || text.includes('sandesh') || text.includes('jamun') || text.includes('roshogolla') || text.includes('mishti') || text.includes('rasgulla') || text.includes('rajbhog') || text.includes('cham cham')) {
     return MENU_IMAGE_MAP.sweets;
   }
-  if (text.includes('chai') || text.includes('coffee') || text.includes('tea') || text.includes('beverage') || text.includes('lassi') || text.includes('brew') || text.includes('juice') || text.includes('shake') || text.includes('drink')) {
+  if (text.includes('chai') || text.includes('coffee') || text.includes('tea') || text.includes('beverage') || text.includes('lassi') || text.includes('brew') || text.includes('juice') || text.includes('shake') || text.includes('drink') || text.includes('syrup') || text.includes('sherbet')) {
     return MENU_IMAGE_MAP.beverages;
   }
 

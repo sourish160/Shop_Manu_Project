@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { OwnerNav } from '../components/OwnerNav';
+import { OwnerLayout } from '../components/owner/OwnerLayout';
 import {
   insforge,
   Restaurant,
@@ -41,7 +41,6 @@ import {
   CheckCircle2,
   FolderPlus,
   UtensilsCrossed,
-  Store,
 } from 'lucide-react';
 
 type SortOption =
@@ -68,7 +67,7 @@ export const OwnerMenuPage: React.FC = () => {
   const restaurantId = searchParams.get('restaurantId');
 
   // Restaurant State
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [, setRestaurants] = useState<Restaurant[]>([]);
   const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(null);
 
   // Core Data States
@@ -1170,72 +1169,50 @@ export const OwnerMenuPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans pb-24 selection:bg-orange-100 selection:text-orange-950">
-      <OwnerNav />
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <OwnerLayout
+      activeRestaurantId={currentRestaurant?.id}
+      onSelectRestaurant={(r) => {
+        setCurrentRestaurant(r);
+        setSearchParams({ restaurantId: r.id }, { replace: true });
+        loadMenuData(r.id);
+      }}
+    >
+      <div className="space-y-6">
         {/* ============================================================== */}
         {/* 1. MENU MANAGEMENT HEADER */}
         {/* ============================================================== */}
-        <div className="bg-white border border-slate-200 rounded-md p-5 sm:p-6 mb-6 shadow-sm">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="bg-white border border-[#EBE6DF] rounded-3xl p-6 sm:p-7 shadow-sm">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Restaurant SaaS Dashboard
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/60">
+                  Kitchen Menu Manager
                 </span>
                 <span className="text-slate-300">•</span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
                   <CheckCircle2 className="w-3 h-3" />
                   Live Sync
                 </span>
               </div>
 
-              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight mt-1">
+              <h1 className="font-serif text-2xl sm:text-3xl text-slate-900 font-normal">
                 Menu Management
               </h1>
 
-              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+              <p className="font-sans text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
                 Organize categories, dishes, combos, variants, add-ons and pricing for{' '}
                 <span className="font-semibold text-slate-900">
-                  {currentRestaurant?.name || 'Your Restaurant'}
+                  {currentRestaurant?.name || 'Your Kitchen'}
                 </span>
               </p>
-
-              {/* Multi-Restaurant Switcher */}
-              {restaurants.length > 1 && (
-                <div className="mt-3 flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                    <Store className="w-3.5 h-3.5" />
-                    Switch Shop:
-                  </span>
-                  <select
-                    value={currentRestaurant?.id || ''}
-                    onChange={(e) => {
-                      const match = restaurants.find((r) => r.id === e.target.value);
-                      if (match) {
-                        setCurrentRestaurant(match);
-                        setSearchParams({ restaurantId: match.id }, { replace: true });
-                      }
-                    }}
-                    className="text-xs font-semibold border border-slate-300 rounded px-2.5 py-1 bg-white text-slate-800 focus:outline-none focus:border-slate-800"
-                  >
-                    {restaurants.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
             </div>
 
-            {/* Top Right Action Buttons (Section 1) */}
-            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            {/* Top Right Action Buttons */}
+            <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
               <button
                 type="button"
                 onClick={handleOpenAddCategory}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 border border-slate-300 text-slate-700 rounded text-xs font-semibold hover:bg-slate-50 transition-colors shadow-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold hover:border-amber-400 hover:text-amber-800 transition-all shadow-sm bg-white"
               >
                 <FolderPlus className="w-4 h-4 text-slate-500" />
                 <span>+ Add Category</span>
@@ -1245,7 +1222,7 @@ export const OwnerMenuPage: React.FC = () => {
                 type="button"
                 onClick={() => handleOpenAddFood()}
                 disabled={categories.length === 0}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-300 transition-colors shadow-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-semibold disabled:opacity-40 transition-all shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 <span>+ Add Food</span>
@@ -1255,7 +1232,7 @@ export const OwnerMenuPage: React.FC = () => {
                 type="button"
                 onClick={handleOpenAddCombo}
                 disabled={foods.length === 0}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-700 text-white rounded text-xs font-semibold hover:bg-emerald-800 disabled:bg-slate-300 transition-colors shadow-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold disabled:opacity-40 transition-all shadow-sm"
               >
                 <Package className="w-4 h-4" />
                 <span>+ Add Combo</span>
@@ -1887,6 +1864,6 @@ export const OwnerMenuPage: React.FC = () => {
         onConfirm={confirmDialog.onConfirm}
         onCancel={() => setConfirmDialog((p) => ({ ...p, isOpen: false }))}
       />
-    </div>
+    </OwnerLayout>
   );
 };

@@ -6,7 +6,7 @@ import {
   useMotionValueEvent,
   useReducedMotion,
 } from 'motion/react';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { ScrollReveal } from './ScrollReveal';
 
 export const TOTAL_FRAMES = 240;
@@ -441,7 +441,7 @@ export const CinematicScrollSequence: React.FC<CinematicScrollSequenceProps> = (
               </div>
 
               {/* Primary CTA: MANU SEARCH -> in warm golden-amber */}
-              <div className="flex items-center mb-8 sm:mb-10">
+              <div className="flex items-center">
                 <a
                   href="/search"
                   onClick={onExploreClick ? (e) => { e.preventDefault(); onExploreClick(); } : undefined}
@@ -450,22 +450,6 @@ export const CinematicScrollSequence: React.FC<CinematicScrollSequenceProps> = (
                   <span>MANU SEARCH</span>
                   <ArrowRight className="w-4 h-4 ml-3 transition-transform group-hover:translate-x-1.5 text-[#1A1817] stroke-[2.5]" />
                 </a>
-              </div>
-
-              {/* Bottom text: SCROLL TO EXPLORE  ⌄  |  SIX CHAPTERS · ONE CITY */}
-              <div className="flex items-center text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-cream-200/60">
-                <a
-                  href="#chapter-craving"
-                  onClick={onExploreClick ? (e) => { e.preventDefault(); onExploreClick(); } : undefined}
-                  className="group inline-flex items-center space-x-2 text-cream-200/80 hover:text-amber-300 transition-colors py-1 cursor-pointer"
-                >
-                  <span>SCROLL TO EXPLORE</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-amber-400 group-hover:translate-y-0.5 transition-transform" />
-                </a>
-                <span className="mx-3.5 text-cream-200/30" aria-hidden="true">|</span>
-                <span className="text-cream-200/50 tracking-[0.2em]">
-                  SIX CHAPTERS · ONE CITY
-                </span>
               </div>
             </ScrollReveal>
           </div>
@@ -518,3 +502,4 @@ export const CinematicScrollSequence: React.FC<CinematicScrollSequenceProps> = (
     </div>
   );
 };
+

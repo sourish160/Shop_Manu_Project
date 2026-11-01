@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'motion/react';
 
 
@@ -624,7 +624,7 @@ export const FoodDiscoveryPage: React.FC = () => {
                 delay: prefersReducedMotion ? 0 : 1.48,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="flex items-center mb-8 sm:mb-10"
+              className="flex items-center"
             >
               <MagneticButton>
                 <button
@@ -636,30 +636,6 @@ export const FoodDiscoveryPage: React.FC = () => {
                   <ArrowRight className="w-4 h-4 ml-3 transition-transform duration-200 group-hover:translate-x-1.5 text-[#1A1817] stroke-[2.5]" />
                 </button>
               </MagneticButton>
-            </motion.div>
-
-            {/* 5. Scroll indicator appears last */}
-            <motion.div
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: prefersReducedMotion ? 0 : 0.65,
-                delay: prefersReducedMotion ? 0 : 1.72,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className="flex items-center text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-cream-200/60"
-            >
-              <a
-                href="#chapter-craving"
-                className="group inline-flex items-center space-x-2 text-cream-200/80 hover:text-amber-300 transition-colors py-1 cursor-pointer"
-              >
-                <span>SCROLL TO EXPLORE</span>
-                <ChevronDown className="w-3.5 h-3.5 text-amber-400 group-hover:translate-y-0.5 transition-transform duration-200" />
-              </a>
-              <span className="mx-3.5 text-cream-200/30" aria-hidden="true">|</span>
-              <span className="text-cream-200/50 tracking-[0.2em]">
-                SIX CHAPTERS · ONE CITY
-              </span>
             </motion.div>
             </div>
 

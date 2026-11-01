@@ -17,5 +17,9 @@ export const NEXT_STOP_ASSETS = {
   heritageHall: '/images/shops/storefront-1.jpg',
   // Alternate: Evening storefront with glowing tables
   storefrontDusk: '/images/shops/storefront-2.jpg',
+  // Floating foreground polaroid graphics
+  polaroidStreetFood: '/images/next-stop/polaroid-street-food.png',
+  polaroidAuthenticTaste: '/images/next-stop/polaroid-authentic-taste.png',
+  polaroidsFullComposition: '/images/next-stop/polaroids-composition.png',
 };
 

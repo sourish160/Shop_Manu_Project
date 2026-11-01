@@ -5,6 +5,8 @@ import { insforge } from '../lib/insforge';
 import { OwnerLocationPicker } from '../components/maps/OwnerLocationPicker';
 import { validateCoordinates } from '../utils/geolocation';
 import { useSEO } from '../hooks/useSEO';
+import { OwnerLayout } from '../components/owner/OwnerLayout';
+import { Store } from 'lucide-react';
 
 export const NewRestaurantPage: React.FC = () => {
   const { user } = useAuth();
@@ -132,32 +134,49 @@ export const NewRestaurantPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
-      <div className="max-w-2xl mx-auto px-4">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-4 mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Create restaurant
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Register a new restaurant under your owner profile.
-          </p>
-        </div>
-        <Link
-          to="/owner"
-          className="text-xs text-slate-600 hover:text-slate-900 font-medium px-3 py-1.5 border border-slate-200 rounded"
-        >
-          Cancel
-        </Link>
-      </div>
+    <OwnerLayout>
+      <div className="space-y-6">
+        {/* Header Banner */}
+        <div className="bg-white border border-[#EBE6DF] rounded-3xl p-6 sm:p-7 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/60">
+                  Kitchen Onboarding
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="font-sans text-xs text-slate-500">
+                  New Establishment Registration
+                </span>
+              </div>
+              <h1 className="font-serif text-2xl sm:text-3xl text-slate-900 font-normal">
+                Register New Kitchen
+              </h1>
+              <p className="font-sans text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                Add another food establishment to your owner account to manage digital menus, pricing, and live availability.
+              </p>
+            </div>
 
-      {errorMsg && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded text-xs text-red-700">
-          {errorMsg}
+            <Link
+              to="/owner"
+              className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:border-amber-400 hover:text-amber-800 transition-all bg-white shadow-sm self-start sm:self-auto"
+            >
+              Cancel
+            </Link>
+          </div>
         </div>
-      )}
 
-      <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded p-6 shadow-sm space-y-4">
+        {errorMsg && (
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-700 font-sans">
+            {errorMsg}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="bg-white border border-[#EBE6DF] rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
+          <h2 className="font-serif text-xl text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+            <Store className="w-5 h-5 text-amber-600" />
+            <span>Establishment Details</span>
+          </h2>
         <div>
           <label htmlFor="restaurant-name" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
             Restaurant name *
@@ -297,20 +316,20 @@ export const NewRestaurantPage: React.FC = () => {
         <div className="pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
           <Link
             to="/owner"
-            className="px-4 py-2 border border-slate-200 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
           >
             Cancel
           </Link>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-sans text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
           >
-            {isSubmitting ? 'Saving...' : 'Save restaurant'}
+            {isSubmitting ? 'Registering...' : 'Register Kitchen'}
           </button>
         </div>
       </form>
       </div>
-    </div>
+    </OwnerLayout>
   );
 };

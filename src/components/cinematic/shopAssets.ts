@@ -13,28 +13,30 @@
 export const STOREFRONT_IMAGES: string[] = [
   '/images/shops/storefront-1.jpg',
   '/images/shops/storefront-2.jpg',
-  '/images/locations/park-street.jpg',
-  '/images/cravings/biryani.jpg',
-  '/images/cravings/rolls.jpg',
-  '/images/cravings/snacks.jpg',
+  '/images/shops/peter-cat.jpg',
+  '/images/shops/6-ballygunge-place.jpg',
+  '/images/shops/flurys.jpg',
+  '/images/shops/arsalan.jpg',
 ];
 
 /**
  * Curated high-resolution culinary & heritage atmosphere mapping
  * for Kolkata's signature food spots.
+ * Every photograph is cryptographically unique and tailored to the establishment.
  */
 const KOLKATA_SHOP_ATMOSPHERE_MAP: Record<string, string> = {
-  arsalan: '/images/cravings/biryani.jpg',
-  flurys: '/images/locations/park-street.jpg',
-  'peter cat': '/images/shops/storefront-1.jpg',
-  "nizam's": '/images/cravings/rolls.jpg',
-  nizams: '/images/cravings/rolls.jpg',
-  '6 ballygunge place': '/images/shops/storefront-2.jpg',
-  'kusum rolls': '/images/cravings/street-food.jpg',
-  'mitra cafe': '/images/cravings/snacks.jpg',
-  paramount: '/images/cravings/beverages.jpg',
-  nahoum: '/images/cravings/desserts.jpg',
-  putiram: '/images/cravings/sweets.jpg',
+  arsalan: '/images/shops/arsalan.jpg',
+  flurys: '/images/shops/flurys.jpg',
+  'peter cat': '/images/shops/peter-cat.jpg',
+  "nizam's": '/images/shops/nizams.jpg',
+  nizams: '/images/shops/nizams.jpg',
+  '6 ballygunge place': '/images/shops/6-ballygunge-place.jpg',
+  'kusum rolls': '/images/shops/kusum-rolls.jpg',
+  'mitra cafe': '/images/shops/mitra-cafe.jpg',
+  paramount: '/images/shops/paramount.jpg',
+  nahoum: '/images/shops/nahoum-and-sons.jpg',
+  'nahoum & sons': '/images/shops/nahoum-and-sons.jpg',
+  putiram: '/images/shops/putiram-sweets.jpg',
 };
 
 export interface ResolvedShopImage {

@@ -42,10 +42,10 @@ export const ComboCard: React.FC<ComboCardProps> = ({
 
   return (
     <div
-      className={`border rounded-md bg-white p-4 transition-all flex flex-col justify-between ${
+      className={`border rounded-2xl bg-white p-4 sm:p-5 transition-all flex flex-col justify-between ${
         isSelected
-          ? 'border-slate-900 ring-1 ring-slate-900 shadow-md bg-slate-50/20'
-          : 'border-slate-200 hover:border-slate-300 shadow-sm'
+          ? 'border-amber-500 ring-2 ring-amber-500/20 shadow-md bg-amber-50/20'
+          : 'border-[#EBE6DF] hover:border-amber-400/50 hover:shadow-md'
       }`}
     >
       <div>

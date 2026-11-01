@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { OwnerNav } from '../components/OwnerNav';
+import { OwnerLayout } from '../components/owner/OwnerLayout';
+import { ExternalLink, Clock, Store, Image as ImageIcon } from 'lucide-react';
 import { insforge, Restaurant, RestaurantHours, uploadMediaImage } from '../lib/insforge';
 import { DAY_NAMES } from '../utils/operatingHours';
 import { OwnerLocationPicker } from '../components/maps/OwnerLocationPicker';
@@ -27,7 +28,7 @@ export const EditRestaurantPage: React.FC = () => {
   const navigate = useNavigate();
   const restaurantId = searchParams.get('id');
 
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [, setRestaurants] = useState<Restaurant[]>([]);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -301,34 +302,53 @@ export const EditRestaurantPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <OwnerNav />
-      <div className="max-w-4xl mx-auto px-4 pb-12">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
-          <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-              Restaurant Profile
-            </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Edit your restaurant details, contact information, and media.
-            </p>
-          </div>
-          {restaurants.length > 1 && (
-            <div className="flex items-center space-x-2">
-              <span className="text-xs text-slate-500">Switch:</span>
-              <select
-                value={restaurant?.id || ''}
-                onChange={(e) => setSearchParams({ id: e.target.value })}
-                className="text-xs border border-slate-300 rounded px-2.5 py-1 bg-white"
-              >
-                {restaurants.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
+    <OwnerLayout
+      activeRestaurantId={restaurant?.id}
+      onSelectRestaurant={(r) => {
+        setRestaurant(r);
+        setSearchParams({ id: r.id }, { replace: true });
+      }}
+    >
+      <div className="space-y-6">
+        {/* Header Banner */}
+        <div className="bg-white border border-[#EBE6DF] rounded-3xl p-6 sm:p-7 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/60">
+                  Kitchen Profile &amp; Identity
+                </span>
+                <span className="text-slate-300">•</span>
+                <span
+                  className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
+                    restaurant?.verified
+                      ? 'text-emerald-700 bg-emerald-50 border-emerald-200/60'
+                      : 'text-amber-700 bg-amber-50 border-amber-200/60'
+                  }`}
+                >
+                  {restaurant?.verified ? 'Verified Partner' : 'Verification Pending'}
+                </span>
+              </div>
+              <h1 className="font-serif text-2xl sm:text-3xl text-slate-900 font-normal">
+                {restaurant?.name || 'Restaurant Profile'}
+              </h1>
+              <p className="font-sans text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                Update public brand details, contact information, photos, location coordinates, and operating schedule.
+              </p>
             </div>
-          )}
+
+            {restaurant?.slug && (
+              <a
+                href={`/restaurant/${restaurant.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 hover:border-amber-400 hover:text-amber-800 transition-all bg-white shadow-sm shrink-0"
+              >
+                <span>Preview Public Page</span>
+                <ExternalLink className="w-3.5 h-3.5 text-amber-600" />
+              </a>
+            )}
+          </div>
         </div>
 
         {errorMsg && (
@@ -366,7 +386,7 @@ export const EditRestaurantPage: React.FC = () => {
           <div className="space-y-8">
             <form onSubmit={handleSubmit} className="space-y-6">
             {/* Status & Security Banner */}
-            <div className="border border-slate-200 bg-white rounded p-5 shadow-sm">
+            <div className="border border-[#EBE6DF] bg-white rounded-3xl p-5 sm:p-6 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-4 text-xs">
                 <div>
                   <span className="text-slate-400 block font-semibold uppercase text-[10px]">
@@ -412,7 +432,7 @@ export const EditRestaurantPage: React.FC = () => {
                       href={`/restaurant/${restaurant.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-medium text-blue-600 hover:underline text-xs flex items-center gap-1"
+                      className="font-medium text-amber-700 hover:text-amber-800 text-xs flex items-center gap-1 font-sans"
                     >
                       View Live Menu &rarr;
                     </a>
@@ -426,9 +446,10 @@ export const EditRestaurantPage: React.FC = () => {
             </div>
 
             {/* Media Uploads Card */}
-            <div className="border border-slate-200 bg-white rounded p-6 shadow-sm space-y-6">
-              <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
-                Restaurant Media
+            <div id="media" className="border border-[#EBE6DF] bg-white rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 scroll-mt-20">
+              <h2 className="font-serif text-xl text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-amber-600" />
+                <span>Photos &amp; Media</span>
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -532,9 +553,10 @@ export const EditRestaurantPage: React.FC = () => {
             </div>
 
             {/* General Information Card */}
-            <div className="border border-slate-200 bg-white rounded p-6 shadow-sm space-y-4">
-              <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
-                General Details
+            <div className="border border-[#EBE6DF] bg-white rounded-3xl p-6 sm:p-8 shadow-sm space-y-5">
+              <h2 className="font-serif text-xl text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+                <Store className="w-5 h-5 text-amber-600" />
+                <span>General Details</span>
               </h2>
 
               <div>
@@ -669,7 +691,7 @@ export const EditRestaurantPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
+                  className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving changes...' : 'Save changes'}
                 </button>
@@ -680,12 +702,13 @@ export const EditRestaurantPage: React.FC = () => {
           {/* Operating Hours Management Card */}
           <form
             onSubmit={handleSaveHours}
-            className="border border-slate-200 bg-white rounded p-6 shadow-sm space-y-5"
+            className="border border-[#EBE6DF] bg-white rounded-3xl p-6 sm:p-8 shadow-sm space-y-5"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
               <div>
-                <h2 className="text-sm font-bold text-slate-900">
-                  Weekly Operating Hours
+                <h2 className="font-serif text-xl text-slate-900 flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-amber-600" />
+                  <span>Weekly Operating Hours</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Configure your restaurant opening and closing hours for public display.
@@ -694,7 +717,7 @@ export const EditRestaurantPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isSavingHours}
-                className="self-start sm:self-auto px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
+                className="self-start sm:self-auto px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold disabled:opacity-50 transition-colors shadow-sm"
               >
                 {isSavingHours ? 'Saving hours...' : 'Save Operating Hours'}
               </button>
@@ -774,6 +797,6 @@ export const EditRestaurantPage: React.FC = () => {
         </div>
       )}
       </div>
-    </div>
+    </OwnerLayout>
   );
 };

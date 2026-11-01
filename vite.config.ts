@@ -24,7 +24,28 @@ const securityHeaders = {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'serve-public-images-fresh',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url && (req.url.startsWith('/images/') || req.url.startsWith('/image-sequence/'))) {
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+          }
+          next();
+        });
+      },
+      configurePreviewServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url && (req.url.startsWith('/images/') || req.url.startsWith('/image-sequence/'))) {
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+          }
+          next();
+        });
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

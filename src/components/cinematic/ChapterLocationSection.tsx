@@ -27,6 +27,7 @@ import {
 import { ChapterSection } from './ChapterSection';
 import { EditorialHeading } from './EditorialHeading';
 import { ScrollReveal } from './ScrollReveal';
+import { resolveLocalityImage } from './locationAssets';
 
 interface LocationShopRecord {
   id: string;
@@ -490,23 +491,34 @@ export const ChapterLocationSection: React.FC = () => {
                 </div>
               </div>
 
-              {/* Graceful unconfigured / loading indicator */}
+              {/* Graceful unconfigured / loading indicator with authentic locality backdrop */}
               {!isGoogleMapsConfigured() && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-[#120E0C]/95 backdrop-blur-sm">
-                  <MapPin className="w-12 h-12 text-amber-400 mb-3" />
-                  <h4 className="font-serif text-2xl text-cream-100 mb-2 font-normal">
-                    Interactive Map Canvas
-                  </h4>
-                  <p className="text-xs text-cream-200/70 font-sans max-w-sm mb-4">
-                    Explore registered restaurants by neighborhood below. Configure your Google Maps key in settings to unlock live satellite navigation.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/search')}
-                    className="px-4 py-2 rounded-lg bg-amber-400 text-[#0A0807] font-semibold text-xs uppercase tracking-wider"
-                  >
-                    Browse All Registered Locations
-                  </button>
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center overflow-hidden">
+                  {/* Dynamic authentic neighborhood photograph */}
+                  <img
+                    src={resolveLocalityImage(activeAreaTab)}
+                    alt={`${activeAreaTab} culinary neighborhood`}
+                    className="absolute inset-0 w-full h-full object-cover brightness-[0.38] contrast-[1.12] transition-all duration-700"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0807] via-[#0A0807]/75 to-[#0A0807]/60" />
+                  <div className="relative z-10 flex flex-col items-center">
+                    <MapPin className="w-10 h-10 text-amber-400 mb-3" />
+                    <h4 className="font-serif text-2xl text-cream-100 mb-2 font-normal">
+                      {activeAreaTab === 'all' ? 'Kolkata Culinary Network' : `${activeAreaTab} Food District`}
+                    </h4>
+                    <p className="text-xs text-cream-200/75 font-sans max-w-sm mb-4 leading-relaxed">
+                      Explore verified authentic menus across {activeAreaTab === 'all' ? 'the city' : activeAreaTab}. Configure your Google Maps key in settings to unlock live satellite GPS.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/search')}
+                      className="px-5 py-2.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-[#0A0807] font-semibold text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-amber-400/20 cursor-pointer"
+                    >
+                      Browse All Registered Locations
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
