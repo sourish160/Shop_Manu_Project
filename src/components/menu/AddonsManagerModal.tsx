@@ -124,24 +124,24 @@ export const AddonsManagerModal: React.FC<AddonsManagerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="addons-manager-title"
-        className="bg-white rounded-md border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-[#1C1512] rounded-2xl border border-[#382820] shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh] text-[#F5EDE5]"
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded bg-slate-200/80 text-slate-800 flex items-center justify-center">
+        <div className="px-6 py-5 border-b border-[#382820] flex items-center justify-between bg-[#241A15]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#1C1512] text-[#E9A052] border border-[#382820] flex items-center justify-center">
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <h3 id="addons-manager-title" className="text-sm font-bold text-slate-900">
+              <h3 id="addons-manager-title" className="text-base font-serif font-medium text-[#F5EDE5]">
                 Manage Shop Add-ons
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#B6A69A]">
                 Reusable options like Extra Chicken, Extra Cheese, Raita, etc.
               </p>
             </div>
@@ -149,15 +149,15 @@ export const AddonsManagerModal: React.FC<AddonsManagerModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 p-1.5 rounded hover:bg-slate-100 transition-colors"
+            className="text-[#B6A69A] hover:text-[#F5EDE5] p-1.5 rounded-xl hover:bg-[#1C1512] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-5 overflow-y-auto space-y-5 flex-1">
+        <div className="p-6 overflow-y-auto space-y-6 flex-1">
           {errorMsg && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded">
+            <div className="p-3 bg-rose-950/60 border border-rose-800/60 text-rose-300 text-xs rounded-xl">
               {errorMsg}
             </div>
           )}
@@ -165,15 +165,15 @@ export const AddonsManagerModal: React.FC<AddonsManagerModalProps> = ({
           {/* Add / Edit Form */}
           <form
             onSubmit={handleSave}
-            className="p-3.5 bg-slate-50 border border-slate-200 rounded-md space-y-3"
+            className="p-4 bg-[#241A15] border border-[#382820] rounded-2xl space-y-3.5"
           >
-            <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
+            <span className="text-xs font-serif font-medium text-[#F5EDE5] block">
               {editingAddon ? 'Edit Add-on' : 'Add New Reusable Add-on'}
             </span>
 
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
               <div className="sm:col-span-6">
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-mono font-medium text-[#B6A69A] uppercase tracking-wider mb-1">
                   Add-on Name *
                 </label>
                 <input
@@ -183,12 +183,12 @@ export const AddonsManagerModal: React.FC<AddonsManagerModalProps> = ({
                   placeholder="e.g. Extra Chicken, Extra Cheese, Raita"
                   required
                   disabled={isSubmitting}
-                  className="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-700"
+                  className="w-full px-3 py-2 text-xs border border-[#382820] rounded-xl bg-[#1C1512] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052]"
                 />
               </div>
 
               <div className="sm:col-span-3">
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-mono font-medium text-[#B6A69A] uppercase tracking-wider mb-1">
                   Price (₹) *
                 </label>
                 <input
@@ -200,29 +200,29 @@ export const AddonsManagerModal: React.FC<AddonsManagerModalProps> = ({
                   placeholder="80"
                   required
                   disabled={isSubmitting}
-                  className="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-700"
+                  className="w-full px-3 py-2 text-xs font-mono border border-[#382820] rounded-xl bg-[#1C1512] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052]"
                 />
               </div>
 
               <div className="sm:col-span-3 flex items-end pb-1.5">
-                <label className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 cursor-pointer">
+                <label className="inline-flex items-center gap-2 text-xs font-medium text-[#F5EDE5] cursor-pointer">
                   <input
                     type="checkbox"
                     checked={available}
                     onChange={(e) => setAvailable(e.target.checked)}
-                    className="rounded border-slate-300 text-slate-900 focus:ring-0"
+                    className="rounded border-[#382820] bg-[#1C1512] text-[#E9A052] focus:ring-0 w-4 h-4 cursor-pointer"
                   />
                   <span>Available</span>
                 </label>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-1">
+            <div className="flex items-center justify-end gap-2.5 pt-1">
               {editingAddon && (
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="px-3 py-1 border border-slate-200 rounded text-xs font-medium text-slate-700 hover:bg-white"
+                  className="px-3 py-1.5 border border-[#382820] rounded-xl text-xs font-medium text-[#B6A69A] hover:text-[#F5EDE5] hover:bg-[#1C1512] transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -230,7 +230,7 @@ export const AddonsManagerModal: React.FC<AddonsManagerModalProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center gap-1 px-3.5 py-1 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 shadow-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-[#E9A052] text-[#100D0B] rounded-xl text-xs font-semibold hover:bg-[#d89345] disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
               >
                 {editingAddon ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
                 <span>{isSubmitting ? 'Saving...' : editingAddon ? 'Update' : 'Add Option'}</span>
@@ -240,41 +240,41 @@ export const AddonsManagerModal: React.FC<AddonsManagerModalProps> = ({
 
           {/* Existing Addons List */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-mono uppercase font-bold text-[#B6A69A] tracking-wider">
                 Configured Add-ons ({addons.length})
               </span>
             </div>
 
             {addons.length === 0 ? (
-              <div className="p-6 border border-dashed border-slate-200 rounded text-center text-xs text-slate-500">
+              <div className="p-6 border border-dashed border-[#382820] rounded-xl text-center text-xs text-[#B6A69A]">
                 No add-ons created yet. Create add-ons above to attach them to dishes (e.g. Extra Cheese, Raita).
               </div>
             ) : (
-              <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                 {addons.map((item) => (
                   <div
                     key={item.id}
-                    className="p-2.5 bg-white border border-slate-200 rounded flex items-center justify-between text-xs hover:border-slate-300 transition-colors"
+                    className="p-3 bg-[#241A15] border border-[#382820] rounded-xl flex items-center justify-between text-xs hover:border-[#E9A052]/30 transition-colors"
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       <button
                         type="button"
                         onClick={() => handleToggleAvailable(item)}
-                        className={`w-2.5 h-2.5 rounded-full ${
-                          item.available ? 'bg-emerald-500' : 'bg-slate-300'
+                        className={`w-2.5 h-2.5 rounded-full cursor-pointer ${
+                          item.available ? 'bg-emerald-400' : 'bg-[#382820]'
                         }`}
                         title={item.available ? 'Available (click to toggle)' : 'Unavailable (click to toggle)'}
                       />
-                      <span className="font-semibold text-slate-900">{item.name}</span>
-                      <span className="text-slate-400 font-medium">+{formatCurrency(item.price)}</span>
+                      <span className="font-semibold text-[#F5EDE5]">{item.name}</span>
+                      <span className="text-[#E9A052] font-mono font-medium">+{formatCurrency(item.price)}</span>
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => handleStartEdit(item)}
-                        className="p-1 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded"
+                        className="p-1.5 text-[#B6A69A] hover:text-[#F5EDE5] hover:bg-[#1C1512] rounded-lg transition-colors cursor-pointer"
                         title="Edit add-on"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -282,7 +282,7 @@ export const AddonsManagerModal: React.FC<AddonsManagerModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleDelete(item)}
-                        className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded"
+                        className="p-1.5 text-[#B6A69A] hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer"
                         title="Delete add-on"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -296,11 +296,11 @@ export const AddonsManagerModal: React.FC<AddonsManagerModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-slate-200 bg-slate-50/70 flex justify-end">
+        <div className="px-6 py-4 border-t border-[#382820] bg-[#241A15] flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 transition-colors"
+            className="px-5 py-2 bg-[#E9A052] text-[#100D0B] rounded-xl text-xs font-semibold hover:bg-[#d89345] transition-colors cursor-pointer"
           >
             Done
           </button>

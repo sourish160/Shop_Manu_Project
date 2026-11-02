@@ -183,7 +183,7 @@ export const OwnerLayout: React.FC<OwnerLayoutProps> = ({
 
   return (
     <OwnerContext.Provider value={contextValue}>
-      <div className="min-h-screen bg-[#FAF8F5] text-slate-800 flex">
+      <div className="min-h-screen bg-[#100D0B] text-[#F5EDE5] flex">
         {/* Fixed Dark Sidebar */}
         <OwnerSidebar
           restaurants={restaurants}
@@ -215,19 +215,19 @@ export const OwnerLayout: React.FC<OwnerLayoutProps> = ({
 
         {/* Global Orders & Customer Inquiries Modal */}
         {showInquiriesModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-slate-200 text-left">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div className="flex items-center space-x-2">
-                  <MessageSquare className="w-5 h-5 text-amber-600" />
-                  <h3 className="font-serif text-xl text-slate-900 font-normal">
+          <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-[#1C1512] rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-[#382820] text-left">
+              <div className="flex items-center justify-between pb-3 border-b border-[#382820]">
+                <div className="flex items-center space-x-2.5">
+                  <MessageSquare className="w-5 h-5 text-[#E9A052]" />
+                  <h3 className="font-serif text-xl text-[#F5EDE5] font-normal">
                     Customer Inquiries &amp; Reports
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowInquiriesModal(false)}
-                  className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                  className="p-1 rounded-full text-[#B6A69A] hover:text-[#F5EDE5] hover:bg-[#241A15] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -235,10 +235,10 @@ export const OwnerLayout: React.FC<OwnerLayoutProps> = ({
 
               <div className="max-h-[60vh] overflow-y-auto space-y-3 pr-1">
                 {inquiries.length === 0 ? (
-                  <div className="py-12 text-center text-slate-400 font-sans space-y-2">
-                    <MessageSquare className="w-8 h-8 mx-auto text-slate-300 stroke-[1.5]" />
+                  <div className="py-12 text-center text-[#B6A69A] font-sans space-y-2">
+                    <MessageSquare className="w-8 h-8 mx-auto text-[#B6A69A]/40 stroke-[1.5]" />
                     <p className="text-sm">No customer inquiries or menu reports recorded yet.</p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-[#B6A69A]/70">
                       Feedback and price corrections submitted by diners will appear here in real time.
                     </p>
                   </div>
@@ -246,21 +246,21 @@ export const OwnerLayout: React.FC<OwnerLayoutProps> = ({
                   inquiries.map((inq) => (
                     <div
                       key={inq.id}
-                      className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/70 space-y-2 text-xs"
+                      className="p-3.5 rounded-2xl border border-[#382820] bg-[#241A15] space-y-2 text-xs"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-mono uppercase font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[10px]">
+                        <span className="font-mono uppercase font-bold px-2 py-0.5 rounded-md bg-[#E9A052]/15 text-[#E9A052] border border-[#E9A052]/30 text-[10px]">
                           {inq.report_type.replace(/_/g, ' ')}
                         </span>
-                        <div className="flex items-center text-slate-400 text-[10px] space-x-1">
+                        <div className="flex items-center text-[#B6A69A] text-[10px] space-x-1">
                           <Clock className="w-3 h-3" />
                           <span>{new Date(inq.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
-                      <p className="font-sans text-slate-700 text-sm leading-relaxed">{inq.details}</p>
+                      <p className="font-sans text-[#F5EDE5] text-sm leading-relaxed">{inq.details}</p>
                       {inq.reporter_email && (
-                        <div className="flex items-center space-x-1 text-slate-500 font-mono text-[11px] pt-1 border-t border-slate-200/60">
-                          <Mail className="w-3 h-3 text-slate-400" />
+                        <div className="flex items-center space-x-1 text-[#B6A69A] font-mono text-[11px] pt-1 border-t border-[#382820]">
+                          <Mail className="w-3 h-3 text-[#E9A052]" />
                           <span>{inq.reporter_email}</span>
                         </div>
                       )}
@@ -269,11 +269,11 @@ export const OwnerLayout: React.FC<OwnerLayoutProps> = ({
                 )}
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex justify-end">
+              <div className="pt-3 border-t border-[#382820] flex justify-end">
                 <button
                   type="button"
                   onClick={() => setShowInquiriesModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-900 text-white hover:bg-slate-800 transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#241A15] border border-[#382820] text-[#F5EDE5] hover:bg-[#2C201A] hover:border-[#E9A052]/40 transition-colors cursor-pointer"
                 >
                   Close
                 </button>

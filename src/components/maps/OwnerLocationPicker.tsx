@@ -274,7 +274,7 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
   return (
     <div className="space-y-4">
       {/* Search & Actions Bar */}
-      <div className="flex flex-col sm:flex-row gap-2">
+      <div className="flex flex-col sm:flex-row gap-2.5">
         <form onSubmit={handleSearchLocality} className="relative flex-1">
           <input
             type="text"
@@ -282,28 +282,28 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`Search neighborhood (e.g. ${defaultArea}, Park Street)...`}
             disabled={disabled}
-            className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+            className="w-full pl-9 pr-3.5 py-2.5 text-xs border border-[#382820] rounded-xl bg-[#241A15] text-[#F5EDE5] placeholder-[#B6A69A]/50 focus:outline-none focus:border-[#E9A052] disabled:opacity-50"
           />
-          <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" />
+          <Search className="w-4 h-4 text-[#B6A69A] absolute left-3 top-3" />
         </form>
 
         <button
           type="button"
           onClick={handleUseCurrentLocation}
           disabled={disabled || isLocating}
-          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-white border border-slate-300 text-slate-700 rounded text-xs font-medium hover:bg-slate-50 disabled:bg-slate-100 transition-colors shrink-0"
+          className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-[#241A15] border border-[#382820] text-[#F5EDE5] hover:text-[#E9A052] hover:border-[#E9A052]/40 rounded-xl text-xs font-semibold transition-colors shrink-0 cursor-pointer disabled:opacity-50"
         >
-          <Navigation className="w-3.5 h-3.5 text-slate-600" />
+          <Navigation className="w-3.5 h-3.5 text-[#E9A052]" />
           {isLocating ? 'Locating...' : 'Use My Current Location'}
         </button>
       </div>
 
       {/* Quick Locality Snapping Chips */}
       <div>
-        <span className="text-[11px] text-slate-500 block mb-1.5 font-medium">
+        <span className="text-[11px] text-[#B6A69A] block mb-1.5 font-mono uppercase tracking-wider">
           Quick snap to authentic Kolkata localities:
         </span>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2">
           {KNOWN_LOCALITIES.slice(0, 4).map((loc) => {
             const isMatch =
               hasSelectedCoords &&
@@ -315,10 +315,10 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
                 type="button"
                 onClick={() => handleSelectPreset(loc.latitude, loc.longitude)}
                 disabled={disabled}
-                className={`text-[11px] px-2.5 py-1 rounded border transition-colors ${
+                className={`text-xs px-3 py-1.5 rounded-xl border transition-colors cursor-pointer ${
                   isMatch
-                    ? 'bg-slate-900 text-white border-slate-900 font-semibold'
-                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    ? 'bg-[#241A15] text-[#E9A052] border-[#E9A052] font-semibold'
+                    : 'bg-[#1C1512] text-[#B6A69A] border-[#382820] hover:text-[#F5EDE5] hover:bg-[#241A15]'
                 }`}
               >
                 {loc.area}
@@ -329,14 +329,14 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
       </div>
 
       {/* Map Display Container */}
-      <div className="relative w-full rounded border border-slate-300 overflow-hidden bg-slate-100">
+      <div className="relative w-full rounded-2xl border border-[#382820] overflow-hidden bg-[#241A15]">
         {status === 'loaded' && (
           <div className="h-64 sm:h-80 w-full relative">
             <div ref={mapContainerRef} className="w-full h-full" />
-            <div className="absolute bottom-2 left-2 right-2 bg-white/95 backdrop-blur-none border border-slate-200 rounded px-3 py-1.5 text-[11px] text-slate-600 flex items-center justify-between shadow-sm pointer-events-none">
+            <div className="absolute bottom-2.5 left-2.5 right-2.5 bg-[#1C1512]/95 backdrop-blur-sm border border-[#382820] rounded-xl px-3.5 py-2 text-[11px] text-[#B6A69A] flex items-center justify-between shadow-lg pointer-events-none">
               <span>Click map to place pin, or drag marker to adjust.</span>
               {hasSelectedCoords && (
-                <span className="font-mono font-medium text-slate-900">
+                <span className="font-mono font-medium text-[#E9A052]">
                   {latitude.toFixed(5)}, {longitude.toFixed(5)}
                 </span>
               )}
@@ -346,32 +346,32 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
 
         {status === 'loading' && (
           <div className="h-64 flex flex-col items-center justify-center p-6 text-center">
-            <div className="w-6 h-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin mb-2" />
-            <p className="text-xs text-slate-600 font-medium">Loading Google Maps...</p>
+            <div className="w-7 h-7 border-2 border-[#E9A052] border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-xs text-[#B6A69A] font-medium">Loading Google Maps...</p>
           </div>
         )}
 
         {status === 'unconfigured' && (
-          <div className="p-6 bg-slate-50 text-center">
-            <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center mx-auto mb-2">
-              <MapPin className="w-4 h-4" />
+          <div className="p-8 bg-[#1C1512] text-center">
+            <div className="w-10 h-10 rounded-xl bg-[#241A15] text-[#E9A052] border border-[#382820] flex items-center justify-center mx-auto mb-3">
+              <MapPin className="w-5 h-5" />
             </div>
-            <h4 className="text-xs font-semibold text-slate-900">
+            <h4 className="text-sm font-serif font-medium text-[#F5EDE5]">
               Interactive Map Unconfigured
             </h4>
-            <p className="text-[11px] text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
-              Google Maps API key is not yet set in <code className="bg-slate-200 px-1 py-0.5 rounded text-[10px]">VITE_GOOGLE_MAPS_API_KEY</code>. You can set the restaurant coordinates accurately using the inputs below, or select a locality preset.
+            <p className="text-xs text-[#B6A69A] mt-1.5 max-w-sm mx-auto leading-relaxed">
+              Google Maps API key is not yet set in <code className="bg-[#241A15] border border-[#382820] px-1.5 py-0.5 rounded text-[11px] text-[#E9A052]">VITE_GOOGLE_MAPS_API_KEY</code>. You can set the restaurant coordinates accurately using the inputs below, or select a locality preset.
             </p>
           </div>
         )}
 
         {status === 'error' && (
-          <div className="p-6 bg-amber-50 text-center">
-            <AlertCircle className="w-6 h-6 text-amber-700 mx-auto mb-2" />
-            <h4 className="text-xs font-semibold text-amber-900">
+          <div className="p-8 bg-[#1C1512] text-center">
+            <AlertCircle className="w-7 h-7 text-[#E9A052] mx-auto mb-2" />
+            <h4 className="text-sm font-serif font-medium text-[#F5EDE5]">
               Map Temporarily Unavailable
             </h4>
-            <p className="text-[11px] text-amber-800 mt-1 max-w-sm mx-auto leading-relaxed">
+            <p className="text-xs text-[#B6A69A] mt-1 max-w-sm mx-auto leading-relaxed">
               {errorMessage || 'Unable to connect to Google Maps. You can still set restaurant coordinates directly below.'}
             </p>
           </div>
@@ -380,32 +380,32 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
 
       {/* Validation or Error Message */}
       {validationError && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-700 flex items-start gap-2">
+        <div className="p-3 bg-rose-950/60 border border-rose-800/60 rounded-xl text-xs text-rose-300 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{validationError}</span>
         </div>
       )}
 
       {/* Manual Latitude & Longitude Inputs (Always Accessible) */}
-      <div className="bg-slate-50 border border-slate-200 rounded p-4 space-y-3">
+      <div className="bg-[#1C1512] border border-[#382820] rounded-2xl p-4 sm:p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
+          <label className="text-xs font-mono font-medium text-[#B6A69A] uppercase tracking-wider">
             Geographic Coordinates
           </label>
           {hasSelectedCoords ? (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span className="inline-flex items-center gap-1.5 text-xs font-mono font-medium text-emerald-400 bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-800/60">
               <Check className="w-3 h-3" /> Coordinates Active
             </span>
           ) : (
-            <span className="text-[11px] text-slate-400">
+            <span className="text-xs text-[#B6A69A]/60">
               Coordinates not set
             </span>
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label className="block text-[11px] text-slate-500 mb-1">
+            <label className="block text-[11px] text-[#B6A69A] mb-1 font-mono">
               Latitude (-90 to 90)
             </label>
             <input
@@ -414,12 +414,12 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
               onChange={(e) => setManualLat(e.target.value)}
               placeholder="e.g. 22.580400"
               disabled={disabled}
-              className="w-full px-3 py-1.5 text-xs font-mono border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+              className="w-full px-3 py-2 text-xs font-mono border border-[#382820] rounded-xl bg-[#241A15] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052] disabled:opacity-50"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] text-slate-500 mb-1">
+            <label className="block text-[11px] text-[#B6A69A] mb-1 font-mono">
               Longitude (-180 to 180)
             </label>
             <input
@@ -428,7 +428,7 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
               onChange={(e) => setManualLng(e.target.value)}
               placeholder="e.g. 88.427200"
               disabled={disabled}
-              className="w-full px-3 py-1.5 text-xs font-mono border border-slate-300 rounded focus:outline-none focus:border-slate-600 disabled:bg-slate-100"
+              className="w-full px-3 py-2 text-xs font-mono border border-[#382820] rounded-xl bg-[#241A15] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052] disabled:opacity-50"
             />
           </div>
         </div>
@@ -438,7 +438,7 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
             type="button"
             onClick={handleApplyManualCoords}
             disabled={disabled || !manualLat.trim() || !manualLng.trim()}
-            className="px-3 py-1.5 bg-slate-900 text-white rounded text-xs font-medium hover:bg-slate-800 disabled:bg-slate-300 transition-colors"
+            className="px-4 py-2 bg-[#E9A052] text-[#100D0B] rounded-xl text-xs font-semibold hover:bg-[#d89345] disabled:opacity-40 transition-colors cursor-pointer"
           >
             Apply Coordinates
           </button>
@@ -456,7 +456,7 @@ export const OwnerLocationPicker: React.FC<OwnerLocationPickerProps> = ({
                 }
               }}
               disabled={disabled}
-              className="text-xs text-rose-600 hover:underline"
+              className="text-xs text-rose-400 hover:underline cursor-pointer"
             >
               Clear coordinates
             </button>

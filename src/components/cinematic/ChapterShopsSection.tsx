@@ -8,6 +8,8 @@ import { ChapterSection } from './ChapterSection';
 import { EditorialHeading } from './EditorialHeading';
 import { ScrollReveal } from './ScrollReveal';
 import { resolveShopImage, STOREFRONT_IMAGES } from './shopAssets';
+import { FOOD_DECORATIONS } from '../../data/foodDecorationsConfig';
+import { FloatingFoodItem } from './FloatingFoodItem';
 import {
   cardEntranceVariants,
   cardImageVariants,
@@ -114,7 +116,11 @@ export const ChapterShopsSection: React.FC = () => {
       layout="full"
       className="py-24 sm:py-32"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        {/* Floating Decorative Food PNG Elements */}
+        {FOOD_DECORATIONS.chapterIV.map((item) => (
+          <FloatingFoodItem key={item.id} item={item} />
+        ))}
         {/* =====================================================================
             CHAPTER IV HEADER
             ===================================================================== */}
@@ -188,7 +194,13 @@ export const ChapterShopsSection: React.FC = () => {
                     const activeFoodsCount = prominentShop.foods?.filter((f) => f.status === 'active').length ?? 0;
 
                     return (
-                      <div className="group relative w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-2xl transition-all duration-500 hover:-translate-y-1 flex flex-col justify-between p-6 sm:p-8 min-h-[480px]">
+                      <div className="group relative w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 shadow-2xl transition-all duration-500 hover:-translate-y-1 flex flex-col justify-between p-6 sm:p-8 min-h-[480px]">
+                        {/* White Stroke Wipe on Hover (Covers Card from Left to Right) */}
+                        <div
+                          aria-hidden="true"
+                          className="card-stroke-wipe"
+                        />
+
                         {/* Storefront Photography Background with scale 1.06 -> 1 entrance */}
                         <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
                           <motion.div variants={cardImageVariants} className="w-full h-full overflow-hidden">
@@ -196,6 +208,9 @@ export const ChapterShopsSection: React.FC = () => {
                               src={shopImage.url}
                               alt={`${prominentShop.name} storefront`}
                               className="w-full h-full object-cover brightness-[0.78] contrast-[1.1] saturate-[1.08] group-hover:brightness-[0.88] group-hover:scale-[1.03] transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                              style={{
+                                imageRendering: '-webkit-optimize-contrast',
+                              }}
                               loading="eager"
                               decoding="async"
                               onError={(e) => {
@@ -327,7 +342,13 @@ export const ChapterShopsSection: React.FC = () => {
                         custom={isMobile ? 0.05 : 0.14 + idx * 0.12}
                         className="w-full flex-1"
                       >
-                        <div className="group relative rounded-2xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-xl transition-all duration-300 hover:-translate-y-1 p-5 sm:p-6 flex flex-col justify-between min-h-[230px] h-full">
+                        <div className="group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 shadow-xl transition-all duration-300 hover:-translate-y-1 p-5 sm:p-6 flex flex-col justify-between min-h-[230px] h-full">
+                          {/* White Stroke Wipe on Hover (Covers Card from Left to Right) */}
+                          <div
+                            aria-hidden="true"
+                            className="card-stroke-wipe"
+                          />
+
                           {/* Storefront Image Background */}
                           <div className="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
                             <motion.div variants={cardImageVariants} className="w-full h-full overflow-hidden">
@@ -335,6 +356,9 @@ export const ChapterShopsSection: React.FC = () => {
                                 src={shopImage.url}
                                 alt={`${shop.name} storefront`}
                                 className="w-full h-full object-cover brightness-[0.72] contrast-[1.08] group-hover:scale-[1.03] transition-transform duration-700 ease-out motion-reduce:transition-none"
+                                style={{
+                                  imageRendering: '-webkit-optimize-contrast',
+                                }}
                                 loading="lazy"
                                 decoding="async"
                                 onError={(e) => {
@@ -448,7 +472,13 @@ export const ChapterShopsSection: React.FC = () => {
                         custom={isMobile ? 0.05 : (index % 3) * 0.12}
                         className="h-full"
                       >
-                        <div className="group relative rounded-2xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 hover:border-amber-400/40 shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between h-full">
+                        <div className="group relative rounded-2xl sm:rounded-3xl overflow-hidden bg-[#120E0C]/90 border border-cream-200/10 shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between h-full">
+                          {/* White Stroke Wipe on Hover (Covers Card from Left to Right) */}
+                          <div
+                            aria-hidden="true"
+                            className="card-stroke-wipe"
+                          />
+
                           {/* Storefront Image Banner */}
                           <div className="relative h-44 overflow-hidden">
                             <motion.div variants={cardImageVariants} className="w-full h-full overflow-hidden">

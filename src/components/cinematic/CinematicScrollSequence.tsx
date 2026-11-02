@@ -9,8 +9,8 @@ import {
 import { ArrowRight } from 'lucide-react';
 import { ScrollReveal } from './ScrollReveal';
 
-export const TOTAL_FRAMES = 240;
-export const FRAME_ASPECT_RATIO = 1280 / 720;
+export const TOTAL_FRAMES = 270;
+export const FRAME_ASPECT_RATIO = 3840 / 2160;
 
 /**
  * Returns the URL for a specific zero-padded frame in the sequence.
@@ -86,8 +86,12 @@ export const CinematicScrollSequence: React.FC<CinematicScrollSequenceProps> = (
       const ch = canvas.height;
       if (cw === 0 || ch === 0) return;
 
-      const imgW = img.naturalWidth || 1280;
-      const imgH = img.naturalHeight || 720;
+      // Enable ultra-high-quality image smoothing for bicubic sampling across high-res displays
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+
+      const imgW = img.naturalWidth || 3840;
+      const imgH = img.naturalHeight || 2160;
       const imgRatio = imgW / imgH;
       const canvasRatio = cw / ch;
 
@@ -322,7 +326,10 @@ export const CinematicScrollSequence: React.FC<CinematicScrollSequenceProps> = (
         <div className="absolute inset-0 z-0 bg-[#0A0807] overflow-hidden pointer-events-none">
           <canvas
             ref={canvasRef}
-            className="w-full h-full object-cover filter brightness-[0.88] contrast-[1.08] saturate-[1.05]"
+            className="w-full h-full block"
+            style={{
+              imageRendering: '-webkit-optimize-contrast',
+            }}
             aria-hidden="true"
           />
 

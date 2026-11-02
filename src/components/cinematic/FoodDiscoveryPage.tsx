@@ -173,7 +173,7 @@ export const FoodDiscoveryPage: React.FC = () => {
 
 
   /**
-   * Cover-fit rendering helper preserving 1280x720 aspect ratio without stretching
+   * Cover-fit rendering helper preserving 2560x1440 aspect ratio with high-quality bicubic smoothing
    */
   const renderFrameToCanvas = useCallback((img: HTMLImageElement, frameIdx: number) => {
     const canvas = canvasRef.current;
@@ -181,12 +181,16 @@ export const FoodDiscoveryPage: React.FC = () => {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
+    // Enable ultra-high-quality image smoothing for bicubic sampling across 1080p, 1440p and 4K displays
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     const cw = canvas.width;
     const ch = canvas.height;
     if (cw === 0 || ch === 0) return;
 
-    const imgW = img.naturalWidth || 1280;
-    const imgH = img.naturalHeight || 720;
+    const imgW = img.naturalWidth || 3840;
+    const imgH = img.naturalHeight || 2160;
     const imgRatio = imgW / imgH;
     const canvasRatio = cw / ch;
 
@@ -346,6 +350,9 @@ export const FoodDiscoveryPage: React.FC = () => {
 
     currentTargetRef.current = targetIndex;
 
+    // Skip redundant rendering if this exact frame is already displayed
+    if (lastDrawnIndexRef.current === targetIndex) return;
+
     if (imagePoolRef.current.has(targetIndex)) {
       const img = imagePoolRef.current.get(targetIndex)!;
       renderFrameToCanvas(img, targetIndex);
@@ -380,10 +387,19 @@ export const FoodDiscoveryPage: React.FC = () => {
         className="fixed inset-0 w-screen h-screen z-0 pointer-events-none overflow-hidden"
         aria-hidden="true"
       >
-        {/* Full-Bleed Hardware-Accelerated HTML5 Canvas */}
+        {/* Full-Bleed Hardware-Accelerated High-DPI HTML5 Canvas (Preserves Native Sharpness) */}
         <canvas
           ref={canvasRef}
-          className="w-full h-full object-cover filter brightness-[0.88] contrast-[1.08] saturate-[1.05]"
+          className="w-full h-full block"
+          style={{
+            imageRendering: '-webkit-optimize-contrast',
+          }}
+          aria-hidden="true"
+        />
+
+        {/* Tone & Atmosphere Base Layer (Replaces Canvas CSS Filter to Prevent Browser Texture Downsampling) */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[1] bg-black/10"
           aria-hidden="true"
         />
 

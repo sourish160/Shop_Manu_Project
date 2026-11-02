@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Category } from '../../lib/insforge';
-import { ArrowUp, ArrowDown, GripVertical, X, Check } from 'lucide-react';
+import { ArrowUp, ArrowDown, GripVertical, X } from 'lucide-react';
 
 interface CategoryReorderModalProps {
   isOpen: boolean;
@@ -58,20 +58,20 @@ export const CategoryReorderModal: React.FC<CategoryReorderModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="reorder-modal-title"
-        className="bg-white rounded-md border border-slate-200 shadow-xl max-w-md w-full overflow-hidden flex flex-col max-h-[85vh]"
+        className="bg-[#1C1512] rounded-3xl border border-[#382820] shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[85vh] text-[#F5EDE5]"
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+        <div className="px-5 py-4 border-b border-[#382820] flex items-center justify-between bg-[#241A15]">
           <div>
-            <h3 id="reorder-modal-title" className="text-sm font-bold text-slate-900">
+            <h3 id="reorder-modal-title" className="text-sm font-serif font-medium text-[#F5EDE5]">
               Reorder Menu Categories
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-[11px] text-[#B6A69A]">
               Drag or use arrows to change the order displayed to customers.
             </p>
           </div>
@@ -79,7 +79,7 @@ export const CategoryReorderModal: React.FC<CategoryReorderModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="text-slate-400 hover:text-slate-700 p-1.5 rounded hover:bg-slate-100 transition-colors"
+            className="text-[#B6A69A] hover:text-[#F5EDE5] p-1.5 rounded-lg hover:bg-[#1C1512] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -94,18 +94,18 @@ export const CategoryReorderModal: React.FC<CategoryReorderModalProps> = ({
               onDragStart={() => handleDragStart(idx)}
               onDragOver={(e) => handleDragOver(e, idx)}
               onDragEnd={handleDragEnd}
-              className={`flex items-center justify-between p-3 rounded-md border text-xs transition-colors cursor-move ${
+              className={`flex items-center justify-between p-3 rounded-xl border text-xs transition-colors cursor-move ${
                 draggedIndex === idx
-                  ? 'bg-slate-100 border-slate-400 shadow-md'
-                  : 'bg-white border-slate-200 hover:border-slate-300'
+                  ? 'bg-[#241A15] border-[#E9A052] shadow-md'
+                  : 'bg-[#241A15] border-[#382820] hover:border-[#E9A052]/40'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <GripVertical className="w-4 h-4 text-slate-400" />
-                <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 font-bold flex items-center justify-center text-[10px]">
+                <GripVertical className="w-4 h-4 text-[#B6A69A]" />
+                <span className="w-5 h-5 rounded-full bg-[#1C1512] text-[#E9A052] font-mono font-bold flex items-center justify-center text-[10px] border border-[#382820]">
                   {idx + 1}
                 </span>
-                <span className="font-semibold text-slate-900">{cat.name}</span>
+                <span className="font-medium text-[#F5EDE5]">{cat.name}</span>
               </div>
 
               <div className="flex items-center gap-1">
@@ -113,7 +113,7 @@ export const CategoryReorderModal: React.FC<CategoryReorderModalProps> = ({
                   type="button"
                   onClick={() => moveItem(idx, idx - 1)}
                   disabled={idx === 0 || isSubmitting}
-                  className="p-1 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded disabled:opacity-30 disabled:hover:bg-transparent"
+                  className="p-1 text-[#B6A69A] hover:text-[#E9A052] hover:bg-[#1C1512] rounded-lg disabled:opacity-20 cursor-pointer"
                   title="Move Up"
                 >
                   <ArrowUp className="w-3.5 h-3.5" />
@@ -122,7 +122,7 @@ export const CategoryReorderModal: React.FC<CategoryReorderModalProps> = ({
                   type="button"
                   onClick={() => moveItem(idx, idx + 1)}
                   disabled={idx === items.length - 1 || isSubmitting}
-                  className="p-1 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded disabled:opacity-30 disabled:hover:bg-transparent"
+                  className="p-1 text-[#B6A69A] hover:text-[#E9A052] hover:bg-[#1C1512] rounded-lg disabled:opacity-20 cursor-pointer"
                   title="Move Down"
                 >
                   <ArrowDown className="w-3.5 h-3.5" />
@@ -133,12 +133,12 @@ export const CategoryReorderModal: React.FC<CategoryReorderModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-slate-200 bg-slate-50/70 flex items-center justify-end gap-2">
+        <div className="px-5 py-3.5 border-t border-[#382820] flex items-center justify-end gap-2.5 bg-[#241A15]">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-3.5 py-1.5 border border-slate-200 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            className="px-4 py-2 border border-[#382820] rounded-xl text-xs font-medium text-[#B6A69A] hover:text-[#F5EDE5] hover:bg-[#1C1512] transition-colors cursor-pointer"
           >
             Cancel
           </button>
@@ -146,10 +146,9 @@ export const CategoryReorderModal: React.FC<CategoryReorderModalProps> = ({
             type="button"
             onClick={handleSave}
             disabled={isSubmitting}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
+            className="px-5 py-2 bg-[#E9A052] hover:bg-amber-400 text-[#100D0B] rounded-xl text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-sm"
           >
-            <Check className="w-3.5 h-3.5" />
-            <span>{isSubmitting ? 'Saving...' : 'Save Order'}</span>
+            {isSubmitting ? 'Saving Order...' : 'Save Category Order'}
           </button>
         </div>
       </div>

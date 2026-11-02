@@ -54,30 +54,30 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
         description: description.trim(),
         sort_order: Number(sortOrder) || 0,
       });
-    } catch (err: any) {
-      setLocalError(err.message || 'Failed to save category.');
+    } catch (err: unknown) {
+      setLocalError(err instanceof Error ? err.message : 'Failed to save category.');
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="category-modal-title"
-        className="bg-white rounded-md border border-slate-200 shadow-xl max-w-md w-full overflow-hidden"
+        className="bg-[#1C1512] rounded-3xl border border-[#382820] shadow-2xl max-w-md w-full overflow-hidden"
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+        <div className="px-5 py-4 border-b border-[#382820] flex items-center justify-between bg-[#241A15]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded bg-slate-200/80 text-slate-800 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[#1C1512] border border-[#382820] text-[#E9A052] flex items-center justify-center">
               {category ? <FolderEdit className="w-4 h-4" /> : <FolderPlus className="w-4 h-4" />}
             </div>
             <div>
-              <h3 id="category-modal-title" className="text-sm font-bold text-slate-900">
+              <h3 id="category-modal-title" className="text-sm font-serif font-medium text-[#F5EDE5]">
                 {category ? 'Rename Category' : 'Add New Category'}
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-[11px] text-[#B6A69A]">
                 Organize menu items into logical groups for customers.
               </p>
             </div>
@@ -86,7 +86,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="text-slate-400 hover:text-slate-700 p-1.5 rounded hover:bg-slate-100 transition-colors"
+            className="text-[#B6A69A] hover:text-[#F5EDE5] p-1.5 rounded-lg hover:bg-[#1C1512] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -95,13 +95,13 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {localError && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded text-xs text-rose-700">
+            <div className="p-3 bg-rose-950/40 border border-rose-900/60 rounded-xl text-xs text-rose-300">
               {localError}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-mono uppercase tracking-wider text-[#B6A69A] mb-1.5">
               Category Name *
             </label>
             <input
@@ -113,57 +113,56 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
               maxLength={100}
               autoFocus
               disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-700"
+              className="w-full px-3.5 py-2 text-xs sm:text-sm bg-[#241A15] border border-[#382820] rounded-xl text-[#F5EDE5] placeholder-[#B6A69A]/50 focus:outline-none focus:border-[#E9A052] focus:ring-1 focus:ring-[#E9A052]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Description <span className="text-slate-400 font-normal">(Optional)</span>
+            <label className="block text-xs font-mono uppercase tracking-wider text-[#B6A69A] mb-1.5">
+              Description (Optional)
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Traditional rice dishes prepared with aromatic spices..."
+              placeholder="Brief summary shown to diners viewing this category..."
               rows={2}
-              maxLength={300}
+              maxLength={250}
               disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-700"
+              className="w-full px-3.5 py-2 text-xs sm:text-sm bg-[#241A15] border border-[#382820] rounded-xl text-[#F5EDE5] placeholder-[#B6A69A]/50 focus:outline-none focus:border-[#E9A052] focus:ring-1 focus:ring-[#E9A052] resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Display Order
+            <label className="block text-xs font-mono uppercase tracking-wider text-[#B6A69A] mb-1.5">
+              Display Sort Order
             </label>
             <input
               type="number"
-              min={0}
-              max={999}
               value={sortOrder}
               onChange={(e) => setSortOrder(parseInt(e.target.value, 10) || 0)}
+              min={0}
               disabled={isSubmitting}
-              className="w-28 px-3 py-1.5 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-700"
+              className="w-24 px-3 py-1.5 text-xs bg-[#241A15] border border-[#382820] rounded-xl text-[#F5EDE5] focus:outline-none focus:border-[#E9A052]"
             />
-            <span className="text-[11px] text-slate-400 block mt-1">
-              Lower numbers appear first on the menu.
+            <span className="text-[11px] text-[#B6A69A] ml-2 font-mono">
+              (Lower numbers appear first)
             </span>
           </div>
 
-          {/* Action buttons */}
-          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+          {/* Action Footer */}
+          <div className="pt-4 border-t border-[#382820] flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-3.5 py-1.5 border border-slate-200 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              className="px-4 py-2 border border-[#382820] rounded-xl text-xs font-medium text-[#B6A69A] hover:text-[#F5EDE5] hover:bg-[#241A15] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
+              className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#E9A052] hover:bg-amber-400 text-[#100D0B] uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-sm"
             >
               {isSubmitting ? 'Saving...' : category ? 'Save Changes' : 'Create Category'}
             </button>

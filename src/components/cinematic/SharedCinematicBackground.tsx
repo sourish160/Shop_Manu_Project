@@ -29,12 +29,15 @@ export const SharedCinematicBackground: React.FC = () => {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
 
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     const cw = canvas.width;
     const ch = canvas.height;
     if (cw === 0 || ch === 0) return;
 
-    const imgW = img.naturalWidth || 1280;
-    const imgH = img.naturalHeight || 720;
+    const imgW = img.naturalWidth || 3840;
+    const imgH = img.naturalHeight || 2160;
     const imgRatio = imgW / imgH;
     const canvasRatio = cw / ch;
 
@@ -227,7 +230,10 @@ export const SharedCinematicBackground: React.FC = () => {
       {/* Full-Bleed Hardware-Accelerated HTML5 Canvas */}
       <canvas
         ref={canvasRef}
-        className="w-full h-full object-cover filter brightness-[0.84] contrast-[1.08] saturate-[1.05]"
+        className="w-full h-full block"
+        style={{
+          imageRendering: '-webkit-optimize-contrast',
+        }}
         aria-hidden="true"
       />
 

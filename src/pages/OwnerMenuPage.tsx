@@ -1181,27 +1181,27 @@ export const OwnerMenuPage: React.FC = () => {
         {/* ============================================================== */}
         {/* 1. MENU MANAGEMENT HEADER */}
         {/* ============================================================== */}
-        <div className="bg-white border border-[#EBE6DF] rounded-3xl p-6 sm:p-7 shadow-sm">
+        <div className="bg-[#1C1512] border border-[#382820] rounded-3xl p-6 sm:p-7 shadow-sm text-[#F5EDE5]">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
             <div>
               <div className="flex items-center gap-2 mb-1.5">
-                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/60">
+                <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#E9A052] bg-[#241A15] px-2.5 py-0.5 rounded-full border border-[#382820]">
                   Kitchen Menu Manager
                 </span>
-                <span className="text-slate-300">•</span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
+                <span className="text-[#382820]">•</span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-950/40 px-2.5 py-0.5 rounded-full border border-emerald-800/50">
                   <CheckCircle2 className="w-3 h-3" />
                   Live Sync
                 </span>
               </div>
 
-              <h1 className="font-serif text-2xl sm:text-3xl text-slate-900 font-normal">
+              <h1 className="font-serif text-2xl sm:text-3xl text-[#F5EDE5] font-normal">
                 Menu Management
               </h1>
 
-              <p className="font-sans text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+              <p className="font-sans text-xs sm:text-sm text-[#B6A69A] mt-1 max-w-2xl leading-relaxed">
                 Organize categories, dishes, combos, variants, add-ons and pricing for{' '}
-                <span className="font-semibold text-slate-900">
+                <span className="font-semibold text-[#F5EDE5]">
                   {currentRestaurant?.name || 'Your Kitchen'}
                 </span>
               </p>
@@ -1212,9 +1212,9 @@ export const OwnerMenuPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleOpenAddCategory}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold hover:border-amber-400 hover:text-amber-800 transition-all shadow-sm bg-white"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 border border-[#382820] text-[#E9A052] rounded-xl text-xs font-semibold hover:border-[#E9A052]/50 hover:bg-[#241A15] transition-all shadow-sm bg-[#241A15] cursor-pointer"
               >
-                <FolderPlus className="w-4 h-4 text-slate-500" />
+                <FolderPlus className="w-4 h-4 text-[#E9A052]" />
                 <span>+ Add Category</span>
               </button>
 
@@ -1222,7 +1222,7 @@ export const OwnerMenuPage: React.FC = () => {
                 type="button"
                 onClick={() => handleOpenAddFood()}
                 disabled={categories.length === 0}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-semibold disabled:opacity-40 transition-all shadow-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#E9A052] hover:bg-amber-400 text-[#100D0B] rounded-xl text-xs font-semibold disabled:opacity-40 transition-all shadow-sm cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>+ Add Food</span>
@@ -1232,7 +1232,7 @@ export const OwnerMenuPage: React.FC = () => {
                 type="button"
                 onClick={handleOpenAddCombo}
                 disabled={foods.length === 0}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold disabled:opacity-40 transition-all shadow-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-[#241A15] hover:bg-[#2C201A] border border-[#382820] text-[#F5EDE5] hover:text-[#E9A052] rounded-xl text-xs font-semibold disabled:opacity-40 transition-all shadow-sm cursor-pointer"
               >
                 <Package className="w-4 h-4" />
                 <span>+ Add Combo</span>
@@ -1241,32 +1241,32 @@ export const OwnerMenuPage: React.FC = () => {
           </div>
 
           {/* Quick Toolbar for Add-ons and Reorder */}
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 flex-wrap gap-2">
+          <div className="mt-4 pt-3 border-t border-[#382820] flex items-center justify-between text-xs text-[#B6A69A] flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setShowAddonsModal(true)}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:underline"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[#F5EDE5] hover:text-[#E9A052] transition-colors cursor-pointer"
               >
-                <Layers className="w-3.5 h-3.5 text-slate-500" />
+                <Layers className="w-3.5 h-3.5 text-[#E9A052]" />
                 <span>Manage Add-ons ({addons.length})</span>
               </button>
-              <span className="text-slate-300">•</span>
+              <span className="text-[#382820]">•</span>
               <button
                 type="button"
                 onClick={() => setShowReorderModal(true)}
                 disabled={categories.length <= 1}
-                className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-slate-900 hover:underline disabled:opacity-40 disabled:hover:no-underline"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[#F5EDE5] hover:text-[#E9A052] transition-colors disabled:opacity-30 cursor-pointer"
               >
-                <Move className="w-3.5 h-3.5 text-slate-500" />
+                <Move className="w-3.5 h-3.5 text-[#E9A052]" />
                 <span>Reorder Categories</span>
               </button>
             </div>
 
-            <div className="text-[11px] text-slate-400">
+            <div className="text-[11px] text-[#B6A69A] font-mono">
               Total Menu Items:{' '}
-              <span className="font-bold text-slate-700">{counts.totalFoods} Dishes</span> +{' '}
-              <span className="font-bold text-slate-700">{counts.comboCount} Combos</span>
+              <span className="font-bold text-[#E9A052]">{counts.totalFoods} Dishes</span> +{' '}
+              <span className="font-bold text-[#E9A052]">{counts.comboCount} Combos</span>
             </div>
           </div>
         </div>
@@ -1301,37 +1301,37 @@ export const OwnerMenuPage: React.FC = () => {
         {/* ============================================================== */}
         {/* 2. SEARCH & SORT BAR */}
         {/* ============================================================== */}
-        <div className="bg-white border border-slate-200 rounded-md p-3 mb-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          {/* Instant Search Bar (Section 13) */}
+        <div className="bg-[#1C1512] border border-[#382820] rounded-2xl p-3 sm:p-4 mb-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          {/* Instant Search Bar */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#B6A69A]/70" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search food, category or combo..."
-              className="w-full pl-9 pr-8 py-2 text-xs border border-slate-300 rounded focus:outline-none focus:border-slate-800 bg-white"
+              placeholder="Search food by dish name, ingredient, or category..."
+              className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm border border-[#382820] rounded-xl focus:outline-none focus:border-[#E9A052] bg-[#241A15] text-[#F5EDE5] placeholder-[#B6A69A]/50"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-700 text-xs font-bold"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#B6A69A] hover:text-[#F5EDE5] text-xs font-bold"
               >
                 ✕
               </button>
             )}
           </div>
 
-          {/* Sort Controls (Section 14) */}
+          {/* Sort Controls */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-slate-500 font-semibold uppercase text-[10px] tracking-wider whitespace-nowrap">
+            <span className="text-[#B6A69A] font-mono uppercase text-[10px] tracking-wider whitespace-nowrap">
               Sort by:
             </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="text-xs font-semibold border border-slate-300 rounded px-2.5 py-1.5 bg-white text-slate-800 focus:outline-none focus:border-slate-800"
+              className="text-xs font-semibold border border-[#382820] rounded-xl px-3 py-2 bg-[#241A15] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052]"
             >
               <option value="category">Category Order</option>
               <option value="name_asc">Name: A → Z</option>
@@ -1346,18 +1346,18 @@ export const OwnerMenuPage: React.FC = () => {
         </div>
 
         {/* ============================================================== */}
-        {/* 3. MENU FILTERS WITH DYNAMIC DATABASE COUNTS (Section 2) */}
+        {/* 3. MENU FILTERS WITH DYNAMIC DATABASE COUNTS */}
         {/* ============================================================== */}
         <div className="space-y-3 mb-6">
           {/* Category & Dietary Filters Row */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs scrollbar-none">
             <button
               type="button"
               onClick={() => setActiveCategoryFilter('all')}
-              className={`px-3 py-1.5 rounded font-semibold whitespace-nowrap transition-colors border ${
+              className={`px-3.5 py-1.5 rounded-xl font-medium whitespace-nowrap transition-colors border cursor-pointer ${
                 activeCategoryFilter === 'all'
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                  ? 'bg-[#241A15] text-[#E9A052] border-[#382820] font-semibold shadow-sm'
+                  : 'bg-[#1C1512] text-[#B6A69A] border-[#382820] hover:text-[#F5EDE5] hover:bg-[#241A15]'
               }`}
             >
               All ({counts.all})
@@ -1366,10 +1366,10 @@ export const OwnerMenuPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveCategoryFilter('veg')}
-              className={`px-3 py-1.5 rounded font-semibold whitespace-nowrap transition-colors border ${
+              className={`px-3.5 py-1.5 rounded-xl font-medium whitespace-nowrap transition-colors border cursor-pointer ${
                 activeCategoryFilter === 'veg'
-                  ? 'bg-emerald-800 text-white border-emerald-800 shadow-sm'
-                  : 'bg-white text-emerald-800 border-emerald-200 hover:bg-emerald-50/50'
+                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60 font-semibold shadow-sm'
+                  : 'bg-[#1C1512] text-emerald-400 border-[#382820] hover:bg-emerald-950/30'
               }`}
             >
               Veg ({counts.vegCount})
@@ -1378,10 +1378,10 @@ export const OwnerMenuPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveCategoryFilter('non_veg')}
-              className={`px-3 py-1.5 rounded font-semibold whitespace-nowrap transition-colors border ${
+              className={`px-3.5 py-1.5 rounded-xl font-medium whitespace-nowrap transition-colors border cursor-pointer ${
                 activeCategoryFilter === 'non_veg'
-                  ? 'bg-rose-800 text-white border-rose-800 shadow-sm'
-                  : 'bg-white text-rose-800 border-rose-200 hover:bg-rose-50/50'
+                  ? 'bg-rose-950/60 text-rose-300 border-rose-800/60 font-semibold shadow-sm'
+                  : 'bg-[#1C1512] text-rose-400 border-[#382820] hover:bg-rose-950/30'
               }`}
             >
               Non-Veg ({counts.nonVegCount})
@@ -1390,10 +1390,10 @@ export const OwnerMenuPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveCategoryFilter('combos')}
-              className={`px-3 py-1.5 rounded font-semibold whitespace-nowrap transition-colors border ${
+              className={`px-3.5 py-1.5 rounded-xl font-medium whitespace-nowrap transition-colors border cursor-pointer ${
                 activeCategoryFilter === 'combos'
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                  ? 'bg-[#241A15] text-[#E9A052] border-[#382820] font-semibold shadow-sm'
+                  : 'bg-[#1C1512] text-[#B6A69A] border-[#382820] hover:text-[#F5EDE5] hover:bg-[#241A15]'
               }`}
             >
               Combos ({counts.comboCount})
@@ -1405,10 +1405,10 @@ export const OwnerMenuPage: React.FC = () => {
                 key={c.id}
                 type="button"
                 onClick={() => setActiveCategoryFilter(c.id)}
-                className={`px-3 py-1.5 rounded font-semibold whitespace-nowrap transition-colors border ${
+                className={`px-3.5 py-1.5 rounded-xl font-medium whitespace-nowrap transition-colors border cursor-pointer ${
                   activeCategoryFilter === c.id
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                    ? 'bg-[#241A15] text-[#E9A052] border-[#382820] font-semibold shadow-sm'
+                    : 'bg-[#1C1512] text-[#B6A69A] border-[#382820] hover:text-[#F5EDE5] hover:bg-[#241A15]'
                 }`}
               >
                 {c.name} ({counts.perCategory[c.id] || 0})
@@ -1416,20 +1416,20 @@ export const OwnerMenuPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Status Filters Bar (Section 2) */}
-          <div className="bg-white border border-slate-200 rounded-md p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+          {/* Status Filters Bar */}
+          <div className="bg-[#1C1512] border border-[#382820] rounded-2xl p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] uppercase font-bold text-slate-400 mr-1 tracking-wider">
-                Status:
+              <span className="text-[10px] uppercase font-mono text-[#B6A69A] mr-1 tracking-wider">
+                Availability:
               </span>
 
               <button
                 type="button"
                 onClick={() => setStatusFilter('all')}
-                className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                className={`px-3 py-1 rounded-xl font-medium transition-colors cursor-pointer ${
                   statusFilter === 'all'
-                    ? 'bg-slate-900 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-[#241A15] text-[#E9A052] border border-[#382820]'
+                    : 'bg-transparent text-[#B6A69A] hover:text-[#F5EDE5]'
                 }`}
               >
                 All Items ({counts.all})
@@ -1438,22 +1438,22 @@ export const OwnerMenuPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStatusFilter('available')}
-                className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                className={`px-3 py-1 rounded-xl font-medium transition-colors cursor-pointer ${
                   statusFilter === 'available'
-                    ? 'bg-emerald-700 text-white'
-                    : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
+                    ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/60'
+                    : 'bg-transparent text-[#B6A69A] hover:text-emerald-400'
                 }`}
               >
-                Available ({counts.availableCount})
+                In Stock ({counts.availableCount})
               </button>
 
               <button
                 type="button"
                 onClick={() => setStatusFilter('unavailable')}
-                className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                className={`px-3 py-1 rounded-xl font-medium transition-colors cursor-pointer ${
                   statusFilter === 'unavailable'
-                    ? 'bg-slate-700 text-white'
-                    : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200'
+                    ? 'bg-rose-950/60 text-rose-300 border border-rose-800/60'
+                    : 'bg-transparent text-[#B6A69A] hover:text-rose-400'
                 }`}
               >
                 Unavailable ({counts.unavailableCount})
@@ -1462,10 +1462,10 @@ export const OwnerMenuPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStatusFilter('needs_review')}
-                className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                className={`px-3 py-1 rounded-xl font-medium transition-colors cursor-pointer ${
                   statusFilter === 'needs_review'
-                    ? 'bg-amber-700 text-white'
-                    : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
+                    ? 'bg-amber-950/60 text-amber-300 border border-amber-800/60'
+                    : 'bg-transparent text-[#B6A69A] hover:text-amber-400'
                 }`}
               >
                 Needs Review ({counts.needsReviewCount})
@@ -1474,10 +1474,10 @@ export const OwnerMenuPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setStatusFilter('stale')}
-                className={`px-2.5 py-1 rounded font-medium transition-colors ${
+                className={`px-3 py-1 rounded-xl font-medium transition-colors cursor-pointer ${
                   statusFilter === 'stale'
-                    ? 'bg-rose-700 text-white'
-                    : 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
+                    ? 'bg-rose-950/60 text-rose-300 border border-rose-800/60'
+                    : 'bg-transparent text-[#B6A69A] hover:text-rose-400'
                 }`}
               >
                 Stale ({counts.staleCount})
@@ -1492,7 +1492,7 @@ export const OwnerMenuPage: React.FC = () => {
                   setActiveCategoryFilter('all');
                   setSearchQuery('');
                 }}
-                className="text-slate-500 hover:text-slate-900 underline text-[11px] font-medium"
+                className="text-[#E9A052] hover:text-[#F5EDE5] hover:underline text-[11px] font-medium cursor-pointer"
               >
                 Reset all filters
               </button>
@@ -1502,8 +1502,8 @@ export const OwnerMenuPage: React.FC = () => {
 
         {/* Multi-Select Select All Toolbar */}
         {filteredFoods.length > 0 && (
-          <div className="mb-4 flex items-center justify-between px-1 text-xs text-slate-500">
-            <label className="inline-flex items-center gap-2 cursor-pointer font-semibold">
+          <div className="mb-4 flex items-center justify-between px-1 text-xs text-[#B6A69A]">
+            <label className="inline-flex items-center gap-2 cursor-pointer font-semibold text-[#F5EDE5]">
               <input
                 type="checkbox"
                 checked={
@@ -1511,7 +1511,7 @@ export const OwnerMenuPage: React.FC = () => {
                   filteredFoods.every((f) => selectedFoodIds.includes(f.id))
                 }
                 onChange={handleSelectAllInView}
-                className="rounded border-slate-300 text-slate-900 focus:ring-0 w-4 h-4"
+                className="rounded border-[#382820] bg-[#241A15] text-[#E9A052] focus:ring-0 w-4 h-4 cursor-pointer"
               />
               <span>
                 {selectedFoodIds.length > 0
@@ -1524,7 +1524,7 @@ export const OwnerMenuPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedFoodIds([])}
-                className="text-slate-500 hover:text-slate-900 underline text-[11px]"
+                className="text-[#E9A052] hover:underline text-[11px] cursor-pointer"
               >
                 Clear selection
               </button>
@@ -1536,42 +1536,42 @@ export const OwnerMenuPage: React.FC = () => {
         {/* 4. MAIN MENU CONTENT / CATEGORIES / COMBOS */}
         {/* ============================================================== */}
         {isLoading ? (
-          <div className="py-24 text-center text-sm font-semibold text-slate-500 bg-white border border-slate-200 rounded-md">
+          <div className="py-24 text-center text-sm font-semibold text-[#B6A69A] bg-[#1C1512] border border-[#382820] rounded-2xl">
             Loading menu records from database...
           </div>
         ) : !currentRestaurant ? (
           /* Empty State: No Restaurant */
-          <div className="border border-dashed border-slate-300 rounded-md p-14 text-center bg-white">
-            <UtensilsCrossed className="w-10 h-10 text-slate-400 mx-auto mb-3 stroke-1" />
-            <h2 className="text-base font-bold text-slate-800 mb-1">No restaurant found</h2>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+          <div className="border border-dashed border-[#382820] rounded-2xl p-14 text-center bg-[#1C1512]">
+            <UtensilsCrossed className="w-10 h-10 text-[#E9A052]/60 mx-auto mb-3 stroke-1" />
+            <h2 className="text-base font-serif font-medium text-[#F5EDE5] mb-1">No restaurant found</h2>
+            <p className="text-xs text-[#B6A69A] max-w-sm mx-auto">
               Please register your restaurant before managing menu items.
             </p>
           </div>
         ) : categories.length === 0 && combos.length === 0 ? (
           /* Empty State: No Menu (Section 21) */
-          <div className="border border-dashed border-slate-300 rounded-md p-14 text-center bg-white space-y-4">
-            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center mx-auto">
+          <div className="border border-dashed border-[#382820] rounded-2xl p-14 text-center bg-[#1C1512] space-y-4">
+            <div className="w-12 h-12 rounded-xl bg-[#241A15] text-[#E9A052] border border-[#382820] flex items-center justify-center mx-auto">
               <UtensilsCrossed className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">No menu items yet</h2>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+              <h2 className="text-base font-serif font-medium text-[#F5EDE5]">No menu items yet</h2>
+              <p className="text-xs text-[#B6A69A] max-w-sm mx-auto mt-1">
                 Start building your menu by adding your first category or dish.
               </p>
             </div>
-            <div className="flex items-center justify-center gap-2 pt-2">
+            <div className="flex items-center justify-center gap-3 pt-2">
               <button
                 type="button"
                 onClick={handleOpenAddCategory}
-                className="px-4 py-2 border border-slate-300 rounded text-xs font-semibold text-slate-800 hover:bg-slate-50 shadow-sm"
+                className="px-4 py-2 border border-[#382820] bg-[#241A15] rounded-xl text-xs font-semibold text-[#F5EDE5] hover:text-[#E9A052] hover:border-[#E9A052]/40 transition-colors shadow-sm cursor-pointer"
               >
                 + Add Category
               </button>
               <button
                 type="button"
                 onClick={() => handleOpenAddFood()}
-                className="px-4 py-2 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 shadow-sm"
+                className="px-4 py-2 bg-[#E9A052] text-[#100D0B] rounded-xl text-xs font-semibold hover:bg-[#d89345] transition-colors shadow-sm cursor-pointer"
               >
                 + Add Food
               </button>
@@ -1583,20 +1583,20 @@ export const OwnerMenuPage: React.FC = () => {
             {/* COMBOS SHOWCASE SECTION (Sections 6, 7 & 24) */}
             {/* ------------------------------------------------------------- */}
             {(activeCategoryFilter === 'all' || activeCategoryFilter === 'combos') && (
-              <div className="bg-white border border-slate-200 rounded-md p-5 shadow-sm space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+              <div className="bg-[#1C1512] border border-[#382820] rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-[#382820] gap-2">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-xl bg-[#241A15] text-[#E9A052] border border-[#382820] flex items-center justify-center">
                       <Package className="w-4 h-4" />
                     </div>
                     <div>
-                      <h2 className="text-base font-extrabold text-slate-900 uppercase tracking-tight flex items-center gap-2">
-                        <span>Combos & Bundled Deals</span>
-                        <span className="text-xs font-bold text-slate-500">
+                      <h2 className="text-base font-serif font-medium text-[#F5EDE5] tracking-tight flex items-center gap-2">
+                        <span>Combos &amp; Bundled Deals</span>
+                        <span className="text-xs font-mono text-[#E9A052]">
                           ({filteredCombos.length})
                         </span>
                       </h2>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-[11px] text-[#B6A69A]">
                         Multi-dish packages with automatic savings calculation.
                       </p>
                     </div>
@@ -1606,7 +1606,7 @@ export const OwnerMenuPage: React.FC = () => {
                     type="button"
                     onClick={handleOpenAddCombo}
                     disabled={foods.length === 0}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-800 text-white rounded text-xs font-semibold hover:bg-emerald-700 shadow-sm self-start sm:self-auto"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#241A15] border border-[#382820] text-[#E9A052] hover:bg-[#2C201A] hover:border-[#E9A052]/40 rounded-xl text-xs font-semibold transition-colors shadow-sm self-start sm:self-auto cursor-pointer disabled:opacity-40"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>+ Add Combo</span>
@@ -1614,12 +1614,12 @@ export const OwnerMenuPage: React.FC = () => {
                 </div>
 
                 {filteredCombos.length === 0 ? (
-                  <div className="py-8 px-4 border border-dashed border-slate-200 rounded text-center">
-                    <p className="text-xs text-slate-500 mb-2">No combo packages created yet.</p>
+                  <div className="py-8 px-4 border border-dashed border-[#382820] rounded-2xl text-center">
+                    <p className="text-xs text-[#B6A69A] mb-2">No combo packages created yet.</p>
                     <button
                       type="button"
                       onClick={handleOpenAddCombo}
-                      className="text-xs font-bold text-emerald-800 hover:underline"
+                      className="text-xs font-semibold text-[#E9A052] hover:underline cursor-pointer"
                     >
                       Create your first bundled combo deal (e.g. Biryani + Chap)
                     </button>
@@ -1663,30 +1663,30 @@ export const OwnerMenuPage: React.FC = () => {
                   return (
                     <div
                       key={cat.id}
-                      className="bg-white border border-slate-200 rounded-md p-5 shadow-sm space-y-4"
+                      className="bg-[#1C1512] border border-[#382820] rounded-2xl p-5 sm:p-6 shadow-sm space-y-4 text-[#F5EDE5]"
                     >
-                      {/* Category Header (Section 3) */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+                      {/* Category Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-[#382820] gap-2">
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h2 className="text-base font-extrabold text-slate-900 uppercase tracking-tight">
+                            <h2 className="text-base font-serif font-medium text-[#F5EDE5] tracking-tight">
                               {cat.name}
                             </h2>
-                            <span className="text-xs font-semibold text-slate-400">
+                            <span className="text-xs font-mono text-[#E9A052]">
                               ({catFoods.length} {catFoods.length === 1 ? 'dish' : 'dishes'})
                             </span>
                           </div>
                           {cat.description && (
-                            <p className="text-xs text-slate-500 mt-0.5">{cat.description}</p>
+                            <p className="text-xs text-[#B6A69A] mt-0.5">{cat.description}</p>
                           )}
                         </div>
 
-                        {/* Category Actions: Add Dish, Rename, Delete (Section 3 & 17) */}
+                        {/* Category Actions: Add Dish, Rename, Delete */}
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <button
                             type="button"
                             onClick={() => handleOpenAddFood(cat.id)}
-                            className="inline-flex items-center gap-1 text-xs font-semibold text-slate-800 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2.5 py-1 rounded transition-colors"
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-[#E9A052] bg-[#241A15] hover:bg-[#2C201A] border border-[#382820] hover:border-[#E9A052]/40 px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
                           >
                             <Plus className="w-3.5 h-3.5" />
                             <span>Add Dish</span>
@@ -1695,7 +1695,7 @@ export const OwnerMenuPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleOpenEditCategory(cat)}
-                            className="text-xs font-medium text-slate-600 hover:text-slate-900 px-2 py-1 rounded hover:bg-slate-100"
+                            className="text-xs font-medium text-[#B6A69A] hover:text-[#F5EDE5] px-2.5 py-1.5 rounded-xl hover:bg-[#241A15] transition-colors cursor-pointer"
                           >
                             Rename
                           </button>
@@ -1703,23 +1703,23 @@ export const OwnerMenuPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleRequestDeleteCategory(cat)}
-                            className="text-xs font-medium text-rose-600 hover:text-rose-800 px-2 py-1 rounded hover:bg-rose-50"
+                            className="text-xs font-medium text-rose-400 hover:text-rose-300 px-2.5 py-1.5 rounded-xl hover:bg-rose-950/40 transition-colors cursor-pointer"
                           >
                             Delete
                           </button>
                         </div>
                       </div>
 
-                      {/* Food Grid / Empty Category State (Section 21) */}
+                      {/* Food Grid / Empty Category State */}
                       {catFoods.length === 0 ? (
-                        <div className="py-8 px-4 border border-dashed border-slate-200 rounded text-center">
-                          <p className="text-xs text-slate-500 mb-2">
+                        <div className="py-8 px-4 border border-dashed border-[#382820] rounded-2xl text-center text-[#B6A69A]">
+                          <p className="text-xs text-[#B6A69A] mb-2">
                             No dishes in this category yet.
                           </p>
                           <button
                             type="button"
                             onClick={() => handleOpenAddFood(cat.id)}
-                            className="text-xs font-bold text-slate-900 hover:underline"
+                            className="text-xs font-semibold text-[#E9A052] hover:underline cursor-pointer"
                           >
                             + Add Dish to {cat.name}
                           </button>

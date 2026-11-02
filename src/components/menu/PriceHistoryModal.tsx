@@ -58,32 +58,32 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
   if (!variant) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="price-history-title"
-        className="bg-white rounded-md border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden flex flex-col max-h-[85vh]"
+        className="bg-[#1C1512] rounded-2xl border border-[#382820] shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[85vh] text-[#F5EDE5]"
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+        <div className="px-5 py-4 border-b border-[#382820] flex items-center justify-between bg-[#241A15]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded bg-slate-200/80 text-slate-700 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[#1C1512] text-[#E9A052] border border-[#382820] flex items-center justify-center">
               <History className="w-4 h-4" />
             </div>
             <div>
-              <h3 id="price-history-title" className="text-sm font-bold text-slate-900">
+              <h3 id="price-history-title" className="text-sm font-serif font-medium text-[#F5EDE5]">
                 Price History
               </h3>
-              <p className="text-xs text-slate-500">
-                {foodName ? <span className="font-semibold text-slate-700">{foodName}</span> : 'Dish'}{' '}
-                — Variant: <span className="font-medium text-slate-700">{variant.name}</span>
+              <p className="text-xs text-[#B6A69A]">
+                {foodName ? <span className="font-semibold text-[#F5EDE5]">{foodName}</span> : 'Dish'}{' '}
+                — Portion: <span className="text-[#E9A052]">{variant.name}</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 p-1.5 rounded hover:bg-slate-100 transition-colors"
+            className="text-[#B6A69A] hover:text-[#F5EDE5] p-1 rounded-xl hover:bg-[#1C1512] transition-colors cursor-pointer"
             title="Close"
           >
             <X className="w-4 h-4" />
@@ -91,25 +91,25 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
         </div>
 
         {/* Current price bar */}
-        <div className="px-5 py-3 bg-slate-100/60 border-b border-slate-200 flex items-center justify-between text-xs">
-          <span className="text-slate-600 font-medium">Current Live Price</span>
-          <span className="text-sm font-bold text-slate-900">{formatCurrency(variant.price)}</span>
+        <div className="px-5 py-3 bg-[#241A15]/60 border-b border-[#382820] flex items-center justify-between text-xs">
+          <span className="text-[#B6A69A]">Current Live Price</span>
+          <span className="text-sm font-mono font-bold text-[#E9A052]">{formatCurrency(variant.price)}</span>
         </div>
 
         {/* Content list */}
         <div className="p-5 overflow-y-auto space-y-3 flex-1">
           {isLoading ? (
-            <div className="py-12 text-center text-xs text-slate-500">
+            <div className="py-12 text-center text-xs text-[#B6A69A]">
               Loading price history records...
             </div>
           ) : errorMsg ? (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded">
+            <div className="p-3 bg-rose-950/60 border border-rose-800/60 text-rose-300 text-xs rounded-xl">
               {errorMsg}
             </div>
           ) : records.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-xs font-medium text-slate-600">No previous price changes recorded.</p>
-              <p className="text-[11px] text-slate-400 mt-1">
+              <p className="text-xs font-medium text-[#F5EDE5]">No previous price changes recorded.</p>
+              <p className="text-[11px] text-[#B6A69A] mt-1">
                 The price will automatically track and record here whenever modified.
               </p>
             </div>
@@ -118,22 +118,22 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
               {records.map((rec) => (
                 <div
                   key={rec.id}
-                  className="p-3 bg-white border border-slate-200 rounded-md hover:border-slate-300 transition-colors flex items-center justify-between"
+                  className="p-3.5 bg-[#241A15] border border-[#382820] rounded-xl hover:border-[#E9A052]/30 transition-colors flex items-center justify-between"
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-slate-400 line-through">
+                      <span className="text-xs font-mono font-medium text-[#B6A69A]/70 line-through">
                         {formatCurrency(rec.old_price)}
                       </span>
-                      <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="text-xs font-bold text-slate-900">
+                      <ArrowRight className="w-3.5 h-3.5 text-[#E9A052]" />
+                      <span className="text-xs font-mono font-bold text-[#F5EDE5]">
                         {formatCurrency(rec.new_price)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
+                    <div className="flex items-center gap-2 mt-1 text-[11px] text-[#B6A69A]">
                       <span>{formatDateTime(rec.changed_at)}</span>
                       {rec.changed_by && (
-                        <span className="inline-flex items-center gap-1 text-slate-500">
+                        <span className="inline-flex items-center gap-1 text-[#E9A052]/80">
                           <User className="w-3 h-3" />
                           <span>Owner</span>
                         </span>
@@ -142,28 +142,18 @@ export const PriceHistoryModal: React.FC<PriceHistoryModalProps> = ({
                   </div>
 
                   <span
-                    className={`text-[11px] font-semibold px-2 py-0.5 rounded border ${
+                    className={`text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-full border ${
                       Number(rec.new_price) > Number(rec.old_price)
-                        ? 'bg-amber-50 text-amber-800 border-amber-200'
-                        : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        ? 'bg-amber-950/60 text-amber-300 border-amber-800/60'
+                        : 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
                     }`}
                   >
-                    {Number(rec.new_price) > Number(rec.old_price) ? 'Increased' : 'Decreased'}
+                    {Number(rec.new_price) > Number(rec.old_price) ? 'Price Raised' : 'Discount / Drop'}
                   </span>
                 </div>
               ))}
             </div>
           )}
-        </div>
-
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-slate-200 bg-slate-50/70 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 transition-colors"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>

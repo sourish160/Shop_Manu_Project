@@ -327,6 +327,9 @@ export const FoodCategoryCard: React.FC<FoodCategoryCardProps> = ({
                 src={category.image}
                 alt={category.alt}
                 className={`w-full h-full object-cover ${category.position} brightness-[0.82] contrast-[1.08] saturate-[1.08] group-hover:brightness-[0.92] group-hover:scale-[1.03] transition-all duration-700 ease-out motion-reduce:transition-none motion-reduce:group-hover:scale-100`}
+                style={{
+                  imageRendering: '-webkit-optimize-contrast',
+                }}
                 loading={category.role === 'hero-portrait' || category.role === 'hero-landscape' ? 'eager' : 'lazy'}
                 decoding="async"
                 onError={(e) => {

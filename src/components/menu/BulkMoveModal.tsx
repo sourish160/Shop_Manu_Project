@@ -39,23 +39,23 @@ export const BulkMoveModal: React.FC<BulkMoveModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="bulk-move-title"
-        className="bg-white rounded-md border border-slate-200 shadow-xl max-w-sm w-full overflow-hidden p-5"
+        className="bg-[#1C1512] rounded-2xl border border-[#382820] shadow-2xl max-w-sm w-full overflow-hidden p-6 text-[#F5EDE5]"
       >
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded bg-slate-100 text-slate-800 flex items-center justify-center">
+        <div className="flex items-center justify-between pb-3.5 border-b border-[#382820]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#241A15] text-[#E9A052] border border-[#382820] flex items-center justify-center">
               <FolderSymlink className="w-4 h-4" />
             </div>
             <div>
-              <h3 id="bulk-move-title" className="text-sm font-bold text-slate-900">
+              <h3 id="bulk-move-title" className="text-sm font-serif font-medium text-[#F5EDE5]">
                 Move Dishes to Category
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#B6A69A]">
                 Reassigning {selectedCount} selected {selectedCount === 1 ? 'dish' : 'dishes'}
               </p>
             </div>
@@ -63,7 +63,7 @@ export const BulkMoveModal: React.FC<BulkMoveModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-700 p-1 rounded"
+            className="text-[#B6A69A] hover:text-[#F5EDE5] p-1 rounded-xl hover:bg-[#241A15] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -71,13 +71,13 @@ export const BulkMoveModal: React.FC<BulkMoveModalProps> = ({
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           {errorMsg && (
-            <div className="p-2.5 bg-rose-50 border border-rose-200 rounded text-xs text-rose-700">
+            <div className="p-3 bg-rose-950/60 border border-rose-800/60 rounded-xl text-xs text-rose-300">
               {errorMsg}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+            <label className="block text-xs font-mono font-medium text-[#B6A69A] uppercase tracking-wider mb-1.5">
               Destination Category *
             </label>
             <select
@@ -85,29 +85,29 @@ export const BulkMoveModal: React.FC<BulkMoveModalProps> = ({
               onChange={(e) => setTargetId(e.target.value)}
               required
               disabled={isSubmitting}
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded bg-white focus:outline-none focus:border-slate-800"
+              className="w-full px-3 py-2 text-sm border border-[#382820] rounded-xl bg-[#241A15] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052]"
             >
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>
+                <option key={c.id} value={c.id} className="bg-[#1C1512] text-[#F5EDE5]">
                   {c.name}
                 </option>
               ))}
             </select>
           </div>
 
-          <div className="pt-2 flex items-center justify-end gap-2">
+          <div className="pt-2 flex items-center justify-end gap-2.5">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-3.5 py-1.5 border border-slate-200 rounded text-xs font-medium text-slate-700 hover:bg-slate-50"
+              className="px-4 py-2 border border-[#382820] rounded-xl text-xs font-medium text-[#B6A69A] hover:text-[#F5EDE5] hover:bg-[#241A15] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 shadow-sm"
+              className="px-4 py-2 bg-[#E9A052] text-[#100D0B] rounded-xl text-xs font-semibold hover:bg-[#d89345] disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
             >
               {isSubmitting ? 'Moving...' : 'Move Dishes'}
             </button>

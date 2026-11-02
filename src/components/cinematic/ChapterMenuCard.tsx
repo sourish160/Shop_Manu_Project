@@ -239,9 +239,12 @@ export const ChapterMenuCard: React.FC<ChapterMenuCardProps> = ({
           alt={item.name}
           className={`w-full h-full object-cover transition-all duration-700 ease-out will-change-transform ${
             isCenter
-              ? 'brightness-[0.82] contrast-[1.1] saturate-[1.1] group-hover:brightness-[0.95] group-hover:scale-[1.05]'
+              ? 'brightness-[0.82] contrast-[1.1] saturate-[1.1] group-hover:brightness-[0.95] group-hover:scale-[1.03]'
               : 'brightness-[0.6] contrast-[1.05] saturate-[0.9]'
           }`}
+          style={{
+            imageRendering: '-webkit-optimize-contrast',
+          }}
           loading={index < 5 ? 'eager' : 'lazy'}
           decoding="async"
           onError={(e) => {

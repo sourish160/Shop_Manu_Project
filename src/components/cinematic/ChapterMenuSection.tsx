@@ -4,6 +4,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'motion/react';
 import { insforge } from '../../lib/insforge';
 import { ChapterMenuCard } from './ChapterMenuCard';
+import { FOOD_DECORATIONS } from '../../data/foodDecorationsConfig';
+import { FloatingFoodItem } from './FloatingFoodItem';
 
 export interface FoodWithRelations {
   id: string;
@@ -291,9 +293,13 @@ export const ChapterMenuSection: React.FC = () => {
       <section
         id="chapter-menu"
         aria-label="Chapter III: Explore The Menus"
-        className="relative w-full py-20 sm:py-28 bg-[#0A0807] overflow-hidden"
+        className="relative w-full py-20 sm:py-28 overflow-hidden"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          {/* Floating Decorative Food PNG Elements */}
+          {FOOD_DECORATIONS.chapterIII.map((item) => (
+            <FloatingFoodItem key={item.id} item={item} />
+          ))}
           {/* Header */}
           <div className="mb-10 sm:mb-14">
             <div className="inline-flex items-center space-x-2.5 mb-2.5">
@@ -349,10 +355,14 @@ export const ChapterMenuSection: React.FC = () => {
       ref={sectionRef}
       id="chapter-menu"
       aria-label="Chapter III: Explore The Menus"
-      className="relative w-full h-[360vh] sm:h-[390vh] lg:h-[420vh] bg-[#0A0807]"
+      className="relative w-full h-[360vh] sm:h-[390vh] lg:h-[420vh]"
     >
       {/* Pinned Viewport Container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col select-none z-10">
+        {/* Floating Decorative Food PNG Elements */}
+        {FOOD_DECORATIONS.chapterIII.map((item) => (
+          <FloatingFoodItem key={item.id} item={item} />
+        ))}
         {/* Subtle Background Radial Atmosphere */}
         <div
           className="absolute inset-0 pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_40%,rgba(217,138,72,0.05)_0%,transparent_75%)]"

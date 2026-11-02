@@ -30,8 +30,9 @@ export const ChapterSection: React.FC<ChapterSectionProps> = ({
     offset: ['start end', 'end start'],
   });
 
-  const scrollScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.07, 1.0, 1.07]);
-  const scrollY = useTransform(scrollYProgress, [0, 1], ['-2.5%', '2.5%']);
+  // Restrained cinematic scroll scaling (1.00 to 1.03 max) to prevent pixelation on large displays
+  const scrollScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.03, 1.0, 1.03]);
+  const scrollY = useTransform(scrollYProgress, [0, 1], ['-2%', '2%']);
 
   const getScrimStyles = () => {
     switch (scrimIntensity) {
@@ -63,12 +64,17 @@ export const ChapterSection: React.FC<ChapterSectionProps> = ({
             style={{
               scale: prefersReducedMotion ? 1 : scrollScale,
               y: prefersReducedMotion ? 0 : scrollY,
+              willChange: 'transform',
+              transform: 'translate3d(0, 0, 0)',
             }}
           >
             <img
               src={bgImage}
               alt=""
-              className="w-full h-full object-cover object-center filter brightness-[0.85] contrast-[1.1] saturate-[1.05]"
+              className="w-full h-full object-cover object-center"
+              style={{
+                imageRendering: '-webkit-optimize-contrast',
+              }}
               loading="lazy"
               decoding="async"
               onError={(e) => {
@@ -76,6 +82,12 @@ export const ChapterSection: React.FC<ChapterSectionProps> = ({
               }}
             />
           </motion.div>
+
+          {/* Crisp Dark Scrim Layer (Keeps Underlying Image Unblurred) */}
+          <div
+            className="absolute inset-0 pointer-events-none bg-[#0A0807]/20"
+            aria-hidden="true"
+          />
 
           {/* Layered dark atmospheric gradient for text contrast */}
           <div

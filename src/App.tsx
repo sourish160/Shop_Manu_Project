@@ -13,6 +13,7 @@ import { NewRestaurantPage } from './pages/NewRestaurantPage';
 import { EditRestaurantPage } from './pages/EditRestaurantPage';
 import { OwnerMenuPage } from './pages/OwnerMenuPage';
 import { OwnerSettingsPage } from './pages/OwnerSettingsPage';
+import { OwnerHelpPage } from './pages/OwnerHelpPage';
 import { PublicRestaurantPage } from './pages/PublicRestaurantPage';
 import { SearchPage } from './pages/SearchPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
@@ -80,6 +81,14 @@ export const App: React.FC = () => {
                 element={
                   <ProtectedRoute requiredRole="owner">
                     <OwnerSettingsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/help"
+                element={
+                  <ProtectedRoute requiredRole="owner">
+                    <OwnerHelpPage />
                   </ProtectedRoute>
                 }
               />

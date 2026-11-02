@@ -28,6 +28,8 @@ import { ChapterSection } from './ChapterSection';
 import { EditorialHeading } from './EditorialHeading';
 import { ScrollReveal } from './ScrollReveal';
 import { resolveLocalityImage } from './locationAssets';
+import { FOOD_DECORATIONS } from '../../data/foodDecorationsConfig';
+import { FloatingFoodItem } from './FloatingFoodItem';
 
 interface LocationShopRecord {
   id: string;
@@ -371,7 +373,11 @@ export const ChapterLocationSection: React.FC = () => {
       layout="full"
       className="py-24 sm:py-32"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        {/* Floating Decorative Food PNG Elements */}
+        {FOOD_DECORATIONS.chapterV.map((item) => (
+          <FloatingFoodItem key={item.id} item={item} />
+        ))}
         {/* =====================================================================
             CHAPTER V HEADER
             ===================================================================== */}

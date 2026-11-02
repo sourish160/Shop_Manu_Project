@@ -234,24 +234,24 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-[1px] flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="combo-modal-title"
-        className="bg-white rounded-md border border-slate-200 shadow-xl max-w-3xl w-full my-6 flex flex-col max-h-[92vh] overflow-hidden"
+        className="bg-[#1C1512] rounded-2xl border border-[#382820] shadow-2xl max-w-3xl w-full my-6 flex flex-col max-h-[92vh] overflow-hidden text-[#F5EDE5]"
       >
         {/* Header */}
-        <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70 shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded bg-slate-900 text-white flex items-center justify-center">
-              <Package className="w-4 h-4" />
+        <div className="px-6 py-5 border-b border-[#382820] flex items-center justify-between bg-[#241A15] shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#1C1512] text-[#E9A052] border border-[#382820] flex items-center justify-center">
+              <Package className="w-5 h-5" />
             </div>
             <div>
-              <h3 id="combo-modal-title" className="text-sm font-bold text-slate-900">
+              <h3 id="combo-modal-title" className="text-base font-serif font-medium text-[#F5EDE5]">
                 {combo ? `Edit Combo: ${combo.name}` : 'Create New Combo Package'}
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#B6A69A]">
                 Bundle dishes together, set a special price, and highlight savings.
               </p>
             </div>
@@ -260,16 +260,16 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="text-slate-400 hover:text-slate-700 p-1.5 rounded hover:bg-slate-100 transition-colors"
+            className="text-[#B6A69A] hover:text-[#F5EDE5] p-1.5 rounded-xl hover:bg-[#1C1512] transition-colors cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Scrollable Form */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-5 space-y-5">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           {localError && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded">
+            <div className="p-3.5 bg-rose-950/60 border border-rose-800/60 text-rose-300 text-xs rounded-xl">
               {localError}
             </div>
           )}
@@ -277,7 +277,7 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
           {/* Section 1: Combo Details */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
             <div className="sm:col-span-8">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-mono font-medium text-[#B6A69A] uppercase tracking-wider mb-1.5">
                 Combo Name *
               </label>
               <input
@@ -288,22 +288,22 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
                 required
                 maxLength={150}
                 disabled={isSubmitting}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-700"
+                className="w-full px-3.5 py-2.5 text-sm border border-[#382820] rounded-xl bg-[#241A15] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052]"
               />
             </div>
 
             <div className="sm:col-span-4">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-mono font-medium text-[#B6A69A] uppercase tracking-wider mb-1.5">
                 Combo Structure *
               </label>
               <select
                 value={comboType}
                 onChange={(e) => setComboType(e.target.value as ComboType)}
                 disabled={isSubmitting}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded bg-white focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-700"
+                className="w-full px-3.5 py-2.5 text-sm border border-[#382820] rounded-xl bg-[#241A15] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052]"
               >
                 {Object.entries(COMBO_TYPE_LABELS).map(([k, label]) => (
-                  <option key={k} value={k}>
+                  <option key={k} value={k} className="bg-[#1C1512] text-[#F5EDE5]">
                     {label}
                   </option>
                 ))}
@@ -313,7 +313,7 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
             <div className="sm:col-span-8">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-mono font-medium text-[#B6A69A] uppercase tracking-wider mb-1.5">
                 Description
               </label>
               <textarea
@@ -323,12 +323,12 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
                 rows={2}
                 maxLength={500}
                 disabled={isSubmitting}
-                className="w-full px-3 py-2 text-sm border border-slate-300 rounded focus:outline-none focus:border-slate-700 focus:ring-1 focus:ring-slate-700"
+                className="w-full px-3.5 py-2 text-sm border border-[#382820] rounded-xl bg-[#241A15] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052]"
               />
             </div>
 
             <div className="sm:col-span-4">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              <label className="block text-xs font-mono font-medium text-[#B6A69A] uppercase tracking-wider mb-1.5">
                 Dietary Type *
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -337,10 +337,10 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
                     key={type}
                     type="button"
                     onClick={() => setVegType(type)}
-                    className={`py-2 px-3 text-center rounded border transition-colors flex items-center justify-center ${
+                    className={`py-2.5 px-3 text-center rounded-xl border transition-colors flex items-center justify-center cursor-pointer ${
                       vegType === type
-                        ? 'border-slate-900 bg-slate-900 text-white font-bold shadow-xs'
-                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                        ? 'border-[#E9A052] bg-[#241A15] text-[#F5EDE5] font-semibold'
+                        : 'border-[#382820] bg-[#1C1512] text-[#B6A69A] hover:bg-[#241A15]'
                     }`}
                   >
                     <DietaryBadge type={type} showText={true} size="sm" />
@@ -351,13 +351,13 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
           </div>
 
           {/* Section 2: Included Menu Items (Interactive Picker & Live Calculation) */}
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded-md space-y-4">
+          <div className="p-4 bg-[#241A15] border border-[#382820] rounded-2xl space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div>
-                <span className="text-xs font-bold text-slate-900 uppercase tracking-wider block">
+                <span className="text-xs font-serif font-medium text-[#F5EDE5] block">
                   Items Included in Combo *
                 </span>
-                <span className="text-[11px] text-slate-500">
+                <span className="text-[11px] text-[#B6A69A]">
                   Search and add dishes from your existing menu with quantities.
                 </span>
               </div>
@@ -366,20 +366,20 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
             {/* Dish Search Selector */}
             <div className="space-y-2">
               <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#B6A69A]" />
                 <input
                   type="text"
                   value={foodSearchQuery}
                   onChange={(e) => setFoodSearchQuery(e.target.value)}
                   placeholder="Search existing dishes to add (e.g. Biryani, Chicken, Roll)..."
-                  className="w-full pl-9 pr-3 py-1.5 text-xs border border-slate-300 rounded bg-white focus:outline-none focus:border-slate-700"
+                  className="w-full pl-9 pr-3 py-2 text-xs border border-[#382820] rounded-xl bg-[#1C1512] text-[#F5EDE5] placeholder-[#B6A69A]/50 focus:outline-none focus:border-[#E9A052]"
                 />
               </div>
 
               {/* Suggestions chips */}
-              <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-1 bg-white border border-slate-200 rounded">
+              <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-1.5 bg-[#1C1512] border border-[#382820] rounded-xl">
                 {filteredAvailableFoods.length === 0 ? (
-                  <span className="text-[11px] text-slate-400 italic p-1">No matching dishes found</span>
+                  <span className="text-[11px] text-[#B6A69A] italic p-1">No matching dishes found</span>
                 ) : (
                   filteredAvailableFoods.map((f) => {
                     const price = f.variants?.[0]?.price ?? 0;
@@ -388,11 +388,11 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
                         key={f.id}
                         type="button"
                         onClick={() => handleAddFoodToCombo(f)}
-                        className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-50 border border-slate-200 hover:border-slate-400 rounded text-xs text-slate-800 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#241A15] border border-[#382820] hover:border-[#E9A052]/40 rounded-lg text-xs text-[#F5EDE5] transition-colors cursor-pointer"
                       >
-                        <Plus className="w-3 h-3 text-slate-500" />
+                        <Plus className="w-3 h-3 text-[#E9A052]" />
                         <span className="font-semibold">{f.name}</span>
-                        <span className="text-[11px] text-slate-500 font-medium">
+                        <span className="text-[11px] text-[#E9A052] font-mono">
                           ({formatCurrency(price)})
                         </span>
                       </button>
@@ -404,12 +404,12 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
 
             {/* Selected Items List */}
             <div className="space-y-2 pt-2">
-              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+              <span className="text-[11px] font-mono uppercase font-bold text-[#B6A69A] tracking-wider block">
                 Selected Package Items ({selectedItems.length})
               </span>
 
               {selectedItems.length === 0 ? (
-                <div className="py-6 border border-dashed border-slate-300 rounded text-center text-xs text-slate-500 bg-white">
+                <div className="py-6 border border-dashed border-[#382820] rounded-xl text-center text-xs text-[#B6A69A] bg-[#1C1512]">
                   No dishes added to this combo yet. Click on dishes above to add them.
                 </div>
               ) : (
@@ -417,45 +417,45 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
                   {selectedItems.map((item, idx) => (
                     <div
                       key={idx}
-                      className="p-2.5 bg-white border border-slate-200 rounded flex items-center justify-between text-xs"
+                      className="p-3 bg-[#1C1512] border border-[#382820] rounded-xl flex items-center justify-between text-xs"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900">{item.food_name}</span>
-                        <span className="text-[11px] text-slate-400">
+                        <span className="font-semibold text-[#F5EDE5]">{item.food_name}</span>
+                        <span className="text-[11px] text-[#B6A69A]">
                           @ {formatCurrency(item.unit_price)} each
                         </span>
                       </div>
 
                       <div className="flex items-center gap-3">
                         {/* Quantity Counter */}
-                        <div className="flex items-center border border-slate-300 rounded bg-slate-50">
+                        <div className="flex items-center border border-[#382820] rounded-lg bg-[#241A15]">
                           <button
                             type="button"
                             onClick={() => handleUpdateItemQuantity(idx, item.quantity - 1)}
-                            className="px-2 py-0.5 text-xs text-slate-600 hover:bg-slate-200"
+                            className="px-2 py-0.5 text-xs text-[#B6A69A] hover:text-[#F5EDE5] hover:bg-[#382820]/50 cursor-pointer"
                           >
                             -
                           </button>
-                          <span className="px-2.5 py-0.5 text-xs font-bold text-slate-900 bg-white">
+                          <span className="px-2.5 py-0.5 text-xs font-mono font-bold text-[#F5EDE5] bg-[#1C1512]">
                             {item.quantity}
                           </span>
                           <button
                             type="button"
                             onClick={() => handleUpdateItemQuantity(idx, item.quantity + 1)}
-                            className="px-2 py-0.5 text-xs text-slate-600 hover:bg-slate-200"
+                            className="px-2 py-0.5 text-xs text-[#B6A69A] hover:text-[#F5EDE5] hover:bg-[#382820]/50 cursor-pointer"
                           >
                             +
                           </button>
                         </div>
 
-                        <span className="font-bold text-slate-900 w-16 text-right">
+                        <span className="font-mono font-bold text-[#E9A052] w-16 text-right">
                           {formatCurrency(item.unit_price * item.quantity)}
                         </span>
 
                         <button
                           type="button"
                           onClick={() => handleRemoveItem(idx)}
-                          className="p-1 text-slate-400 hover:text-rose-600 rounded"
+                          className="p-1 text-[#B6A69A] hover:text-rose-400 rounded-lg cursor-pointer"
                           title="Remove item"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -468,22 +468,22 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
             </div>
 
             {/* Automatic Price Calculations Bar */}
-            <div className="pt-3 border-t border-slate-200 bg-white p-3 rounded-md flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="pt-3 border-t border-[#382820] bg-[#1C1512] p-3.5 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs">
               <div>
-                <span className="text-slate-500 block text-[11px] uppercase font-bold tracking-wide">
+                <span className="text-[#B6A69A] block text-[11px] uppercase font-mono tracking-wide">
                   Regular Combined Price (Auto-Calculated)
                 </span>
-                <span className="text-base font-bold text-slate-900 line-through text-slate-400">
+                <span className="text-base font-mono font-bold line-through text-[#B6A69A]/60">
                   {formatCurrency(calculatedOriginalTotal)}
                 </span>
               </div>
 
-              <div className="w-44">
-                <label className="block text-[11px] font-bold text-slate-800 uppercase tracking-wide mb-1">
+              <div className="w-48">
+                <label className="block text-[11px] font-mono font-medium text-[#B6A69A] uppercase tracking-wide mb-1">
                   Combo Offer Price (₹) *
                 </label>
                 <div className="relative">
-                  <span className="absolute left-2.5 top-1.5 text-xs text-slate-400">₹</span>
+                  <span className="absolute left-3 top-2 text-xs font-mono text-[#E9A052]">₹</span>
                   <input
                     type="number"
                     step="any"
@@ -493,16 +493,16 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
                     placeholder="e.g. 300"
                     required
                     disabled={isSubmitting}
-                    className="w-full pl-6 pr-2 py-1.5 text-sm font-bold border border-slate-300 rounded focus:outline-none focus:border-slate-800"
+                    className="w-full pl-7 pr-3 py-1.5 text-sm font-mono font-bold border border-[#382820] rounded-xl bg-[#241A15] text-[#F5EDE5] focus:outline-none focus:border-[#E9A052]"
                   />
                 </div>
               </div>
 
               <div className="text-right">
-                <span className="text-slate-500 block text-[11px] uppercase font-bold tracking-wide">
+                <span className="text-[#B6A69A] block text-[11px] uppercase font-mono tracking-wide">
                   Customer Savings
                 </span>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded text-emerald-800 font-bold">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-950/60 border border-emerald-800/60 rounded-xl text-emerald-300 font-bold font-mono">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>
                     Save {formatCurrency(savings)} {discountPercent > 0 && `(${discountPercent}% off)`}
@@ -515,28 +515,28 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
           {/* Section 3: Photo & Availability */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                Combo Photo <span className="text-slate-400 font-normal">(Optional)</span>
+              <label className="block text-xs font-mono font-medium text-[#B6A69A] uppercase tracking-wider mb-2">
+                Combo Photo <span className="text-[#B6A69A]/60 font-normal">(Optional)</span>
               </label>
               <div className="flex items-center gap-3">
-                  <div className="w-14 h-14 rounded border border-slate-200 bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 relative">
-                    {imageUrl ? (
-                      <img
-                        src={imageUrl}
-                        alt="Combo"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          const fallback = e.currentTarget.parentElement?.querySelector('.no-combo-fallback');
-                          if (fallback) (fallback as HTMLElement).style.display = 'block';
-                        }}
-                      />
-                    ) : null}
-                    <Package className={`no-combo-fallback w-5 h-5 text-slate-400 ${imageUrl ? 'hidden' : 'block'}`} />
-                  </div>
+                <div className="w-14 h-14 rounded-xl border border-[#382820] bg-[#241A15] flex items-center justify-center overflow-hidden shrink-0 relative">
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt="Combo"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallback = e.currentTarget.parentElement?.querySelector('.no-combo-fallback');
+                        if (fallback) (fallback as HTMLElement).style.display = 'block';
+                      }}
+                    />
+                  ) : null}
+                  <Package className={`no-combo-fallback w-5 h-5 text-[#B6A69A] ${imageUrl ? 'hidden' : 'block'}`} />
+                </div>
                 <div className="space-y-1">
-                  <label className="cursor-pointer inline-flex items-center gap-1 px-3 py-1 bg-white border border-slate-300 rounded text-xs font-medium text-slate-700 hover:bg-slate-50">
-                    <UploadCloud className="w-3.5 h-3.5" />
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#241A15] border border-[#382820] hover:border-[#E9A052]/40 rounded-xl text-xs font-medium text-[#F5EDE5] hover:bg-[#2C201A] transition-colors">
+                    <UploadCloud className="w-3.5 h-3.5 text-[#E9A052]" />
                     <span>{isUploadingImg ? 'Uploading...' : imageUrl ? 'Replace' : 'Upload Image'}</span>
                     <input
                       type="file"
@@ -550,7 +550,7 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setImageUrl(null)}
-                      className="text-[11px] text-rose-600 hover:underline block"
+                      className="text-[11px] text-rose-400 hover:underline block cursor-pointer"
                     >
                       Remove
                     </button>
@@ -560,13 +560,13 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
             </div>
 
             <div className="flex items-center sm:justify-end">
-              <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800">
+              <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-medium text-[#F5EDE5]">
                 <input
                   type="checkbox"
                   checked={available}
                   onChange={(e) => setAvailable(e.target.checked)}
                   disabled={isSubmitting}
-                  className="rounded border-slate-300 text-slate-900 focus:ring-0 w-4 h-4"
+                  className="rounded border-[#382820] bg-[#241A15] text-[#E9A052] focus:ring-0 w-4 h-4 cursor-pointer"
                 />
                 <span>Combo is Available for Ordering</span>
               </label>
@@ -574,19 +574,19 @@ export const ComboEditorModal: React.FC<ComboEditorModalProps> = ({
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-2 shrink-0">
+          <div className="pt-4 border-t border-[#382820] flex items-center justify-end gap-2.5 shrink-0">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-3.5 py-1.5 border border-slate-200 rounded text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+              className="px-4 py-2 border border-[#382820] rounded-xl text-xs font-medium text-[#B6A69A] hover:text-[#F5EDE5] hover:bg-[#241A15] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || isUploadingImg}
-              className="px-4 py-1.5 bg-slate-900 text-white rounded text-xs font-semibold hover:bg-slate-800 disabled:bg-slate-400 transition-colors shadow-sm"
+              className="px-5 py-2 bg-[#E9A052] text-[#100D0B] rounded-xl text-xs font-semibold hover:bg-[#d89345] disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
             >
               {isSubmitting ? 'Saving...' : combo ? 'Save Changes' : 'Create Combo Package'}
             </button>

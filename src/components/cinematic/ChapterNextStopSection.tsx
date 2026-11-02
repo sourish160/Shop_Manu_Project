@@ -11,6 +11,8 @@ import {
 import { motion, useReducedMotion, type Variants, type TargetAndTransition } from 'motion/react';
 import { ChapterSection } from './ChapterSection';
 import { NEXT_STOP_ASSETS } from './nextStopAssets';
+import { FOOD_DECORATIONS } from '../../data/foodDecorationsConfig';
+import { FloatingFoodItem } from './FloatingFoodItem';
 
 export const ChapterNextStopSection: React.FC = () => {
   const navigate = useNavigate();
@@ -68,6 +70,10 @@ export const ChapterNextStopSection: React.FC = () => {
       className="py-20 sm:py-28 lg:py-32 relative overflow-hidden"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full flex flex-col space-y-10 sm:space-y-12">
+        {/* Large Premium Food Decorations (Biryani Bowl & Sweets Platter framing CTAs) */}
+        {FOOD_DECORATIONS.chapterVI.map((item) => (
+          <FloatingFoodItem key={item.id} item={item} />
+        ))}
         {/* =====================================================================
             TOP: PRIMARY CUSTOMER EXPERIENCE
             ===================================================================== */}
@@ -182,6 +188,9 @@ export const ChapterNextStopSection: React.FC = () => {
                 src={NEXT_STOP_ASSETS.mainAnchor}
                 alt="Atmospheric Kolkata culinary dining scene with amber lanterns"
                 className="w-full h-full object-cover brightness-[0.76] contrast-[1.08] saturate-[1.08] group-hover:scale-[1.03] group-hover:brightness-[0.84] transition-all duration-700 ease-out motion-reduce:transition-none"
+                style={{
+                  imageRendering: '-webkit-optimize-contrast',
+                }}
                 loading="lazy"
                 decoding="async"
                 onError={(e) => {
