@@ -279,3 +279,52 @@
     clip-path: inset(0 0% 0 0 round 1.5rem);
   }
 }
+
+/* Chapter I: Restrained Steam/Aroma Wisps for Completed Burger */
+.burger-steam-wisp {
+  position: absolute;
+  bottom: 0;
+  width: 5px;
+  height: 50px;
+  border-radius: 9999px;
+  background: linear-gradient(to top, rgba(250, 248, 245, 0.5), rgba(232, 168, 86, 0.25), transparent);
+  filter: blur(4px);
+  animation: burgerSteamRise 3.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+.burger-steam-wisp.wisp-1 {
+  left: 36%;
+  animation-delay: 0s;
+  height: 52px;
+}
+
+.burger-steam-wisp.wisp-2 {
+  left: 50%;
+  animation-delay: 1.2s;
+  height: 64px;
+}
+
+.burger-steam-wisp.wisp-3 {
+  left: 64%;
+  animation-delay: 2.4s;
+  height: 48px;
+}
+
+@keyframes burgerSteamRise {
+  0% {
+    transform: translateY(0) scaleX(1) scaleY(0.7);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.65;
+  }
+  70% {
+    transform: translateY(-40px) scaleX(2.4) scaleY(1.2);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(-70px) scaleX(3.8) scaleY(1.5);
+    opacity: 0;
+  }
+}
