@@ -282,8 +282,8 @@ async function runTestSuite() {
   });
 
   const { data: adminLogin, error: adminLoginErr } = await clientAdmin.auth.signInWithPassword({
-    email: 'admin@shopmanu.com',
-    password: 'AdminSecret123!',
+    email: 'sourish160@gmail.com',
+    password: '123456789',
   });
   if (adminLoginErr) throw new Error(`Admin login failed: ${adminLoginErr.message}`);
   assert(adminLogin.user !== null, 'Admin successfully authenticated with valid credentials');

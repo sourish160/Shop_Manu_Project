@@ -64,9 +64,9 @@ export const AdminLoginPage: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto my-16 px-4 w-full">
-      <div className="editorial-card bg-[#120E0C] border border-cream-200/10 p-8 sm:p-10 rounded-sm">
+      <div className="editorial-card bg-[#120E0C] border border-cream-200/10 p-8 sm:p-10 rounded-3xl shadow-2xl">
         {/* Header Badge */}
-        <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-6 shadow-sm rounded-sm">
+        <div className="w-12 h-12 bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-6 shadow-sm rounded-2xl">
           <ShieldCheck className="w-6 h-6 text-amber-400" />
         </div>
 
@@ -81,7 +81,7 @@ export const AdminLoginPage: React.FC = () => {
         </p>
 
         {/* Security Notice */}
-        <div className="mb-6 p-4 bg-[#181310] border border-cream-200/10 flex items-start space-x-3 text-xs text-cream-300/70 rounded-xs">
+        <div className="mb-6 p-4 bg-[#181310] border border-cream-200/10 flex items-start space-x-3 text-xs text-cream-300/70 rounded-2xl">
           <Lock className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             <strong className="text-cream-100 font-medium">Authorized Personnel Only:</strong> Administrative logins and moderation decisions are recorded in platform audit logs.
@@ -91,7 +91,7 @@ export const AdminLoginPage: React.FC = () => {
         {errorMsg && (
           <div
             role="alert"
-            className="mb-5 p-4 bg-red-950/40 border border-red-500/40 text-xs font-mono text-red-200 leading-relaxed space-y-2 rounded-xs"
+            className="mb-5 p-4 bg-red-950/40 border border-red-500/40 text-xs font-mono text-red-200 leading-relaxed space-y-2 rounded-2xl"
           >
             <div className="flex items-center gap-2 font-medium text-amber-400">
               <AlertTriangle className="w-4 h-4 shrink-0" />
@@ -129,7 +129,7 @@ export const AdminLoginPage: React.FC = () => {
               placeholder="admin@manumania.com"
               required
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 text-xs font-mono bg-[#181310] border border-cream-200/15 text-cream-100 placeholder-cream-300/30 focus:outline-none focus:border-amber-400/60 disabled:opacity-50 transition-colors rounded-xs"
+              className="w-full px-3.5 py-2.5 text-xs font-mono bg-[#181310] border border-cream-200/15 text-cream-100 placeholder-cream-300/30 focus:outline-none focus:border-amber-400/60 disabled:opacity-50 transition-colors rounded-xl"
             />
           </div>
 
@@ -149,7 +149,7 @@ export const AdminLoginPage: React.FC = () => {
               placeholder="••••••••••••"
               required
               disabled={isSubmitting}
-              className="w-full px-3.5 py-2.5 text-xs font-mono bg-[#181310] border border-cream-200/15 text-cream-100 placeholder-cream-300/30 focus:outline-none focus:border-amber-400/60 disabled:opacity-50 transition-colors rounded-xs"
+              className="w-full px-3.5 py-2.5 text-xs font-mono bg-[#181310] border border-cream-200/15 text-cream-100 placeholder-cream-300/30 focus:outline-none focus:border-amber-400/60 disabled:opacity-50 transition-colors rounded-xl"
             />
           </div>
 
@@ -157,7 +157,7 @@ export const AdminLoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 px-4 text-xs font-mono uppercase tracking-wider font-semibold text-[#0A0807] bg-amber-400 hover:bg-amber-300 flex items-center justify-center space-x-2 transition-colors disabled:opacity-50 rounded-xs"
+              className="w-full py-3 px-4 text-xs font-mono uppercase tracking-wider font-semibold text-[#0A0807] bg-gradient-to-r from-amber-400 to-[#E8A856] hover:from-amber-300 hover:to-amber-400 flex items-center justify-center space-x-2 transition-all shadow-md disabled:opacity-50 rounded-xl cursor-pointer"
             >
               {isSubmitting ? (
                 <>

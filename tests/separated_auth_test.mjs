@@ -59,8 +59,8 @@ async function runTests() {
   console.log('\n--- 3. Testing Platform Administrator Authentication ---');
   const clientAdmin = createClient({ baseUrl: BASE_URL, anonKey: ANON_KEY });
   const { data: adminAuth, error: adminErr } = await clientAdmin.auth.signInWithPassword({
-    email: 'admin@shopmanu.com',
-    password: 'AdminSecret123!',
+    email: 'sourish160@gmail.com',
+    password: '123456789',
   });
   assert(!adminErr && adminAuth?.user, `Admin login failed: ${adminErr?.message}`);
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Menu, X, Search, LogOut, User } from 'lucide-react';
+import { Menu, X, Search, LogOut, User, Sparkles } from 'lucide-react';
 
 export const CinematicNavigation: React.FC = () => {
   const { user, profile, logout } = useAuth();
@@ -13,6 +13,7 @@ export const CinematicNavigation: React.FC = () => {
 
   const isHomePage = location.pathname === '/';
   const isSearchPage = location.pathname.startsWith('/search');
+  const isManuAIPage = location.pathname.startsWith('/manu-ai');
 
   // Track subtle scroll depth for surface elevation
   useEffect(() => {
@@ -132,6 +133,20 @@ export const CinematicNavigation: React.FC = () => {
             <Search className="w-3.5 h-3.5 text-amber-400 transition-transform duration-200 group-hover:scale-110" />
             <span>MENU SEARCH</span>
           </Link>
+
+          {/* 3. MANU AI */}
+          <Link
+            to="/manu-ai"
+            onClick={closeMenu}
+            className={`group relative flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full border transition-all duration-200 ease-out hover:-translate-y-0.5 active:scale-[0.98] text-xs font-sans font-medium uppercase tracking-[0.12em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
+              isManuAIPage
+                ? 'border-amber-400/80 bg-amber-400/20 text-amber-200 shadow-sm shadow-amber-900/30 font-semibold'
+                : 'border-amber-400/30 bg-amber-400/[0.08] text-amber-300 hover:text-amber-200 hover:border-amber-400/60 hover:bg-amber-400/15 backdrop-blur-sm'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+            <span>MANU AI</span>
+          </Link>
         </nav>
 
         {/* Right: SIGN IN and REGISTER SHOP (Desktop) */}
@@ -246,6 +261,25 @@ export const CinematicNavigation: React.FC = () => {
           >
             <Search className="w-4 h-4 text-amber-400" />
             <span>MENU SEARCH</span>
+          </Link>
+
+          {/* 3. MANU AI */}
+          <Link
+            to="/manu-ai"
+            onClick={closeMenu}
+            className={`flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-sans font-medium tracking-[0.12em] uppercase transition-colors ${
+              isManuAIPage
+                ? 'text-amber-200 bg-amber-400/20 font-semibold border border-amber-400/40'
+                : 'text-amber-300 bg-amber-400/[0.08] hover:bg-amber-400/15 border border-amber-400/25'
+            }`}
+          >
+            <div className="flex items-center space-x-2.5">
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>MANU AI</span>
+            </div>
+            <span className="text-[10px] font-mono tracking-widest text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full">
+              AI CONCIERGE
+            </span>
           </Link>
 
           {/* 3 & 4. Auth Actions */}

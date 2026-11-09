@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -16,6 +16,7 @@ import { OwnerSettingsPage } from './pages/OwnerSettingsPage';
 import { OwnerHelpPage } from './pages/OwnerHelpPage';
 import { PublicRestaurantPage } from './pages/PublicRestaurantPage';
 import { SearchPage } from './pages/SearchPage';
+import { ManuAIPage } from './pages/ManuAIPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminRestaurantsPage } from './pages/AdminRestaurantsPage';
 import { AdminReportsPage } from './pages/AdminReportsPage';
@@ -25,116 +26,126 @@ import { TermsPage } from './pages/TermsPage';
 import { Footer } from './components/Footer';
 import { CustomCursor } from './components/cinematic/CustomCursor';
 
+const AppLayout: React.FC = () => {
+  const location = useLocation();
+  const isManuAIPage = location.pathname === '/manu-ai';
+
+  return (
+    <div className="min-h-screen bg-[#0A0807] text-cream-100 flex flex-col font-sans">
+      <CustomCursor />
+      <Navbar />
+      <main className="flex-1">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/manu-ai" element={<ManuAIPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/owner/login" element={<LoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/owner/register" element={<RegisterPage />} />
+          <Route path="/restaurant/:slug" element={<PublicRestaurantPage />} />
+          
+          {/* Owner Protected Routes */}
+          <Route
+            path="/owner"
+            element={
+              <ProtectedRoute requiredRole="owner">
+                <OwnerDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/owner/restaurant/new"
+            element={
+              <ProtectedRoute requiredRole="owner">
+                <NewRestaurantPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/owner/restaurant"
+            element={
+              <ProtectedRoute requiredRole="owner">
+                <EditRestaurantPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/owner/menu"
+            element={
+              <ProtectedRoute requiredRole="owner">
+                <OwnerMenuPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/owner/settings"
+            element={
+              <ProtectedRoute requiredRole="owner">
+                <OwnerSettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/owner/help"
+            element={
+              <ProtectedRoute requiredRole="owner">
+                <OwnerHelpPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Protected Routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/restaurants"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminRestaurantsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reports"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminReportsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/audit"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminAuditLogsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+      {!isManuAIPage && <Footer />}
+    </div>
+  );
+};
+
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="min-h-screen bg-[#0A0807] text-cream-100 flex flex-col font-sans">
-          <CustomCursor />
-          <Navbar />
-          <main className="flex-1">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/owner/login" element={<LoginPage />} />
-              <Route path="/admin/login" element={<AdminLoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/owner/register" element={<RegisterPage />} />
-              <Route path="/restaurant/:slug" element={<PublicRestaurantPage />} />
-              
-              {/* Owner Protected Routes */}
-              <Route
-                path="/owner"
-                element={
-                  <ProtectedRoute requiredRole="owner">
-                    <OwnerDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/restaurant/new"
-                element={
-                  <ProtectedRoute requiredRole="owner">
-                    <NewRestaurantPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/restaurant"
-                element={
-                  <ProtectedRoute requiredRole="owner">
-                    <EditRestaurantPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/menu"
-                element={
-                  <ProtectedRoute requiredRole="owner">
-                    <OwnerMenuPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/settings"
-                element={
-                  <ProtectedRoute requiredRole="owner">
-                    <OwnerSettingsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/help"
-                element={
-                  <ProtectedRoute requiredRole="owner">
-                    <OwnerHelpPage />
-                  </ProtectedRoute>
-                }
-              />
-
-              {/* Admin Protected Routes */}
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/restaurants"
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminRestaurantsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/reports"
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminReportsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/audit"
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <AdminAuditLogsPage />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
+        <AppLayout />
       </AuthProvider>
     </BrowserRouter>
   );

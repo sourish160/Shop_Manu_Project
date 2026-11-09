@@ -113,50 +113,60 @@ export const ChapterMenuSection: React.FC = () => {
   });
 
   // =========================================================================
-  // STAGE PROGRESS MAPPING
-  // Total scroll height: ~500vh
-  // 0.00 – 0.18: Stage 1 – Headline reveal
-  // 0.18 – 0.28: Transition – headline fades, carousel appears
-  // 0.28 – 0.92: Stage 2 – Carousel cycling through cards
-  // 0.92 – 1.00: Release / fade out
+  // STAGE PROGRESS MAPPING (Snappy, quick reveal and swift transition to carousel)
+  // Total scroll height: ~240vh - 280vh (drastically reduced from 600vh)
+  // 0.00 – 0.04: Stage 1 – Fast headline reveal
+  // 0.04 – 0.10: Brief dwell window for reading
+  // 0.10 – 0.18: Swift transition – headline exits, carousel enters
+  // 0.18 – 0.90: Stage 2 – Smooth card cycling
   // =========================================================================
 
   // --- STAGE 1: Headline animations ---
   const headlineWords = ['EXPLORE', 'SOME', 'BEAUTIFUL', 'MENUS'];
 
-  // Each word reveals in sequence during 0.0 – 0.16
-  const wordAnimations = headlineWords.map((_, i) => {
-    const wordStart = 0.02 + i * 0.035;
-    const wordEnd = wordStart + 0.06;
-    return { start: wordStart, end: wordEnd };
-  });
+  // Word animations: Rapid, crisp sequential reveal (visible by 0.04)
+  const wordAnimations = [
+    { start: 0.00, end: 0.015 }, // EXPLORE
+    { start: 0.008, end: 0.022 }, // SOME
+    { start: 0.015, end: 0.030 }, // BEAUTIFUL
+    { start: 0.022, end: 0.038 }, // MENUS
+  ];
 
-  // Word transforms
+  // Word transforms (subtle 16px -> 0 lift with clean fade)
   const word0Opacity = useTransform(scrollYProgress, [wordAnimations[0].start, wordAnimations[0].end], [0, 1]);
-  const word0Y = useTransform(scrollYProgress, [wordAnimations[0].start, wordAnimations[0].end], [50, 0]);
+  const word0Y = useTransform(scrollYProgress, [wordAnimations[0].start, wordAnimations[0].end], [16, 0]);
   const word1Opacity = useTransform(scrollYProgress, [wordAnimations[1].start, wordAnimations[1].end], [0, 1]);
-  const word1Y = useTransform(scrollYProgress, [wordAnimations[1].start, wordAnimations[1].end], [50, 0]);
+  const word1Y = useTransform(scrollYProgress, [wordAnimations[1].start, wordAnimations[1].end], [16, 0]);
   const word2Opacity = useTransform(scrollYProgress, [wordAnimations[2].start, wordAnimations[2].end], [0, 1]);
-  const word2Y = useTransform(scrollYProgress, [wordAnimations[2].start, wordAnimations[2].end], [50, 0]);
+  const word2Y = useTransform(scrollYProgress, [wordAnimations[2].start, wordAnimations[2].end], [16, 0]);
   const word3Opacity = useTransform(scrollYProgress, [wordAnimations[3].start, wordAnimations[3].end], [0, 1]);
-  const word3Y = useTransform(scrollYProgress, [wordAnimations[3].start, wordAnimations[3].end], [50, 0]);
+  const word3Y = useTransform(scrollYProgress, [wordAnimations[3].start, wordAnimations[3].end], [16, 0]);
 
   const wordOpacities = [word0Opacity, word1Opacity, word2Opacity, word3Opacity];
   const wordYs = [word0Y, word1Y, word2Y, word3Y];
 
-  // Headline overall fade out (during transition)
-  const headlineOpacity = useTransform(scrollYProgress, [0.16, 0.26], [1, 0]);
-  const headlineScale = useTransform(scrollYProgress, [0.16, 0.26], [1, 0.92]);
+  // Subtitle reveal: Lands cleanly with headline, exits smoothly into carousel
+  const sublineOpacity = useTransform(scrollYProgress, [0.015, 0.04, 0.10, 0.16], [0, 1, 1, 0]);
+  const sublineY = useTransform(scrollYProgress, [0.015, 0.04, 0.10, 0.16], [12, 0, 0, -20]);
+
+  // Headline overall stay & exit:
+  // Short comfortable dwell from 0.04 to 0.10, then smoothly yields to cards by 0.16
+  const headlineOpacity = useTransform(scrollYProgress, [0.00, 0.10, 0.16], [1, 1, 0]);
+  const headlineScale = useTransform(scrollYProgress, [0.10, 0.16], [1, 0.95]);
+  const headlineY = useTransform(scrollYProgress, [0.10, 0.16], [0, -25]);
 
   // --- STAGE 2: Carousel animations ---
-  const carouselOpacity = useTransform(scrollYProgress, [0.22, 0.30], [0, 1]);
-  const carouselScale = useTransform(scrollYProgress, [0.22, 0.30], [0.9, 1]);
+  // Carousel emerges promptly as headline clears
+  const carouselOpacity = useTransform(scrollYProgress, [0.12, 0.18], [0, 1]);
+  const carouselScale = useTransform(scrollYProgress, [0.12, 0.18], [0.94, 1]);
+  const carouselY = useTransform(scrollYProgress, [0.12, 0.18], [25, 0]);
+  const carouselPointerEvents = useTransform(scrollYProgress, (p) => (p >= 0.12 ? 'auto' : 'none'));
 
-  // Active index derived from scroll position (0.28 – 0.92 maps to card indices)
+  // Active index derived from scroll position (0.18 – 0.90 maps smoothly to card indices)
   const scrollActiveIndex = useTransform(scrollYProgress, (p) => {
     if (totalCards === 0) return 0;
-    const carouselStart = 0.28;
-    const carouselEnd = 0.92;
+    const carouselStart = 0.18;
+    const carouselEnd = 0.90;
     const normalized = Math.max(0, Math.min(1, (p - carouselStart) / (carouselEnd - carouselStart)));
     return Math.round(normalized * (totalCards - 1));
   });
@@ -349,7 +359,7 @@ export const ChapterMenuSection: React.FC = () => {
       ref={sectionRef}
       id="chapter-menu"
       aria-label="Chapter III: Explore The Menus"
-      className="relative w-full h-[360vh] sm:h-[390vh] lg:h-[420vh]"
+      className="relative w-full h-[220vh] sm:h-[250vh] lg:h-[280vh]"
     >
       {/* Pinned Viewport Container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col select-none z-10">
@@ -392,7 +402,7 @@ export const ChapterMenuSection: React.FC = () => {
             STAGE 1: OVERSIZED HEADLINE REVEAL
             ===================================================================== */}
         <motion.div
-          style={{ opacity: headlineOpacity, scale: headlineScale }}
+          style={{ opacity: headlineOpacity, scale: headlineScale, y: headlineY }}
           className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
         >
           <div className="text-center px-4 max-w-[95vw]">
@@ -407,7 +417,7 @@ export const ChapterMenuSection: React.FC = () => {
                     }}
                     className={`inline-block text-[12vw] sm:text-[11vw] md:text-[10vw] lg:text-[9vw] ${
                       word === 'MENUS'
-                        ? 'italic font-normal text-[#E8A856] font-serif'
+                        ? 'font-medium text-[#E8A856] font-serif'
                         : 'text-cream-100'
                     }`}
                   >
@@ -420,11 +430,12 @@ export const ChapterMenuSection: React.FC = () => {
             {/* Subtle editorial subline */}
             <motion.p
               style={{
-                opacity: useTransform(scrollYProgress, [0.12, 0.16, 0.20, 0.26], [0, 1, 1, 0]),
+                opacity: sublineOpacity,
+                y: sublineY,
               }}
               className="text-sm sm:text-base text-cream-200/60 font-sans mt-6 sm:mt-8 max-w-lg mx-auto leading-relaxed tracking-wide"
             >
-              Artisan dishes from Kolkata&apos;s finest kitchens — chef-direct pricing, live portions
+              Artisan dishes from Kolkata&apos;s finest kitchens — chef direct pricing, live portions
             </motion.p>
           </div>
         </motion.div>
@@ -433,7 +444,12 @@ export const ChapterMenuSection: React.FC = () => {
             STAGE 2: SIGLITOS-STYLE 3D FAN CARD CAROUSEL
             ===================================================================== */}
         <motion.div
-          style={{ opacity: carouselOpacity, scale: carouselScale }}
+          style={{
+            opacity: carouselOpacity,
+            scale: carouselScale,
+            y: carouselY,
+            pointerEvents: carouselPointerEvents,
+          }}
           className="absolute inset-0 z-10 flex flex-col items-center justify-center"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}

@@ -10,8 +10,8 @@ const clientAnon = createClient({ baseUrl: BASE_URL, anonKey: ANON_KEY });
 async function setRestaurantStatusAdmin(restaurantId, status, verified = false) {
   const clientAdmin = createClient({ baseUrl: BASE_URL, anonKey: ANON_KEY });
   await clientAdmin.auth.signInWithPassword({
-    email: 'admin@shopmanu.com',
-    password: 'AdminSecret123!',
+    email: 'sourish160@gmail.com',
+    password: '123456789',
   });
   const { error } = await clientAdmin.database.rpc('admin_update_restaurant_status', {
     p_restaurant_id: restaurantId,

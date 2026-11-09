@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { AdminNav } from '../components/AdminNav';
 import { fetchAdminMetrics, AdminMetrics, insforge, Restaurant, RestaurantReport } from '../lib/insforge';
-import { Store, Flag, Clock, AlertTriangle, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Store, Flag, Clock, AlertTriangle, ArrowRight, CheckCircle2, RefreshCw, Shield } from 'lucide-react';
 import { formatFreshnessDate } from '../utils/freshness';
 import { useSEO } from '../hooks/useSEO';
 
@@ -59,160 +59,198 @@ export const AdminDashboardPage: React.FC = () => {
   }, [loadAdminData]);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-16">
+    <div className="min-h-screen bg-[#0A0807] text-[#FAF8F5] pb-20 relative">
+      {/* Background Radial Glow */}
+      <div
+        className="absolute top-0 inset-x-0 h-[480px] pointer-events-none z-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_0%,rgba(217,138,72,0.07)_0%,transparent_75%)]"
+        aria-hidden="true"
+      />
+
       <AdminNav />
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Editorial Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-cream-200/10 pb-6 mb-8">
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">
+            <div className="inline-flex items-center space-x-2 mb-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" aria-hidden="true" />
+              <span className="font-mono text-xs uppercase tracking-[0.25em] text-amber-300">
+                Operations & Verification
+              </span>
+            </div>
+            <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-normal text-cream-100 tracking-tight">
               Administrative Control Center
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Live operational monitoring, restaurant verification, and moderation.
+            <p className="text-xs sm:text-sm text-cream-200/60 mt-1 max-w-2xl font-sans leading-relaxed">
+              Live operational telemetry, shop verification pipelines, and customer feedback moderation.
             </p>
           </div>
+
           <button
+            type="button"
             onClick={loadAdminData}
             disabled={isLoading}
-            className="self-start sm:self-auto px-3 py-1.5 border border-slate-300 bg-white text-slate-700 rounded text-xs font-medium hover:bg-slate-50 transition-colors"
+            className="self-start sm:self-auto inline-flex items-center space-x-2 px-4 py-2 rounded-xl border border-cream-200/15 bg-[#181310] hover:bg-[#221A15] hover:border-amber-400/40 text-cream-200 hover:text-amber-300 text-xs font-mono uppercase tracking-wider transition-all duration-200 shadow-sm cursor-pointer disabled:opacity-50"
           >
-            {isLoading ? 'Refreshing...' : 'Refresh Data'}
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-amber-400' : ''}`} />
+            <span>{isLoading ? 'Syncing...' : 'Refresh Telemetry'}</span>
           </button>
         </div>
 
         {errorMsg && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded text-xs text-red-700 flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="mb-8 p-4 sm:p-5 bg-rose-950/40 border border-rose-500/40 rounded-2xl text-xs text-rose-200 flex items-start gap-3 backdrop-blur-sm shadow-xl">
+            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold block mb-0.5">Administrative Authorization Error</span>
-              {errorMsg}
+              <span className="font-semibold text-rose-300 block mb-1 uppercase tracking-wider font-mono text-[11px]">
+                Administrative Authorization Error
+              </span>
+              <p className="font-sans leading-relaxed text-rose-200/80">{errorMsg}</p>
             </div>
           </div>
         )}
 
         {isLoading ? (
-          <div className="py-20 text-center text-sm text-slate-500 flex flex-col items-center justify-center">
-            <div className="w-6 h-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin mb-3" />
-            <span>Loading verified administrative data...</span>
+          <div className="py-28 text-center text-sm text-cream-200/60 flex flex-col items-center justify-center">
+            <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mb-4 shadow-[0_0_12px_rgba(245,158,11,0.3)]" />
+            <span className="font-mono text-xs uppercase tracking-widest text-amber-300">
+              Synchronizing Admin Telemetry...
+            </span>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {/* Primary Operational Metrics Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              <div className="bg-white border border-amber-200 rounded p-4 shadow-xs">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-800 block mb-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
+              {/* Card 1: Pending */}
+              <div className="editorial-card bg-[#120E0C] border border-amber-400/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-amber-400/60 transition-all">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-amber-400/10 via-transparent to-transparent pointer-events-none" />
+                <span className="text-[10px] font-mono uppercase tracking-wider text-amber-300 block mb-1.5 font-semibold">
                   Pending Review
                 </span>
-                <span className="text-2xl font-bold text-amber-900 block">
+                <span className="font-serif text-3xl sm:text-4xl font-normal text-amber-400 block tracking-tight">
                   {metrics?.pending_restaurants ?? 0}
                 </span>
-                <span className="text-[11px] text-amber-700 mt-1 block">
+                <span className="text-[11px] font-sans text-cream-200/60 mt-1.5 block">
                   Awaiting verification
                 </span>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+              {/* Card 2: Approved */}
+              <div className="editorial-card bg-[#120E0C] border border-cream-200/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 block mb-1.5 font-semibold">
                   Approved
                 </span>
-                <span className="text-2xl font-bold text-slate-900 block">
+                <span className="font-serif text-3xl sm:text-4xl font-normal text-emerald-300 block tracking-tight">
                   {metrics?.approved_restaurants ?? 0}
                 </span>
-                <span className="text-[11px] text-slate-500 mt-1 block">
+                <span className="text-[11px] font-sans text-cream-200/60 mt-1.5 block">
                   Publicly discoverable
                 </span>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+              {/* Card 3: Suspended */}
+              <div className="editorial-card bg-[#120E0C] border border-cream-200/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-cream-200/25 transition-all">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-cream-200/60 block mb-1.5 font-semibold">
                   Suspended
                 </span>
-                <span className="text-2xl font-bold text-slate-900 block">
+                <span className="font-serif text-3xl sm:text-4xl font-normal text-cream-200 block tracking-tight">
                   {metrics?.suspended_restaurants ?? 0}
                 </span>
-                <span className="text-[11px] text-slate-500 mt-1 block">
-                  Hidden from public
+                <span className="text-[11px] font-sans text-cream-200/60 mt-1.5 block">
+                  Hidden from search
                 </span>
               </div>
 
-              <div className="bg-white border border-rose-200 rounded p-4 shadow-xs">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-rose-800 block mb-1">
+              {/* Card 4: Open Reports */}
+              <div className="editorial-card bg-[#120E0C] border border-rose-500/30 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-rose-500/50 transition-all">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-rose-400 block mb-1.5 font-semibold">
                   Open Reports
                 </span>
-                <span className="text-2xl font-bold text-rose-900 block">
+                <span className="font-serif text-3xl sm:text-4xl font-normal text-rose-300 block tracking-tight">
                   {metrics?.open_reports ?? 0}
                 </span>
-                <span className="text-[11px] text-rose-700 mt-1 block">
+                <span className="text-[11px] font-sans text-cream-200/60 mt-1.5 block">
                   Customer feedback
                 </span>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+              {/* Card 5: Stale Menus */}
+              <div className="editorial-card bg-[#120E0C] border border-cream-200/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-cream-200/25 transition-all">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-cream-200/60 block mb-1.5 font-semibold">
                   Stale Menus
                 </span>
-                <span className="text-2xl font-bold text-slate-900 block">
+                <span className="font-serif text-3xl sm:text-4xl font-normal text-cream-200 block tracking-tight">
                   {metrics?.stale_menu_count ?? 0}
                 </span>
-                <span className="text-[11px] text-slate-500 mt-1 block">
-                  Not updated in 60+ days
+                <span className="text-[11px] font-sans text-cream-200/60 mt-1.5 block">
+                  Unchecked in 60+ days
                 </span>
               </div>
 
-              <div className="bg-white border border-slate-200 rounded p-4 shadow-xs">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block mb-1">
+              {/* Card 6: Active Foods */}
+              <div className="editorial-card bg-[#120E0C] border border-cream-200/10 rounded-2xl p-5 shadow-lg relative overflow-hidden group hover:border-amber-400/30 transition-all">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-cream-200/60 block mb-1.5 font-semibold">
                   Active Foods
                 </span>
-                <span className="text-2xl font-bold text-slate-900 block">
+                <span className="font-serif text-3xl sm:text-4xl font-normal text-amber-300 block tracking-tight">
                   {metrics?.total_foods ?? 0}
                 </span>
-                <span className="text-[11px] text-slate-500 mt-1 block">
+                <span className="text-[11px] font-sans text-cream-200/60 mt-1.5 block">
                   In approved menus
                 </span>
               </div>
             </div>
 
             {/* Urgent Moderation Queues */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Pending Restaurants Section */}
-              <div className="bg-white border border-slate-200 rounded p-5 shadow-xs flex flex-col justify-between">
+              <div className="editorial-card bg-[#120E0C] border border-cream-200/10 rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                    <div className="flex items-center space-x-2">
-                      <Store className="w-4 h-4 text-amber-700" />
-                      <h2 className="text-sm font-bold text-slate-900">
+                  <div className="flex items-center justify-between border-b border-cream-200/10 pb-4 mb-5">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center">
+                        <Store className="w-4 h-4 text-amber-400" />
+                      </div>
+                      <h2 className="font-serif text-lg font-normal text-cream-100">
                         Pending Restaurant Submissions
                       </h2>
                     </div>
                     <Link
                       to="/admin/restaurants?status=pending"
-                      className="text-xs font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-1"
+                      className="text-xs font-mono uppercase tracking-wider text-amber-300 hover:text-amber-200 flex items-center gap-1.5"
                     >
-                      View all ({metrics?.pending_restaurants ?? 0}) <ArrowRight className="w-3 h-3" />
+                      <span>View all ({metrics?.pending_restaurants ?? 0})</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
 
                   {pendingRestaurants.length === 0 ? (
-                    <div className="py-8 text-center text-slate-400 text-xs">
-                      <CheckCircle2 className="w-6 h-6 mx-auto mb-2 text-emerald-600 stroke-[1.5]" />
-                      No pending restaurant applications. All submissions reviewed.
+                    <div className="py-12 text-center text-cream-200/40 text-xs font-sans">
+                      <CheckCircle2 className="w-7 h-7 mx-auto mb-2.5 text-emerald-500 stroke-[1.5]" />
+                      <p className="text-cream-200/70 font-medium">All submissions reviewed.</p>
+                      <p className="text-[11px] text-cream-200/40 mt-1">No pending restaurant applications in queue.</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-100">
+                    <div className="space-y-3">
                       {pendingRestaurants.map((res) => (
-                        <div key={res.id} className="py-3 flex items-start justify-between gap-3">
-                          <div>
-                            <div className="text-xs font-bold text-slate-900">{res.name}</div>
-                            <div className="text-[11px] text-slate-500 mt-0.5">
-                              {res.area}, {res.city} &bull; Phone: {res.phone}
+                        <div
+                          key={res.id}
+                          className="p-4 rounded-2xl bg-[#181310] border border-cream-200/10 hover:border-amber-400/30 transition-all flex items-start justify-between gap-4"
+                        >
+                          <div className="min-w-0">
+                            <div className="text-sm font-serif font-normal text-cream-100 truncate">
+                              {res.name}
                             </div>
-                            <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                              <Clock className="w-3 h-3" /> Submitted {formatFreshnessDate(res.created_at)}
+                            <div className="text-xs text-cream-200/60 font-sans mt-0.5">
+                              {res.area}, {res.city} &bull; <span className="font-mono text-[11px]">{res.phone}</span>
+                            </div>
+                            <div className="text-[10px] font-mono text-cream-200/40 mt-1.5 flex items-center gap-1.5">
+                              <Clock className="w-3 h-3 text-amber-400/80" />
+                              <span>Submitted {formatFreshnessDate(res.created_at)}</span>
                             </div>
                           </div>
                           <Link
                             to={`/admin/restaurants?id=${res.id}`}
-                            className="px-2.5 py-1 bg-slate-900 text-white rounded text-[11px] font-medium hover:bg-slate-800 transition-colors shrink-0"
+                            className="px-3.5 py-1.5 bg-gradient-to-r from-amber-400 to-[#E8A856] text-[#0A0807] font-sans font-bold text-xs uppercase tracking-wider rounded-xl hover:from-amber-300 hover:to-amber-400 transition-all shadow-md shrink-0"
                           >
                             Review
                           </Link>
@@ -224,46 +262,54 @@ export const AdminDashboardPage: React.FC = () => {
               </div>
 
               {/* Open Reports Section */}
-              <div className="bg-white border border-slate-200 rounded p-5 shadow-xs flex flex-col justify-between">
+              <div className="editorial-card bg-[#120E0C] border border-cream-200/10 rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col justify-between">
                 <div>
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-                    <div className="flex items-center space-x-2">
-                      <Flag className="w-4 h-4 text-rose-700" />
-                      <h2 className="text-sm font-bold text-slate-900">
+                  <div className="flex items-center justify-between border-b border-cream-200/10 pb-4 mb-5">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center">
+                        <Flag className="w-4 h-4 text-rose-400" />
+                      </div>
+                      <h2 className="font-serif text-lg font-normal text-cream-100">
                         Open Customer Reports
                       </h2>
                     </div>
                     <Link
                       to="/admin/reports?status=open"
-                      className="text-xs font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-1"
+                      className="text-xs font-mono uppercase tracking-wider text-rose-300 hover:text-rose-200 flex items-center gap-1.5"
                     >
-                      View all ({metrics?.open_reports ?? 0}) <ArrowRight className="w-3 h-3" />
+                      <span>View all ({metrics?.open_reports ?? 0})</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
 
                   {openReports.length === 0 ? (
-                    <div className="py-8 text-center text-slate-400 text-xs">
-                      <CheckCircle2 className="w-6 h-6 mx-auto mb-2 text-emerald-600 stroke-[1.5]" />
-                      No open customer reports. Moderation queue is clear.
+                    <div className="py-12 text-center text-cream-200/40 text-xs font-sans">
+                      <CheckCircle2 className="w-7 h-7 mx-auto mb-2.5 text-emerald-500 stroke-[1.5]" />
+                      <p className="text-cream-200/70 font-medium">Moderation queue is clear.</p>
+                      <p className="text-[11px] text-cream-200/40 mt-1">No open customer feedback reports require resolution.</p>
                     </div>
                   ) : (
-                    <div className="divide-y divide-slate-100">
+                    <div className="space-y-3">
                       {openReports.map((rep) => (
-                        <div key={rep.id} className="py-3 flex items-start justify-between gap-3">
-                          <div>
-                            <span className="inline-block text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 mb-1">
+                        <div
+                          key={rep.id}
+                          className="p-4 rounded-2xl bg-[#181310] border border-cream-200/10 hover:border-rose-500/30 transition-all flex items-start justify-between gap-4"
+                        >
+                          <div className="min-w-0">
+                            <span className="inline-block text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 mb-1.5">
                               {rep.report_type.replace(/_/g, ' ')}
                             </span>
-                            <div className="text-xs text-slate-700 line-clamp-1">
+                            <div className="text-xs text-cream-200/90 font-sans line-clamp-1 leading-relaxed">
                               {rep.details || 'No additional details provided'}
                             </div>
-                            <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                              <Clock className="w-3 h-3" /> Reported {formatFreshnessDate(rep.created_at)}
+                            <div className="text-[10px] font-mono text-cream-200/40 mt-1.5 flex items-center gap-1.5">
+                              <Clock className="w-3 h-3 text-rose-400/80" />
+                              <span>Reported {formatFreshnessDate(rep.created_at)}</span>
                             </div>
                           </div>
                           <Link
                             to={`/admin/reports?id=${rep.id}`}
-                            className="px-2.5 py-1 bg-white border border-slate-300 text-slate-700 rounded text-[11px] font-medium hover:bg-slate-50 transition-colors shrink-0"
+                            className="px-3.5 py-1.5 bg-[#221A15] border border-cream-200/15 text-cream-200 hover:text-cream-100 hover:border-amber-400/40 font-sans font-medium text-xs uppercase tracking-wider rounded-xl transition-all shrink-0"
                           >
                             Inspect
                           </Link>
@@ -276,25 +322,31 @@ export const AdminDashboardPage: React.FC = () => {
             </div>
 
             {/* Quick Audit Trail Overview */}
-            <div className="border border-slate-200 bg-white rounded p-5 shadow-xs">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Audit Logging Status
-                </h3>
+            <div className="editorial-card bg-[#120E0C] border border-cream-200/10 rounded-3xl p-6 sm:p-7 shadow-2xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-cream-200/10 pb-4 mb-4 gap-2">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <h3 className="font-serif text-lg font-normal text-cream-100">
+                    Audit Logging Security Trail
+                  </h3>
+                </div>
                 <Link
                   to="/admin/audit"
-                  className="text-xs font-semibold text-slate-700 hover:text-slate-900 flex items-center gap-1"
+                  className="text-xs font-mono uppercase tracking-wider text-amber-300 hover:text-amber-200 flex items-center gap-1.5"
                 >
-                  View audit log ({metrics?.total_audit_logs ?? 0} events) &rarr;
+                  <span>Review full audit ledger ({metrics?.total_audit_logs ?? 0} events)</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                All sensitive administrative actions (restaurant verification, rejections, suspensions, and report closures) are recorded in the immutable audit log table with user IDs, before/after states, and exact timestamps.
+              <p className="text-xs sm:text-[13px] text-cream-200/60 leading-relaxed font-sans">
+                All sensitive administrative actions (restaurant verification, rejections, suspensions, and report closures) are permanently recorded in the immutable audit log table with administrative user IDs, before/after states, IP tracking, and microsecond timestamps.
               </p>
             </div>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };

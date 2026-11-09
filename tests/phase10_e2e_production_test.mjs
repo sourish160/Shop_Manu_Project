@@ -302,8 +302,8 @@ async function runPhase10E2ETestSuite() {
 
   const clientAdmin = createClient({ baseUrl: BASE_URL, anonKey: ANON_KEY });
   const { error: adminAuthErr } = await clientAdmin.auth.signInWithPassword({
-    email: 'admin@shopmanu.com',
-    password: 'AdminSecret123!',
+    email: 'sourish160@gmail.com',
+    password: '123456789',
   });
   assert(!adminAuthErr, 'Admin logged in successfully');
 

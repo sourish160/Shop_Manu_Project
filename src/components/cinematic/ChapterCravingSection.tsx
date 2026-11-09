@@ -50,7 +50,7 @@ export const ChapterCravingSection: React.FC = () => {
         {/* =====================================================================
             CHAPTER II HEADER
             ===================================================================== */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 sm:mb-16 gap-6">
+        <div className="mb-12 sm:mb-16">
           <ScrollReveal direction="up" delay={0.04}>
             <EditorialHeading
               chapterNumber="II"
@@ -60,13 +60,6 @@ export const ChapterCravingSection: React.FC = () => {
               size="lg"
               className="max-w-3xl"
             />
-          </ScrollReveal>
-
-          {/* Editorial metadata */}
-          <ScrollReveal direction="up" delay={0.08} className="lg:mb-2 shrink-0">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-cream-200/50">
-              Curated City Territories
-            </span>
           </ScrollReveal>
         </div>
 
@@ -115,14 +108,10 @@ export const ChapterCravingSection: React.FC = () => {
             EDITORIAL INTERLUDE: Curated Rhythm Divider
             ===================================================================== */}
         <ScrollReveal direction="up" delay={0.06} className="my-8 sm:my-10">
-          <div className="relative py-4 flex flex-col sm:flex-row sm:items-center justify-between border-y border-cream-200/10 gap-3">
+          <div className="relative py-4 border-y border-cream-200/10">
             <p className="font-serif italic text-sm sm:text-base text-cream-200/70">
               &ldquo;Seven culinary territories, one living city heritage.&rdquo;
             </p>
-            <div className="flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.2em] text-cream-200/50">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              <span>Direct Kitchen Menus · Verified Portion Rates</span>
-            </div>
           </div>
         </ScrollReveal>
 

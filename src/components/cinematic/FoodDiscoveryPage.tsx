@@ -16,22 +16,15 @@ import { ChapterLocationSection } from './ChapterLocationSection';
 import { ChapterNextStopSection } from './ChapterNextStopSection';
 import { TOTAL_FRAMES, getFrameUrl } from './CinematicScrollSequence';
 import { MagneticButton } from "@/components/ui/magnetic-button";
-import { BurgerAssemblyAnimation } from './BurgerAssemblyAnimation';
 
 export const FoodDiscoveryPage: React.FC = () => {
   const navigate = useNavigate();
   const prefersReducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
 
-  // Scroll tracking for entire landing-page sequence background and Chapter I hero
+  // Scroll tracking for entire landing-page sequence background
   const heroRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  // Dedicated scroll progress for Chapter I burger assembly runway
-  const { scrollYProgress: chapterIScrollProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  });
 
   // Map complete landing-page scroll progress to available frame range [0, TOTAL_FRAMES - 1]
   // Conceptually: frameIndex = Math.round(progress * (frameCount - 1))
@@ -41,12 +34,12 @@ export const FoodDiscoveryPage: React.FC = () => {
 
   // Scroll-triggered gradient disappearance:
   // Concentrated behind hero text at initial load (progress = 0, opacity = 1)
-  // Fades out smoothly as visitor begins scrolling down ([0, 0.2] -> [1, 0.2])
-  const heroGradientOpacity = useTransform(chapterIScrollProgress, [0, 0.2], [1, 0.2]);
+  // Fades out smoothly as visitor begins scrolling down ([0, 0.08] -> [1, 0])
+  const heroGradientOpacity = useTransform(scrollYProgress, [0, 0.08], [1, 0]);
 
-  const heroContentY = useTransform(chapterIScrollProgress, [0.85, 1], [0, -35]);
-  const heroContentOpacity = useTransform(chapterIScrollProgress, [0.86, 0.98], [1, 0]);
-  const heroPointerEvents = useTransform(chapterIScrollProgress, (v) => (v > 0.95 ? 'none' : 'auto'));
+  const heroContentY = useTransform(scrollYProgress, [0, 0.15], [0, -35]);
+  const heroContentOpacity = useTransform(scrollYProgress, [0, 0.08, 0.18, 0.25], [1, 1, 0.85, 0]);
+  const heroPointerEvents = useTransform(scrollYProgress, (v) => (v > 0.2 ? 'none' : 'auto'));
 
   const currentTargetRef = useRef(0);
   const lastDrawnIndexRef = useRef<number | null>(null);
@@ -507,184 +500,163 @@ export const FoodDiscoveryPage: React.FC = () => {
       </nav>
 
       {/* =========================================================================
-          CHAPTER I — THE DISCOVERY (Opening Chapter with Scroll-Controlled Burger Assembly)
+          CHAPTER I — THE DISCOVERY (Opening Chapter over Shared Background)
           ========================================================================= */}
       <section
         id="chapter-discovery"
         ref={heroRef}
         aria-label="Chapter I: The Discovery"
-        className={`relative z-10 w-full ${
-          prefersReducedMotion ? 'min-h-screen' : 'h-[240vh] sm:h-[270vh] lg:h-[300vh]'
-        }`}
+        /* chapterNumber="I" chapterLabel="The Discovery" bgImage="/image-sequence/videp000.jpg" prefersReducedMotion ? 'min-h-screen' : 'h-[400vh]' sticky top-0 sticky */
+        className="relative z-10 w-full min-h-screen flex flex-col justify-between pt-28 pb-8 overflow-hidden"
       >
-        {/* Pinned Scene Viewport */}
-        <div
-          className={
-            prefersReducedMotion
-              ? 'relative w-full min-h-screen flex flex-col justify-between pt-28 pb-8 overflow-hidden'
-              : 'sticky top-0 h-screen w-full flex flex-col justify-between pt-20 sm:pt-24 lg:pt-28 pb-8 overflow-hidden'
-          }
+
+        {/* Foreground Hero Content Layer (Spacious, Aligned, Perfectly Read) */}
+        <motion.div
+          style={{
+            opacity: prefersReducedMotion ? 1 : heroContentOpacity,
+            y: prefersReducedMotion ? 0 : heroContentY,
+            pointerEvents: prefersReducedMotion ? 'auto' : heroPointerEvents,
+          }}
+          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-between pt-6"
         >
-          {/* Foreground Hero Content Layer (Spacious, Aligned, Perfectly Read) */}
-          <motion.div
-            style={{
-              opacity: prefersReducedMotion ? 1 : heroContentOpacity,
-              y: prefersReducedMotion ? 0 : heroContentY,
-              pointerEvents: prefersReducedMotion ? 'auto' : heroPointerEvents,
-            }}
-            className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full w-full flex flex-col lg:flex-row items-center justify-between pt-4 sm:pt-6 gap-8 lg:gap-12"
-          >
-            {/* LEFT SIDE: Exact unchanged hero typography, headline, descriptions & button */}
-            <div className="flex-1 flex flex-col justify-center max-w-2xl lg:max-w-xl xl:max-w-2xl z-20">
-              {/* 1. Small chapter label fades in */}
-              <motion.div
-                initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center space-x-2.5 mb-5 sm:mb-6"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" aria-hidden="true" />
-                <span className="chapter-label text-xs sm:text-sm text-amber-300 font-medium tracking-[0.25em] uppercase font-mono">
-                  CHAPTER I — THE DISCOVERY
-                </span>
-              </motion.div>
+          <div className="flex-1 flex flex-col justify-center max-w-3xl">
+            {/* 1. Small chapter label fades in */}
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-flex items-center space-x-2.5 mb-5 sm:mb-6"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" aria-hidden="true" />
+              <span className="chapter-label text-xs sm:text-sm text-amber-300 font-medium tracking-[0.25em] uppercase font-mono">
+                CHAPTER I — THE DISCOVERY
+              </span>
+            </motion.div>
 
-              {/* 2. Main headline appears with cinematic word-by-word reveal */}
-              <h1
-                aria-label="FIND FOOD THAT FEELS Right"
-                className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6rem] xl:text-[6.75rem] font-normal tracking-tight leading-[0.92] mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]"
-              >
-                {/* Line 1: FIND FOOD */}
-                <span className="block overflow-hidden py-1 -my-1">
+            {/* 2. Main headline appears with cinematic word-by-word reveal */}
+            <h1
+              aria-label="FIND FOOD THAT FEELS Right"
+              className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-[6.75rem] xl:text-[7.5rem] font-normal tracking-tight leading-[0.92] mb-6 drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]"
+            >
+              {/* Line 1: FIND FOOD */}
+              <span className="block overflow-hidden py-1 -my-1">
+                <motion.span
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+                  transition={{
+                    duration: prefersReducedMotion ? 0 : 0.75,
+                    delay: prefersReducedMotion ? 0 : 0.35,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block text-[#FAF8F5] mr-[0.28em] will-change-[transform,opacity,filter]"
+                >
+                  FIND
+                </motion.span>
+                <motion.span
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+                  transition={{
+                    duration: prefersReducedMotion ? 0 : 0.75,
+                    delay: prefersReducedMotion ? 0 : 0.49,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block text-[#FAF8F5] will-change-[transform,opacity,filter]"
+                >
+                  FOOD
+                </motion.span>
+              </span>
+
+              {/* Line 2: THAT */}
+              <span className="block overflow-hidden py-1 -my-1">
+                <motion.span
+                  initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
+                  transition={{
+                    duration: prefersReducedMotion ? 0 : 0.75,
+                    delay: prefersReducedMotion ? 0 : 0.63,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline-block text-[#FAF8F5] will-change-[transform,opacity,filter]"
+                >
+                  THAT
+                </motion.span>
+              </span>
+
+              {/* Line 3: FEELS Right */}
+              <span className="block overflow-hidden pt-1 pb-3 -mt-1 -mb-3 pr-6 -mr-6">
+                <span className="flex items-baseline flex-wrap">
                   <motion.span
                     initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
                     transition={{
                       duration: prefersReducedMotion ? 0 : 0.75,
-                      delay: prefersReducedMotion ? 0 : 0.35,
+                      delay: prefersReducedMotion ? 0 : 0.77,
                       ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="inline-block text-[#FAF8F5] mr-[0.28em] will-change-[transform,opacity,filter]"
+                    className="inline-block text-[#FAF8F5] mr-3 sm:mr-4 will-change-[transform,opacity,filter]"
                   >
-                    FIND
+                    FEELS
                   </motion.span>
                   <motion.span
-                    initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 48, filter: 'blur(4px)' }}
                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
                     transition={{
-                      duration: prefersReducedMotion ? 0 : 0.75,
-                      delay: prefersReducedMotion ? 0 : 0.49,
+                      duration: prefersReducedMotion ? 0 : 0.82,
+                      delay: prefersReducedMotion ? 0 : 0.92,
                       ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="inline-block text-[#FAF8F5] will-change-[transform,opacity,filter]"
+                    className="inline-block will-change-[transform,opacity,filter]"
                   >
-                    FOOD
+                    <span className="inline-block italic font-normal text-[#E8A856] tracking-normal font-serif drop-shadow-[0_0_24px_rgba(232,168,86,0.35)]">
+                      Right
+                    </span>
                   </motion.span>
                 </span>
+              </span>
+            </h1>
 
-                {/* Line 2: THAT */}
-                <span className="block overflow-hidden py-1 -my-1">
-                  <motion.span
-                    initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
-                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
-                    transition={{
-                      duration: prefersReducedMotion ? 0 : 0.75,
-                      delay: prefersReducedMotion ? 0 : 0.63,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    className="inline-block text-[#FAF8F5] will-change-[transform,opacity,filter]"
-                  >
-                    THAT
-                  </motion.span>
-                </span>
+            {/* 3. Description fades in */}
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.65,
+                delay: prefersReducedMotion ? 0 : 1.25,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="max-w-md sm:max-w-lg mb-8"
+            >
+              <p className="text-sm sm:text-base text-cream-100/90 font-sans font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
+                Discover local food spots, explore real menus, compare prices, and find your next favourite bite.
+              </p>
+            </motion.div>
 
-                {/* Line 3: FEELS Right */}
-                <span className="block overflow-hidden pt-1 pb-3 -mt-1 -mb-3 pr-6 -mr-6">
-                  <span className="flex items-baseline flex-wrap">
-                    <motion.span
-                      initial={prefersReducedMotion ? false : { opacity: 0, y: 44, filter: 'blur(4px)' }}
-                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
-                      transition={{
-                        duration: prefersReducedMotion ? 0 : 0.75,
-                        delay: prefersReducedMotion ? 0 : 0.77,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                      className="inline-block text-[#FAF8F5] mr-3 sm:mr-4 will-change-[transform,opacity,filter]"
-                    >
-                      FEELS
-                    </motion.span>
-                    <motion.span
-                      initial={prefersReducedMotion ? false : { opacity: 0, y: 48, filter: 'blur(4px)' }}
-                      animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transitionEnd: { filter: 'none' } }}
-                      transition={{
-                        duration: prefersReducedMotion ? 0 : 0.82,
-                        delay: prefersReducedMotion ? 0 : 0.92,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                      className="inline-block will-change-[transform,opacity,filter]"
-                    >
-                      <span className="inline-block italic font-normal text-[#E8A856] tracking-normal font-serif drop-shadow-[0_0_24px_rgba(232,168,86,0.35)]">
-                        Right
-                      </span>
-                    </motion.span>
-                  </span>
-                </span>
-              </h1>
-
-              {/* 3. Description fades in */}
-              <motion.div
-                initial={prefersReducedMotion ? false : { opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.65,
-                  delay: prefersReducedMotion ? 0 : 1.25,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="max-w-md sm:max-w-lg mb-8"
-              >
-                <p className="text-sm sm:text-base text-cream-100/90 font-sans font-normal leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
-                  Discover local food spots, explore real menus, compare prices, and find your next favourite bite.
-                </p>
-              </motion.div>
-
-              {/* 4. MANU SEARCH button enters with a gentle slide and fade */}
-              <motion.div
-                initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: prefersReducedMotion ? 0 : 0.65,
-                  delay: prefersReducedMotion ? 0 : 1.48,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="flex items-center"
-              >
-                <MagneticButton>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/search')}
-                    className="group inline-flex items-center justify-center bg-[#D98A48] hover:bg-[#E59755] active:bg-[#C87D3E] text-[#1A1817] font-sans font-bold text-xs sm:text-sm uppercase tracking-widest px-8 sm:px-10 py-3.5 sm:py-4 rounded-md transition-all duration-200 shadow-xl hover:shadow-[#D98A48]/35 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none cursor-pointer"
-                  >
-                    <span>MANU SEARCH</span>
-                    <ArrowRight className="w-4 h-4 ml-3 transition-transform duration-200 group-hover:translate-x-1.5 text-[#1A1817] stroke-[2.5]" />
-                  </button>
-                </MagneticButton>
-              </motion.div>
+            {/* 4. MANU SEARCH button enters with a gentle slide and fade */}
+            <motion.div
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: prefersReducedMotion ? 0 : 0.65,
+                delay: prefersReducedMotion ? 0 : 1.48,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="flex items-center"
+            >
+              <MagneticButton>
+                <button
+                  type="button"
+                  onClick={() => navigate('/search')}
+                  className="group inline-flex items-center justify-center bg-[#D98A48] hover:bg-[#E59755] active:bg-[#C87D3E] text-[#1A1817] font-sans font-bold text-xs sm:text-sm uppercase tracking-widest px-8 sm:px-10 py-3.5 sm:py-4 rounded-md transition-all duration-200 shadow-xl hover:shadow-[#D98A48]/35 active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:outline-none cursor-pointer"
+                >
+                  <span>MANU SEARCH</span>
+                  <ArrowRight className="w-4 h-4 ml-3 transition-transform duration-200 group-hover:translate-x-1.5 text-[#1A1817] stroke-[2.5]" />
+                </button>
+              </MagneticButton>
+            </motion.div>
             </div>
 
-            {/* RIGHT SIDE: Dedicated visual area for Burger Assembly Animation (Desktop/Laptop) */}
-            <div className="hidden lg:flex flex-1 items-center justify-center relative z-10 pl-4 xl:pl-8 pointer-events-none">
-              <BurgerAssemblyAnimation scrollProgress={chapterIScrollProgress} />
-            </div>
-
-            {/* MOBILE / TABLET: Compact Burger Assembly positioned gracefully below CTA */}
-            <div className="flex lg:hidden items-center justify-center w-full mt-4 sm:mt-6 pointer-events-none pb-4">
-              <BurgerAssemblyAnimation
-                scrollProgress={chapterIScrollProgress}
-                className="max-w-[280px] sm:max-w-[340px]"
-              />
-            </div>
+            {/* Removed oversized ManuMania bottom wordmark branding: clamp(3.5rem, 13vw, 13rem) */}
           </motion.div>
-        </div>
       </section>
 
       {/* =========================================================================

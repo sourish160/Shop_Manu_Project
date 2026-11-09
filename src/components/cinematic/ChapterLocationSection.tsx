@@ -375,7 +375,7 @@ export const ChapterLocationSection: React.FC = () => {
         {/* =====================================================================
             CHAPTER V HEADER
             ===================================================================== */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 sm:mb-16 gap-6">
+        <div className="mb-12 sm:mb-16">
           <ScrollReveal direction="up" delay={0.04}>
             <EditorialHeading
               chapterNumber="V"
@@ -385,13 +385,6 @@ export const ChapterLocationSection: React.FC = () => {
               size="lg"
               className="max-w-3xl"
             />
-          </ScrollReveal>
-
-          {/* Location radius metadata */}
-          <ScrollReveal direction="up" delay={0.08} className="lg:mb-2 shrink-0">
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-cream-200/50">
-              {locationState.name} · {locationState.radiusKm} km Radius
-            </span>
           </ScrollReveal>
         </div>
 
